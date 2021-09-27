@@ -1,0 +1,6 @@
+packages:
+  ./server
+  ./Xtra
+optional-packages:
+  *
+write-ghc-environment-files: never

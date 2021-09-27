@@ -1,0 +1,4 @@
+[submodule "Xtra"]
+	path = Xtra
+	url = git@github.com:lambda-land/Xtra.git
+	branch = render
