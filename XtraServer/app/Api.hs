@@ -51,5 +51,7 @@ instance ToJSON Trace
 computeDot :: XtraQuery -> Trace
 computeDot (XtraQuery p f) = Trace (getDotStringFromInput p f)
 
-type DotAPI = "trace" :> ReqBody '[JSON] XtraQuery :> Get '[JSON] Trace
+type DotAPI = "trace" :> ReqBody '[JSON] XtraQuery :> Post '[JSON] Trace
+
+type DotStaticAPI = DotAPI :<|> "files" :> Raw
 

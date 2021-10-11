@@ -41,6 +41,7 @@ executable server
         bytestring,
         wai,
         warp,
+        wai-cors,
         time,
         text,
         mtl,
