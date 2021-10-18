@@ -49,7 +49,10 @@ newtype Trace = Trace
 instance ToJSON Trace
 
 computeDot :: XtraQuery -> Trace
-computeDot (XtraQuery p f) = Trace (getDotStringFromInput p f)
+computeDot (XtraQuery p f) = do
+  let result = getDotStringFromInput p f
+  --let 
+  Trace result
 
 type DotAPI = "trace" :> ReqBody '[JSON] XtraQuery :> Post '[JSON] Trace
 

@@ -1,24 +1,26 @@
 {-# OPTIONS_GHC -Wno-name-shadowing #-}
 {-# OPTIONS_GHC -Wno-unused-matches #-}
+{-# LANGUAGE BlockArguments #-}
 
 module Trace where
 
+import Prelude hiding (lex)
 
 ----- Xtrarun.hs
 
 import Xtra.Language.Prog ( Prog )
-import Xtra.Interface.Monad ( REPL, RState(Env, qEnv), applyG, graph)
-import Xtra.Interface.QueryLang ( QueryVar )
+import Xtra.Interface.Monad ( REPL, RState(Env, qEnv), applyG, graph, QueryEnv)
+import Xtra.Interface.QueryLang ( QueryVar, QueryFunction (QueryFunction) )
 import Xtra.Interface.Repl ( prelude )
-import Xtra.Interface.Parser ( parseLine )
+import Xtra.Interface.Parser ( parseLine, Parser, parseOperation, ident, parseQuery, lex )
 import Xtra.Language.Parser ( parseProg )
 import Xtra.Runtime.Eval ( progTrace )
 import Xtra.Transformations.Operations ( Operation, perform )
 
-import Data.Map.Internal (Map)
+import Data.Map.Internal (Map, foldr')
 -- import qualified Data.Text.Lazy as T
 import Data.List (foldl')
-import Text.Parsec (parse, ParseError)
+import Text.Parsec (parse, ParseError, (<|>), many, try)
 
 
 --------------- Interface.Monad
@@ -26,6 +28,7 @@ import Text.Parsec (parse, ParseError)
 import qualified Data.Graph.Inductive.Graph    as G
 import qualified Data.GraphViz.Types.Canonical as G4
 import qualified Data.GraphViz.Attributes as G3
+import qualified Data.GraphViz.Attributes.Complete as G5
 import qualified Data.Set as S
 import qualified Data.GraphViz.Attributes.HTML as G1
 import qualified Data.Text.Lazy as T1
@@ -33,6 +36,8 @@ import qualified Data.Text.Lazy as T1
 --------------- Views.DagView
 import Data.GraphViz --(runGraphviz, GraphvizOutput(Png) )
 import Xtra.Views.DagView
+import Data.GraphViz.Attributes.HTML (TextItem(Font))
+import qualified Data.Map as M
 
 --------------- Xtrarun.hs
 
@@ -43,7 +48,7 @@ getDotFromInput prog query =
         Right e -> do
             let
                 state = Env (progTrace e) Nothing undefined prelude :: RState
-            (visualize . createGraph. head) $ foldl' runQuery [state] (lines query)
+            (visualize . createGraph . head) $ foldl' runQuery [state] (lines query)
 
 getDotStringFromInput :: String -> String -> String
 getDotStringFromInput prog query =
@@ -55,17 +60,31 @@ getDotStringFromInput prog query =
             (getTrace. head) $ foldl' runQuery [state] (lines query)
 
 runQuery :: [RState] -> String -> [RState]
-runQuery state input = 
-    case queryParseLine (qEnv (head state)) input of
+runQuery state@(st1:sts) input = 
+    case queryParseLine (qEnv st1) input of
         Right (Left o) -> applyG (perform o) input state
-        Right (Right _) -> state
+        Right (Right (name,qFunc)) -> st1 {qEnv = M.insert name (Left qFunc) (qEnv st1)} : state
         Left _ -> state
+runQuery [] _ = []
 
-queryParseLine :: Map String QueryVar -> String -> Either ParseError (Either Operation (REPL ()))
-queryParseLine q = Text.Parsec.parse (parseLine q) ""
+
+queryParseLine :: Map String QueryVar -> String -> Either ParseError (Either Operation (String, QueryFunction))
+queryParseLine q = Text.Parsec.parse (parseLineBackend q) ""
 
 visualize :: G4.DotGraph G.Node -> IO FilePath
 visualize g = runGraphviz g Png "./output.png"
+
+parseLineBackend :: M.Map String QueryVar -> Parser (Either Operation (String, QueryFunction))
+parseLineBackend f = Left <$> parseOperation f <|>
+                     Right <$> parseSys
+
+parseSys :: Parser (String, QueryFunction)
+parseSys = do
+             name <- ident
+             vars <- many ident
+             lex "="
+             q <- parseQuery
+             pure (name, QueryFunction vars q)
 
 --------------- Interface.Monad
 
@@ -95,6 +114,7 @@ viewText x = printDotGraph $ graphToDot nonClusteredParams{globalAttributes = [G
                               VNode n x a ->
                                 [shape PlainText
                                 , xLabel x
+                                , G5.FontName (T1.pack "Courier")
                                 ] ++ toAttrs S.empty n
                               VRef n a ->
                                 [ shape Ellipse
@@ -103,7 +123,7 @@ viewText x = printDotGraph $ graphToDot nonClusteredParams{globalAttributes = [G
                                 , fontColor Gray
                                 ]
                               Box a ->
-                                [ shape BoxShape
+                                [ shape PlainText
                                 , toLabel "..."
                                 ]
                           , fmtEdge = const []} x
@@ -123,7 +143,7 @@ viewGraph = graphToDot nonClusteredParams{globalAttributes = [G4.GraphAttrs [G3.
                                 , fontColor Gray
                                 ]
                               Box a ->
-                                [ shape BoxShape
+                                [ shape PlainText
                                 , toLabel "..."
                                 ]
                           , fmtEdge = const []}
