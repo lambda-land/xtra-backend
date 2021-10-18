@@ -16,6 +16,7 @@ import Xtra.Interface.Parser ( parseLine, Parser, parseOperation, ident, parseQu
 import Xtra.Language.Parser ( parseProg )
 import Xtra.Runtime.Eval ( progTrace )
 import Xtra.Transformations.Operations ( Operation, perform )
+import Xtra.Runtime.EvalDAG
 
 import Data.Map.Internal (Map, foldr')
 -- import qualified Data.Text.Lazy as T
@@ -28,6 +29,7 @@ import Text.Parsec (parse, ParseError, (<|>), many, try)
 import qualified Data.Graph.Inductive.Graph    as G
 import qualified Data.GraphViz.Types.Canonical as G4
 import qualified Data.GraphViz.Attributes as G3
+import qualified Data.GraphViz.Attributes.Colors as G2
 import qualified Data.GraphViz.Attributes.Complete as G5
 import qualified Data.Set as S
 import qualified Data.GraphViz.Attributes.HTML as G1
@@ -38,6 +40,10 @@ import Data.GraphViz --(runGraphviz, GraphvizOutput(Png) )
 import Xtra.Views.DagView
 import Data.GraphViz.Attributes.HTML (TextItem(Font))
 import qualified Data.Map as M
+import Xtra.Language.Syntax (NodeId)
+import qualified Data.GraphViz as G
+import qualified Data.GraphViz.Attributes as G
+import qualified Data.GraphViz.Attributes as G1
 
 --------------- Xtrarun.hs
 
@@ -60,7 +66,7 @@ getDotStringFromInput prog query =
             (getTrace. head) $ foldl' runQuery [state] (lines query)
 
 runQuery :: [RState] -> String -> [RState]
-runQuery state@(st1:sts) input = 
+runQuery state@(st1:sts) input =
     case queryParseLine (qEnv st1) input of
         Right (Left o) -> applyG (perform o) input state
         Right (Right (name,qFunc)) -> st1 {qEnv = M.insert name (Left qFunc) (qEnv st1)} : state
@@ -113,9 +119,8 @@ viewText x = printDotGraph $ graphToDot nonClusteredParams{globalAttributes = [G
                           , fmtNode = \(_, l) -> case l of
                               VNode n x a ->
                                 [shape PlainText
-                                , xLabel x
-                                , G5.FontName (T1.pack "Courier")
-                                ] ++ toAttrs S.empty n
+                                , G5.FontName nodeLabelFont
+                                ] ++ toAttrsBackend S.empty n x
                               VRef n a ->
                                 [ shape Ellipse
                                 , toLabel (G1.Text [G1.Str $ T1.pack $ show n])
@@ -133,9 +138,7 @@ viewGraph :: DagView a -> DotGraph G.Node
 viewGraph = graphToDot nonClusteredParams{globalAttributes = [G4.GraphAttrs [G3.ordering G3.OutEdges]]
                           , fmtNode = \(_, l) -> case l of
                               VNode n x a ->
-                                [shape PlainText
-                                , xLabel x
-                                ] ++ toAttrs S.empty n
+                                shape PlainText : toAttrsBackend S.empty n x
                               VRef n a ->
                                 [ shape Ellipse
                                 , toLabel (G1.Text [G1.Str $ T1.pack $ show n])
@@ -147,6 +150,36 @@ viewGraph = graphToDot nonClusteredParams{globalAttributes = [G4.GraphAttrs [G3.
                                 , toLabel "..."
                                 ]
                           , fmtEdge = const []}
+
+toAttrsBackend :: Settings -> Node -> NodeId -> [Attribute]
+toAttrsBackend sns (SNode _ e) id = case e of
+  (Eval env e nv el) -> [ toText (show e ++ " ⇒ " ++ show nv ++ idSpacing) (nodeIDToTextItem (show id))
+                         , G5.FontName nodeLabelFont
+                         ] ++ [toPlainText (show el) | EmitLabels `S.member` sns]
+  (Match nv pn vb ml) -> [ toText (show nv ++ "|" ++ show pn ++ "↝" ++ show vb ++ idSpacing) (nodeIDToTextItem (show id))
+                         , G5.FontName nodeLabelFont
+                         ] ++ [toPlainText (show ml) | EmitLabels `S.member` sns]
+  (Prim o v1 v2 result pl) -> [toText (show v1 ++ show o ++ show v2 ++ "=" ++ show result ++ idSpacing) (nodeIDToTextItem (show id))]
+toAttrsBackend sns (RNode _ v nv sp) id = [ toPlainText (v ++ " is " ++ show nv ++ idSpacing), G5.FontName nodeLabelFont ]
+
+idSpacing :: String 
+idSpacing = "  "
+
+nodeIDToTextItem :: String -> TextItem
+nodeIDToTextItem id = G1.Format G1.Superscript [G1.Font [G1.Face nodeIDFont, G1.Color (G2.RGB 0 0 255), G1.PointSize 9.0] [G1.Str (T1.pack id)]]
+
+toText :: String -> TextItem -> Attribute
+toText s txtit = G.toLabel $ G1.Text [G1.Str $ T1.pack s, txtit]
+
+toPlainText :: String -> Attribute
+toPlainText s = G.toLabel $ G1.Text [G1.Str $ T1.pack s]
+
+
+nodeLabelFont :: T1.Text 
+nodeLabelFont = T1.pack "Courier"
+
+nodeIDFont :: T1.Text 
+nodeIDFont = T1.pack "Courier"
 
 {-
 
