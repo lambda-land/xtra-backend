@@ -119,8 +119,8 @@ viewText x = printDotGraph $ graphToDot nonClusteredParams{globalAttributes = [G
                           , fmtNode = \(_, l) -> case l of
                               VNode n x a ->
                                 [shape PlainText
-                                , G5.FontName nodeLabelFont
-                                ] ++ toAttrsBackend S.empty n x
+                                , G5.FontName (T1.pack "Courier")
+                                ] ++ toAttrs S.empty n
                               VRef n a ->
                                 [ shape Ellipse
                                 , toLabel (G1.Text [G1.Str $ T1.pack $ show n])
@@ -138,7 +138,7 @@ viewGraph :: DagView a -> DotGraph G.Node
 viewGraph = graphToDot nonClusteredParams{globalAttributes = [G4.GraphAttrs [G3.ordering G3.OutEdges]]
                           , fmtNode = \(_, l) -> case l of
                               VNode n x a ->
-                                shape PlainText : toAttrsBackend S.empty n x
+                                shape PlainText : toAttrs S.empty n
                               VRef n a ->
                                 [ shape Ellipse
                                 , toLabel (G1.Text [G1.Str $ T1.pack $ show n])
@@ -151,6 +151,7 @@ viewGraph = graphToDot nonClusteredParams{globalAttributes = [G4.GraphAttrs [G3.
                                 ]
                           , fmtEdge = const []}
 
+{-
 toAttrsBackend :: Settings -> Node -> NodeId -> [Attribute]
 toAttrsBackend sns (SNode _ e) id = case e of
   (Eval env e nv el) -> [ toText (show e ++ " ⇒ " ++ show nv ++ idSpacing) (nodeIDToTextItem (show id))
@@ -192,5 +193,7 @@ nodeIDFont = T1.pack "Courier"
             element elOutputImage # set UI.src newurl
             redoLayout
 
+
+-}
 
 -}
