@@ -22,3 +22,22 @@ ReqBody: raw / JSON
 }
 
 ------
+
+From scratch:
+
+sudo apt install -y gcc build-essential curl libffi-dev libffi7 libgmp-dev libgmp10 libncurses-dev libncurses5 libtinfo5 hpack zlib1g-dev
+curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
+    
+set up ssh
+
+curl -LO http://archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi6_3.2.1-8_amd64.deb
+sudo dpkg -i libffi6_3.2.1-8_amd64.deb
+    
+git clone git@github.com:Barnesjt/xtra-backend.git
+cd xtra-backend/
+git submodule init
+git submodule update
+cd Xtra
+hpack
+cd ..
+cabal run server
