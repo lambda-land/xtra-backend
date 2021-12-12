@@ -48,13 +48,51 @@ newtype Trace = Trace
   } deriving (Eq, Show, Generic)
 instance ToJSON Trace
 
+data Info = Info
+  {
+    actions :: [String],
+    funcFormat :: [String],
+    filters :: [String],
+    filtersParam :: [String],
+    shortenTokens :: [String]
+  } deriving (Eq, Show, Generic)
+instance ToJSON Info
+
 computeDot :: XtraQuery -> Trace
 computeDot (XtraQuery p f) = do
   let result = getDotStringFromInput p f
   --let 
   Trace result
 
+initInfo :: Info
+initInfo = Info {
+  actions 
+    = ["hide"
+      ,"factor"],
+  funcFormat = ["let","","=","","in"],
+  filters               
+    = ["reflexive"
+      ,"pattern"      --PatMatch
+      ,"partialapp"
+      ,"fundef"
+      ,"limitRec"
+      ,"outercase"
+      ,"binding"
+      ,"case"
+      ,"trivial"
+      ,"dec"          
+      ,"add"          
+      ,"cond"],
+  filtersParam 
+    = ["fundef"
+      ,"limitrec"
+      ,"trivial"],
+  shortenTokens = ["=","⇒","of","in",";"]
+}
+
 type DotAPI = "trace" :> ReqBody '[JSON] XtraQuery :> Post '[JSON] Trace
 
-type DotStaticAPI = DotAPI :<|> "files" :> Raw
+type InitAPI = "init" :> Get '[JSON] Info
+
+type DotStaticAPI = InitAPI :<|> DotAPI :<|> "files" :> Raw
 
