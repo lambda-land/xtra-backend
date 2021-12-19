@@ -52,11 +52,17 @@ data Info = Info
   {
     actions :: [String],
     funcFormat :: [String],
-    filters :: [String],
-    filtersParam :: [String],
+    filters :: [Filter],
     shortenTokens :: [String]
   } deriving (Eq, Show, Generic)
 instance ToJSON Info
+
+data Filter = Filter
+  {
+    name :: String,
+    param :: Bool
+  } deriving (Eq, Show, Generic)
+instance ToJSON Filter
 
 computeDot :: XtraQuery -> Trace
 computeDot (XtraQuery p f) = do
@@ -69,24 +75,25 @@ initInfo = Info {
   actions 
     = ["hide"
       ,"factor"],
-  funcFormat = ["let","","=","","in"],
+  funcFormat = ["let","=","in"],
   filters               
-    = ["reflexive"
-      ,"pattern"      --PatMatch
-      ,"partialapp"
-      ,"fundef"
-      ,"limitRec"
-      ,"outercase"
-      ,"binding"
-      ,"case"
-      ,"trivial"
-      ,"dec"          
-      ,"add"          
-      ,"cond"],
-  filtersParam 
-    = ["fundef"
-      ,"limitrec"
-      ,"trivial"],
+    = [ Filter "reflexive" False
+      , Filter "pattern" False      --PatMatch
+      , Filter "partialapp" False
+      , Filter "fundef" False
+      , Filter "limitRec" False
+      , Filter "outercase" False
+      , Filter "binding" False
+      , Filter "case" False
+      , Filter "trivial" False
+      , Filter "dec" False         
+      , Filter "add" False          
+      , Filter "cond" False
+      , Filter "fundef" True
+      , Filter "limitrec" True
+      , Filter "trivial" True
+      , Filter "" True
+      ],
   shortenTokens = ["=","⇒","of","in",";"]
 }
 
