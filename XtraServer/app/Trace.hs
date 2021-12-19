@@ -118,14 +118,15 @@ viewText :: DagView a -> T1.Text
 viewText x = printDotGraph $ graphToDot nonClusteredParams{globalAttributes = [G4.GraphAttrs [G3.ordering G3.OutEdges]]
                           , fmtNode = \(_, l) -> case l of
                               VNode n x a ->
-                                [shape PlainText
+                                [ shape PlainText
                                 , G5.FontName (T1.pack "Courier")
-                                ] ++ toAttrs S.empty n
+                                , toLabel $ nodeToString n
+                                ]
                               VRef n a ->
                                 [ shape Ellipse
-                                , toLabel (G1.Text [G1.Str $ T1.pack $ show n])
+                                , toLabel $ show n
                                 , style dotted
-                                , fontColor Gray
+                                , fontColor Blue 
                                 ]
                               Box a ->
                                 [ shape PlainText
@@ -150,6 +151,13 @@ viewGraph = graphToDot nonClusteredParams{globalAttributes = [G4.GraphAttrs [G3.
                                 , toLabel "..."
                                 ]
                           , fmtEdge = const []}
+
+nodeToString :: Node -> String 
+nodeToString (SNode _ e) = case e of
+  (Eval env e nv el) -> show e ++ " ⇒ " ++ show nv
+  (Match nv pn vb ml) -> show nv ++ "|" ++ show pn ++ "↝" ++ show vb
+  (Prim o v1 v2 result pl) -> show v1 ++ show o ++ show v2 ++ "=" ++ show result
+nodeToString (RNode _ v nv sp) = v ++ " is " ++ show nv
 
 {-
 toAttrsBackend :: Settings -> Node -> NodeId -> [Attribute]
