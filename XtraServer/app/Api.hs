@@ -10,30 +10,15 @@
 
 module Api where
 
-
-import Control.Monad.Except
-import Control.Monad.Reader
-import Data.Aeson
-import Data.Aeson.Types
-import Data.Attoparsec.ByteString
+import Data.Aeson ( FromJSON, ToJSON )
 import Data.ByteString (ByteString)
-import Data.List
-import Data.Maybe
-import Data.String.Conversions
-import Data.Time.Calendar
-import GHC.Generics
---import Lucid
---import Network.HTTP.Media ((//), (/:))
-import Network.Wai
-import Network.Wai.Handler.Warp
+import GHC.Generics ( Generic )
+import Network.Wai.Handler.Warp ()
 import Servant
---import System.Directory
---import Text.Blaze
---import Text.Blaze.Html.Renderer.Utf8
+    ( type (:<|>), JSON, Raw, ReqBody, type (:>), Get, Post )
 import Servant.Types.SourceT (source)
 import qualified Data.Aeson.Parser
---import qualified Text.Blaze.Html
-import Trace
+import Trace ( getDotStringFromInput, textPrelude )
 
 data XtraQuery = XtraQuery
   {
@@ -53,7 +38,8 @@ data Info = Info
     actions :: [String],
     funcFormat :: [String],
     filters :: [Filter],
-    shortenTokens :: [String]
+    shortenTokens :: [String],
+    examples :: [Example]
   } deriving (Eq, Show, Generic)
 instance ToJSON Info
 
@@ -64,9 +50,16 @@ data Filter = Filter
   } deriving (Eq, Show, Generic)
 instance ToJSON Filter
 
+data Example = Example
+  {
+    progName :: String,
+    progText :: String
+  } deriving (Eq, Show, Generic)
+instance ToJSON Example
+
 computeDot :: XtraQuery -> Trace
 computeDot (XtraQuery p f) = do
-  let result = getDotStringFromInput p f
+  let result = getDotStringFromInput p (textPrelude ++ f)
   --let 
   Trace result
 
@@ -74,28 +67,38 @@ initInfo :: Info
 initInfo = Info {
   actions 
     = ["hide"
-      ,"factor"],
+      ,"factor"
+      ,""],
   funcFormat = ["let","=","in"],
   filters               
     = [ Filter "reflexive" False
-      , Filter "pattern" False      --PatMatch
-      , Filter "partialapp" False
-      , Filter "fundef" False
-      , Filter "limitRec" False
-      , Filter "outercase" False
+      , Filter "pattern" False
       , Filter "binding" False
-      , Filter "case" False
-      , Filter "trivial" False
+      , Filter "limitrec" True
+      , Filter "fundef" True
       , Filter "dec" False         
       , Filter "add" False          
+      , Filter "case" False
       , Filter "cond" False
-      , Filter "fundef" True
-      , Filter "limitrec" True
       , Filter "trivial" True
+      , Filter "-partialapp" False
+      , Filter "-outercase" False
       , Filter "" True
       ],
-  shortenTokens = ["=","⇒","of","in",";"]
+  shortenTokens = ["=","⇒","of","in",";"],
+  examples
+    = [ Example "" ""
+      , Example "factorial" factorialText
+      , Example "twice-fact" twiceFactText
+      , Example "equals" eqText
+      ]
 }
+
+factorialText = "let fact = \\x -> case x of 0 -> 1; y -> x * fact (x-1); in fact 6"
+
+twiceFactText = "let twice = \\f -> \\x -> f (f x) in let fact = \\x -> case x of 0 -> 1; y -> x*fact (x-1); in twice fact 2"
+
+eqText = "let not = \\y -> case y of True -> False; False -> True; in let eq = \\x -> \\n -> case x>n of True -> False; False -> not (n>x); in eq (2+1) 3"
 
 type DotAPI = "trace" :> ReqBody '[JSON] XtraQuery :> Post '[JSON] Trace
 
