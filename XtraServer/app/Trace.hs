@@ -10,7 +10,7 @@ import Prelude hiding (lex)
 
 import Xtra.Language.Prog ( Prog )
 import Xtra.Interface.Monad ( REPL, RState(Env, qEnv), applyG, graph, QueryEnv)
-import Xtra.Interface.QueryLang ( QueryVar, QueryFunction (QueryFunction) )
+import Xtra.Interface.QueryLang ( QueryVar, QueryFunction (QueryFunction), Query (EvalPattern, Except, Then, Root, QApp, BindingPattern, Fix, Try) )
 import Xtra.Interface.Repl ( prelude )
 import Xtra.Interface.Parser ( parseLine, Parser, parseOperation, ident, parseQuery, lex )
 import Xtra.Language.Parser ( parseProg )
@@ -40,10 +40,13 @@ import Data.GraphViz --(runGraphviz, GraphvizOutput(Png) )
 import Xtra.Views.DagView
 import Data.GraphViz.Attributes.HTML (TextItem(Font))
 import qualified Data.Map as M
-import Xtra.Language.Syntax (NodeId)
+import Xtra.Language.Syntax (NodeId, ExtExpr (ExprExt), NamedExtVal (NamedVal), ExtVal (ValExt), ExtPat (PatExt), Op (Minus))
 import qualified Data.GraphViz as G
 import qualified Data.GraphViz.Attributes as G
 import qualified Data.GraphViz.Attributes as G1
+import Xtra.Language.Hole
+
+import Text.Regex ( mkRegex, subRegex )
 
 --------------- Xtrarun.hs
 
@@ -53,17 +56,18 @@ getDotFromInput prog query =
         Left _ -> undefined
         Right e -> do
             let
-                state = Env (progTrace e) Nothing undefined prelude :: RState
-            (visualize . createGraph . head) $ foldl' runQuery [state] (lines query)
+                state = Env (progTrace e) Nothing undefined Trace.prelude :: RState
+            visualize . createGraph . head $ foldl' runQuery [state] (lines query)
 
 getDotStringFromInput :: String -> String -> String
 getDotStringFromInput prog query =
+  let fixQuery = map (fixFunDef . fixLimitRec . fixCase . fixCond . fixTrivial) (lines query) in
     case parseProg prog of
         Left e -> "Error: " ++ e
         Right e -> do
             let
-                state = Env (progTrace e) Nothing undefined prelude :: RState
-            (getTrace. head) $ foldl' runQuery [state] (lines query)
+                state = Env (progTrace e) Nothing undefined Trace.prelude :: RState
+            getTrace. head $ foldl' runQuery [state] fixQuery
 
 runQuery :: [RState] -> String -> [RState]
 runQuery state@(st1:sts) input =
@@ -103,10 +107,63 @@ createGraph e = viewGraph $ createV $ graph e
 --------------- Interface.Repl
 
 runOnceXtra :: Prog -> String
-runOnceXtra p = getTrace $ Env (progTrace p) Nothing undefined prelude
+runOnceXtra p = getTrace $ Env (progTrace p) Nothing undefined Trace.prelude
 
 runOnceScript :: Prog -> [String] -> String
 runOnceScript p _ = runOnceXtra p
+
+
+prelude :: QueryEnv
+prelude = M.fromList
+    [ ("all", Left $ QueryFunction [] $ EvalPattern $ EvalHole $ Hole "X")
+    , ("first", Left $ QueryFunction ["s"] $ s `Except` (s `Then` (s `Except` Root)))
+    , ("firsttwo", Left $ QueryFunction ["s"] $ s `Except` (s `Then` ((s `Except` Root) `Then` QApp "descendants" [])))
+    , ("last", Left $ QueryFunction ["s"] $ Fix $ Try $ s `Except` Root)
+    --, ("lasttwo", Left $ QueryFunction ["s"] $ QApp "last" [s] `Or` ((QApp "all" [] `Except` QApp "last" [s]) `Then` QApp "last" [s]))
+    , ("descendants", Left $ QueryFunction [] $ QApp "all" [] `Except` Root)
+    , ("children", Left $ QueryFunction [] $ QApp "first" [QApp "descendants" []])
+    , ("nonFirst", Left $ QueryFunction ["s"] $ (s `Except` QApp "first" [s]) `Then` QApp "descendants" [])
+    , ("nonFirstTwo", Left $ QueryFunction ["s"] $ (s `Except` QApp "firsttwo" [s]) `Then` QApp "descendants" [])
+    , ("afterLast", Left $ QueryFunction ["s"] $ QApp "last" [s] `Then` QApp "all" [])
+    , ("reflexive", Left $ QueryFunction [] $ EvalPattern $ HEval (ExprExt x) (NamedVal (ValExt x) []))
+    , ("binding", Left $ QueryFunction [] $ BindingPattern (Left x) (Left y))
+    , ("pattern", Left $ QueryFunction [] $ EvalPattern $ HMatch (NamedVal (ValExt x) []) (PatExt y))
+--    , ("limitrec", Left $ QueryFunction ["s"] $ QApp "nonFirstTwo" [s] `Except` QApp "afterLast" [s] )
+--    , ("dec", Left $ QueryFunction [] $ EvalPattern (HPrim Minus (ValExt x) (ValExt y) (ValExt z)) `Then` QApp "all" [] )--dec= <_X - 1 => _Y>
+    ]
+    where
+        s = QApp "s" []
+        x = Hole "X"
+        y = Hole "Y"
+        z = Hole "Z"
+
+
+textPrelude :: String
+textPrelude = unlines
+  [ "recursive s = (nonFirstTwo s) except (afterLast s)"
+  , "dec = <_X - 1 => _Y> then all"
+  , "add = <_X + _Y => _Z> then all"
+  , ""
+  ]
+
+fixFunDef :: String -> String
+fixFunDef str = subRegex (mkRegex "^(hide|factor|accept) (fundef) ([a-zA-Z0-9]+)") str "\\1 <let \\3 = _X in _Y => _Z>"
+
+fixLimitRec :: String -> String
+fixLimitRec str = subRegex (mkRegex "^(hide|factor|accept) (limitrec) ([a-zA-Z0-9]+)") str "\\1 recursive <\\3 _X => _Y>"
+
+--this seems incorrect
+--in factorial script:
+--  cases = <fact _X => _Y> then children
+--  hide cases
+fixCase :: String -> String
+fixCase str = subRegex (mkRegex "^(hide|factor|accept) (case)") str "\\1 <_Z _X => _Y> then children"
+
+fixCond :: String -> String
+fixCond str = subRegex (mkRegex "^(hide|factor|accept) (cond)") str "\\1 <_X > _Y => _Z> then all"
+
+fixTrivial :: String -> String
+fixTrivial str = subRegex (mkRegex "^(hide|factor|accept) (trivial) ([a-zA-Z0-9]+)") str "\\1 <\\3 _X => _Y> then descendants"
 
 --------------- Views.DagView
 
@@ -126,7 +183,7 @@ viewText x = printDotGraph $ graphToDot nonClusteredParams{globalAttributes = [G
                                 [ shape Ellipse
                                 , toLabel $ show n
                                 , style dotted
-                                , fontColor Blue 
+                                , fontColor Blue
                                 ]
                               Box a ->
                                 [ shape PlainText
@@ -152,7 +209,7 @@ viewGraph = graphToDot nonClusteredParams{globalAttributes = [G4.GraphAttrs [G3.
                                 ]
                           , fmtEdge = const []}
 
-nodeToString :: Node -> String 
+nodeToString :: Node -> String
 nodeToString (SNode _ e) = case e of
   (Eval env e nv el) -> show e ++ " ⇒ " ++ show nv
   (Match nv pn vb ml) -> show nv ++ "|" ++ show pn ++ "↝" ++ show vb
