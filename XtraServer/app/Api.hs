@@ -27,9 +27,10 @@ data XtraQuery = XtraQuery
   } deriving (Eq, Show, Generic)
 instance FromJSON XtraQuery
 
-newtype Trace = Trace
+data Trace = Trace
   {
-    dot :: String
+    dot :: String,
+    error :: String
   } deriving (Eq, Show, Generic)
 instance ToJSON Trace
 
@@ -60,8 +61,10 @@ instance ToJSON Example
 computeDot :: XtraQuery -> Trace
 computeDot (XtraQuery p f) = do
   let result = getDotStringFromInput p (textPrelude ++ f)
-  --let 
-  Trace result
+  --let
+  case result of
+    Left err -> Trace "" err
+    Right result -> Trace result ""
 
 initInfo :: Info
 initInfo = Info {

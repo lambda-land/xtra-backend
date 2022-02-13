@@ -1,0 +1,70 @@
+collision
+let and = \l -> \r -> case l of False -> False; True -> r; in let or = \l -> \r -> case l of True -> True; False -> r; in let geq = \n -> \m -> or (n>m) (eq n m) in let not = \b -> case b of True -> False; False -> True; in let between = \x -> \y -> \z -> and (geq y x) (geq z y) in let collide = \r1 -> \r2 -> case r1 of Rect Point tx1 ty1 Point bx1 by1 -> case r2 of Rect Point tx2 ty2 Point bx2 by2 -> or (and (between tx1 tx2 bx1) (between by1 ty2 ty2)) (and (between tx1 bx2 bx1) (between by1 by2 ty2)); in let eq = \x -> \y -> not (or (x>y) (y>x)) in collide (Rect (Point 0 1) (Point 1 0)) (Rect (Point 0 10) (Point 10 0))
+
+constant-fold
+let constantFold = \e -> case e of Plus l r -> case (constantFold l,constantFold r) of (Lit x,Lit y) -> Lit (x+y); (lf,rf) -> Plus lf rf; Times l r -> case (constantFold l,constantFold r) of (Lit x,Lit y) -> Lit (x*y); (lf,rf) -> Times lf rf; And l r -> And (constantFold l) (constantFold r); Or l r -> Or (constantFold l) (constantFold r); If c t el -> If (constantFold c) (constantFold t) (constantFold el); App l r -> App (constantFold l) (constantFold r); Abs x ep -> Abs x (constantFold ep); x -> x; in constantFold (If (If (If True False True) False True) (Plus (Lit 3) (Lit 7)) (Lit 1))
+
+constants
+let concat = \l -> \r -> case l of [] -> r; (x:xs) -> x:concat xs r; in let constants = \e -> case e of Plus l r -> concat (constants l) (constants r); Times l r -> concat (constants l) (constants r); Lit x -> [x]; And l r -> concat (constants l) (constants r); Or l r -> concat (constants l) (constants r); If c t el -> concat (constants c) (concat (constants t) (constants el)); App l r -> concat (constants l) (constants r); Abs x el -> constants el; x -> []; in constants (If (If (If True False True) False True) (Plus (Lit 3) (Lit 7)) (Lit 1))
+
+crossproduct
+let concat = \l -> \r -> case l of [] -> r; (x:xs) -> x:concat xs r; in let map = \f -> \l -> case l of [] -> []; (x:xs) -> f x:map f xs; in let cross = \l -> \m -> case l of (x:xs) -> concat (map ((,) x) m) (cross xs m); [] -> []; in cross ([1, 2]) ([1, 2])
+
+delete-BST
+let inordPred = \t -> case t of N y l L -> y; N y l r -> inordPred r; in let delete = \x -> \t -> case t of L -> L; N y L L -> if y>x then t else if x>y then t else L; N y l L -> if y>x then N y (delete x l) L else if x>y then t else l; N y L r -> if y>x then t else if x>y then N y L (delete x r) else r; N y l r -> if y>x then N y (delete x l) r else if x>y then N y l (delete x r) else let z = inordPred l in N z (delete z l) r; in delete 20 (N 10 (N 3 L (N 4 L L)) (N 20 (N 16 (N 15 L L) (N 17 L L)) (N 27 L (N 34 L L))))
+
+evaluator-abs
+let and = \l -> \r -> case l of False -> False; True -> r; in let or = \l -> \r -> case l of True -> True; False -> r; in let eval = \s -> \e -> case e of True -> True; False -> False; And l r -> and (eval s l) (eval s r); Or l r -> or (eval s l) (eval s r); If c t e -> if eval s c then eval s t else eval s e; Lit n -> n; Plus l r -> eval s l+eval s r; Times l r -> eval s l*eval s r; Abs e -> e; App l r -> eval (eval s r:s) (eval s l); Var i -> nthElem i s; in let nthElem = \i -> \l -> case l of (x:xs) -> case i of 0 -> x; n -> nthElem (n-1) xs; in eval [] (App (Abs (Plus (Lit 1) (Var 0))) (App (Abs (Plus (Lit 1) (Var 0))) (Lit 1)))
+
+evaluator-boolint
+let and = \l -> \r -> case l of False -> False; True -> r; in let or = \l -> \r -> case l of True -> True; False -> r; in let eval = \s -> \e -> case e of True -> True; False -> False; And l r -> and (eval s l) (eval s r); Or l r -> or (eval s l) (eval s r); If c t e -> if eval s c then eval s t else eval s e; Lit n -> n; Plus l r -> eval s l+eval s r; Times l r -> eval s l*eval s r; Abs e -> e; App l r -> eval (eval s r:s) (eval s l); Var i -> nthElem i s; in let nthElem = \i -> \l -> case l of (x:xs) -> case i of 0 -> x; n -> nthElem (n-1) xs; in eval [] (If (If (If True False True) False True) (Plus (Lit 3) (Lit 7)) (Lit 1))
+
+factorial
+let fact = \x -> case x of 0 -> 1; y -> x * fact (x-1); in fact 6
+
+filter
+let filter = \f -> \l -> case l of [] -> []; (x:xs) -> case f x of False -> filter f xs; True -> x:filter f xs; in let even = \n -> case n%2 of 0 -> True; x -> False; in filter even ([1, 2, 3, 4])
+
+fold-double
+let foldr = \comb -> \z -> \l -> case l of [] -> z; (x:xs) -> comb x (foldr comb z xs); in let m = \f -> foldr \x -> \ys -> f x:ys [] in let dbl = \x -> 2*x in m dbl ([2, 3, 4, 5])
+
+inorder-BST
+let inordPred = \t -> case t of N y l L -> y; N y l r -> inordPred r; in inordPred (N 10 (N 3 L (N 4 L L)) (N 20 (N 16 (N 15 L L) (N 17 L L)) (N 27 L (N 34 L L))))
+
+insert-BST
+let insert = \x -> \t -> case t of L -> N x L L; N y l r -> if y>x then N y (insert x l) r else if x>y then N y l (insert x r) else t; in insert 13 (N 10 (N 3 L (N 4 L L)) (N 20 (N 16 L L) (N 27 L (N 34 L L))))
+
+merge-lists
+let insert = \x -> \t -> case t of L -> N x L L; N y l r -> if y>x then N y (insert x l) r else if x>y then N y l (insert x r) else t; in insert 13 (N 10 (N 3 L (N 4 L L)) (N 20 (N 16 L L) (N 27 L (N 34 L L))))
+
+quicksort
+let gt = \x -> \y -> y>x in let lt = \x -> \y -> x>y in let filter = \f -> \l -> case l of [] -> []; (x:xs) -> case f x of False -> filter f xs; True -> x:filter f xs; in let concat = \l -> \r -> case l of [] -> r; (x:xs) -> x:concat xs r; in let quicksort = \list -> case list of [] -> list; (pivot:xs) -> concat (quicksort (filter (lt pivot) xs)) (pivot:quicksort (filter (gt pivot) xs)); in quicksort ([2, 4, 2, 1, 3])
+
+replicate
+let replicate = \n -> \x -> case n of 0 -> []; m -> x:replicate (n-1) x; in replicate 5 1
+
+reverse
+let concat = \l -> \r -> case l of [] -> r; (x:xs) -> x:concat xs r; in let rev = \l -> case l of [] -> []; (x:xs) -> concat (rev xs) ([x]); in rev ([1, 2, 3, 4])
+
+reverse-acc
+let revAcc = \a -> \l -> case l of [] -> a; (x:xs) -> revAcc (x:a) xs; in revAcc [] ([1, 2, 3, 4])
+
+search-BST
+let search = \x -> \t -> case t of L -> False; N y l r -> if y>x then search x l else if x>y then search x r else True; in search 3 (N 10 (N 3 L (N 4 L L)) (N 20 (N 16 L L) (N 27 L (N 34 L L))))
+
+subsets
+let concat = \l -> \r -> case l of [] -> r; (x:xs) -> x:concat xs r; in let map = \f -> \l -> case l of [] -> []; (x:xs) -> f x:map f xs; in let subsets = \s -> case s of [] -> [[]]; (x:xs) -> let s = subsets xs in concat s (map (Cons x) s); in subsets ([2, 3, 4])
+
+sum
+let sum = \l -> case l of [] -> 0; (x:xs) -> x+sum xs; in sum ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+twice-fact
+let twice = \f -> \x -> f (f x) in let fact = \x -> case x of 0 -> 1; y -> x*fact (x-1); in twice fact 2
+
+typecheck
+let typecheck = \e -> case e of Plus l r -> case (typecheck l,typecheck r) of (TInt,TInt) -> TInt; otherwise -> TErr; Times l r -> case (typecheck l,typecheck r) of (TInt,TInt) -> TInt; otherwise -> TErr; Lit x -> TInt; And l r -> case (typecheck l,typecheck r) of (TBool,TBool) -> TBool; otherwise -> TErr; Or l r -> case (typecheck l,typecheck r) of (TBool,TBool) -> TBool; otherwise -> TErr; If c t el -> case Triple (typecheck c) (typecheck t) (typecheck el) of Triple TBool TBool TBool -> TBool; Triple TBool TInt TInt -> TInt; otherwise -> TErr; True -> TBool; False -> TBool; in typecheck (If (If (If True False True) False True) (Plus (Lit 3) (Lit 7)) (Lit 1))
+
+
+let nil = [] in let concat = \\l -> \\r -> case l of nil -> r; x:xs -> x:concat xs r; in let rev = \\l -> case l of nil -> nil (x:xs) -> concat (rev xs) ([x]); in rev ([1, 2, 3, 4])
+
+let nil = [] in let sum = \\l -> case l of nil -> 0; (x:xs) -> x+sum xs; in sum ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])

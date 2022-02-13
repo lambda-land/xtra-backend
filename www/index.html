@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Elm App  -->
+    <script type='text/javascript' src='elm.js'></script>
+
+    <!-- PortFunnel for LocalStorage functionality  -->
+    <script type='text/javascript' src='js/PortFunnel.js'></script>
+    <script type='text/javascript' src='js/PortFunnel/LocalStorage.js'></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  </head>
+  <body>
+
+    <!-- Load Elm App  -->
+    <div id="elm-app-is-loaded-here"></div>
+    <script>
+      var app = Elm.Main.init({
+        node: document.getElementById("elm-app-is-loaded-here")
+      });
+
+      // These are the defaults, so you don't need to pass them.  If you
+      // need to use different port names, you can pass them as the
+      // 'portNames' property of the second parameter to
+      // PortFunnel.subscribe() below:
+      var portNames = ['cmdPort', 'subPort'];
+      PortFunnel.subscribe(app, { portNames: portNames });
+      // PortFunnel.subscribe(app);
+    </script>
+
+  </body>
+</html>

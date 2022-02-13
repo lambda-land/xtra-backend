@@ -59,15 +59,15 @@ getDotFromInput prog query =
                 state = Env (progTrace e) Nothing undefined Trace.prelude :: RState
             visualize . createGraph . head $ foldl' runQuery [state] (lines query)
 
-getDotStringFromInput :: String -> String -> String
+getDotStringFromInput :: String -> String -> Either String String
 getDotStringFromInput prog query =
   let fixQuery = map (fixFunDef . fixLimitRec . fixCase . fixCond . fixTrivial) (lines query) in
     case parseProg prog of
-        Left e -> "Error: " ++ e
+        Left e -> Left e
         Right e -> do
             let
                 state = Env (progTrace e) Nothing undefined Trace.prelude :: RState
-            getTrace. head $ foldl' runQuery [state] fixQuery
+            Right (getTrace. head $ foldl' runQuery [state] fixQuery)
 
 runQuery :: [RState] -> String -> [RState]
 runQuery state@(st1:sts) input =
