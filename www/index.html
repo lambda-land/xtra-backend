@@ -18,20 +18,20 @@
   <body>
 
     <!-- Load Elm App  -->
-    <div id="elm-app-is-loaded-here"></div>
-    <script>
-      var app = Elm.Main.init({
-        node: document.getElementById("elm-app-is-loaded-here")
+    <div id="elm"></div>
+    <script type='text/javascript'>
+      var mainModule = 'Main';
+      var app = Elm[mainModule].init({
+        node: document.getElementById("elm")
       });
 
       // These are the defaults, so you don't need to pass them.  If you
       // need to use different port names, you can pass them as the
       // 'portNames' property of the second parameter to
       // PortFunnel.subscribe() below:
-      var portNames = ['cmdPort', 'subPort'];
-      PortFunnel.subscribe(app, { portNames: portNames });
-      // PortFunnel.subscribe(app);
+       var portNames = ['cmdPort', 'subPort'];
+       PortFunnel.subscribe(app, { portNames: portNames });
+      //PortFunnel.subscribe(app);
     </script>
-
   </body>
 </html>

@@ -6623,6 +6623,21 @@ var $zaboco$elm_draggable$Draggable$State = function (a) {
 	return {$: 'State', a: a};
 };
 var $zaboco$elm_draggable$Draggable$init = $zaboco$elm_draggable$Draggable$State($zaboco$elm_draggable$Internal$NotDragging);
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$State = function (a) {
+	return {$: 'State', a: a};
+};
+var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
+var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$initialState = function (prefix) {
+	return $billstclair$elm_localstorage$PortFunnel$LocalStorage$State(
+		{isLoaded: false, prefix: prefix, simulationDict: $elm$core$Dict$empty});
+};
+var $author$project$PortFunnels$initialState = function (prefix) {
+	return {
+		storage: $billstclair$elm_localstorage$PortFunnel$LocalStorage$initialState(prefix)
+	};
+};
+var $author$project$Main$prefix = 'xtraui';
 var $author$project$Main$DndMsg = function (a) {
 	return {$: 'DndMsg', a: a};
 };
@@ -6942,8 +6957,6 @@ var $elm$browser$Browser$Events$State = F2(
 	function (subs, pids) {
 		return {pids: pids, subs: subs};
 	});
-var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
-var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
 	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
 var $elm$browser$Browser$Events$nodeToKey = function (node) {
@@ -7858,17 +7871,27 @@ var $author$project$Main$initModel = {
 	filtIdCounter: 0,
 	filter: '',
 	filters: _List_Nil,
+	funnelState: $author$project$PortFunnels$initialState($author$project$Main$prefix),
 	initData: $author$project$Main$defaultInitData,
 	items: _List_Nil,
 	program: '',
 	refNodes: _List_Nil,
+	saveName: '',
+	savedGraphKeys: _List_Nil,
+	selectedSaveGraph: 0,
 	shortDotString: '',
 	size: A2($author$project$Main$Size, 1500, 1000),
 	svgString: '',
+	useSimulator: false,
+	wasLoaded: false,
 	zoom: 1
 };
 var $author$project$Main$AlertMsg = function (a) {
 	return {$: 'AlertMsg', a: a};
+};
+var $author$project$Main$ListGraphKeys = {$: 'ListGraphKeys'};
+var $author$project$PortFunnels$LocalStorageHandler = function (a) {
+	return {$: 'LocalStorageHandler', a: a};
 };
 var $author$project$Main$Run = {$: 'Run'};
 var $author$project$Main$SaveProg = function (a) {
@@ -7896,6 +7919,59 @@ var $elm$core$Basics$clamp = F3(
 	function (low, high, number) {
 		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
 	});
+var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $author$project$Main$SavedGraph = F2(
+	function (program, filters) {
+		return {filters: filters, program: program};
+	});
+var $author$project$Main$Filter = F5(
+	function (actionIndex, enabled, selectIndex, param, id) {
+		return {actionIndex: actionIndex, enabled: enabled, id: id, param: param, selectIndex: selectIndex};
+	});
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $elm$json$Json$Decode$map5 = _Json_map5;
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Main$jsonToFilter = A6(
+	$elm$json$Json$Decode$map5,
+	$author$project$Main$Filter,
+	A2($elm$json$Json$Decode$field, 'actionIndex', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'enabled', $elm$json$Json$Decode$bool),
+	A2($elm$json$Json$Decode$field, 'selectIndex', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'param', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int));
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Main$jsonToFilterList = A2(
+	$elm$json$Json$Decode$field,
+	'filters',
+	$elm$json$Json$Decode$list($author$project$Main$jsonToFilter));
+var $author$project$Main$jsonToSavedGraph = A3(
+	$elm$json$Json$Decode$map2,
+	$author$project$Main$SavedGraph,
+	A2($elm$json$Json$Decode$field, 'program', $elm$json$Json$Decode$string),
+	$author$project$Main$jsonToFilterList);
+var $author$project$Main$decodeSavedGraphs = function (value) {
+	var _v0 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$jsonToSavedGraph, value);
+	if (_v0.$ === 'Ok') {
+		var res = _v0.a;
+		return res;
+	} else {
+		var err = _v0.a;
+		return {
+			filters: _List_Nil,
+			program: $elm$json$Json$Decode$errorToString(err)
+		};
+	}
+};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$isLoaded = function (_v0) {
+	var state = _v0.a;
+	return state.isLoaded;
+};
+var $elm$core$Basics$not = _Basics_not;
+var $author$project$Main$doIsLoaded = function (model) {
+	return ((!model.wasLoaded) && $billstclair$elm_localstorage$PortFunnel$LocalStorage$isLoaded(model.funnelState.storage)) ? _Utils_update(
+		model,
+		{useSimulator: false, wasLoaded: true}) : model;
+};
 var $author$project$Main$OnDragBy = function (a) {
 	return {$: 'OnDragBy', a: a};
 };
@@ -7959,6 +8035,11 @@ var $elm_community$list_extra$List$Extra$findIndexHelp = F3(
 		}
 	});
 var $elm_community$list_extra$List$Extra$findIndex = $elm_community$list_extra$List$Extra$findIndexHelp(0);
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$Get = F2(
+	function (a, b) {
+		return {$: 'Get', a: a, b: b};
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$get = $billstclair$elm_localstorage$PortFunnel$InternalTypes$Get($elm$core$Maybe$Nothing);
 var $elm$core$List$head = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -7973,37 +8054,10 @@ var $elm_community$list_extra$List$Extra$getAt = F2(
 		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
 			A2($elm$core$List$drop, idx, xs));
 	});
-var $author$project$Main$GotDot = function (a) {
-	return {$: 'GotDot', a: a};
+var $author$project$Main$Process = function (a) {
+	return {$: 'Process', a: a};
 };
-var $elm_community$json_extra$Json$Decode$Extra$andMap = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
-var $elm$json$Json$Decode$decodeString = _Json_runOnString;
-var $elm$http$Http$BadStatus_ = F2(
-	function (a, b) {
-		return {$: 'BadStatus_', a: a, b: b};
-	});
-var $elm$http$Http$BadUrl_ = function (a) {
-	return {$: 'BadUrl_', a: a};
-};
-var $elm$http$Http$GoodStatus_ = F2(
-	function (a, b) {
-		return {$: 'GoodStatus_', a: a, b: b};
-	});
-var $elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
-var $elm$http$Http$Receiving = function (a) {
-	return {$: 'Receiving', a: a};
-};
-var $elm$http$Http$Sending = function (a) {
-	return {$: 'Sending', a: a};
-};
-var $elm$http$Http$Timeout_ = {$: 'Timeout_'};
-var $elm$core$Maybe$isJust = function (maybe) {
-	if (maybe.$ === 'Just') {
-		return true;
-	} else {
-		return false;
-	}
-};
+var $author$project$PortFunnels$cmdPort = _Platform_outgoingPort('cmdPort', $elm$core$Basics$identity);
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -8035,6 +8089,616 @@ var $elm$core$Dict$get = F2(
 			}
 		}
 	});
+var $billstclair$elm_port_funnel$PortFunnel$decodeValue = F2(
+	function (decoder, value) {
+		var _v0 = A2($elm$json$Json$Decode$decodeValue, decoder, value);
+		if (_v0.$ === 'Ok') {
+			var res = _v0.a;
+			return $elm$core$Result$Ok(res);
+		} else {
+			var err = _v0.a;
+			return $elm$core$Result$Err(
+				$elm$json$Json$Decode$errorToString(err));
+		}
+	});
+var $billstclair$elm_port_funnel$PortFunnel$GenericMessage = F3(
+	function (moduleName, tag, args) {
+		return {args: args, moduleName: moduleName, tag: tag};
+	});
+var $elm$json$Json$Decode$map3 = _Json_map3;
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $billstclair$elm_port_funnel$PortFunnel$genericMessageDecoder = A4(
+	$elm$json$Json$Decode$map3,
+	$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+	A2($elm$json$Json$Decode$field, 'module', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'tag', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'args', $elm$json$Json$Decode$value));
+var $billstclair$elm_port_funnel$PortFunnel$decodeGenericMessage = function (value) {
+	return A2($billstclair$elm_port_funnel$PortFunnel$decodeValue, $billstclair$elm_port_funnel$PortFunnel$genericMessageDecoder, value);
+};
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $billstclair$elm_port_funnel$PortFunnel$encodeGenericMessage = function (message) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'module',
+				$elm$json$Json$Encode$string(message.moduleName)),
+				_Utils_Tuple2(
+				'tag',
+				$elm$json$Json$Encode$string(message.tag)),
+				_Utils_Tuple2('args', message.args)
+			]));
+};
+var $billstclair$elm_port_funnel$PortFunnel$makeSimulatedFunnelCmdPort = F4(
+	function (_v0, simulator, tagger, value) {
+		var moduleDesc = _v0.a;
+		var _v1 = $billstclair$elm_port_funnel$PortFunnel$decodeGenericMessage(value);
+		if (_v1.$ === 'Err') {
+			return $elm$core$Platform$Cmd$none;
+		} else {
+			var genericMessage = _v1.a;
+			var _v2 = moduleDesc.decoder(genericMessage);
+			if (_v2.$ === 'Err') {
+				return $elm$core$Platform$Cmd$none;
+			} else {
+				var message = _v2.a;
+				var _v3 = simulator(message);
+				if (_v3.$ === 'Nothing') {
+					return $elm$core$Platform$Cmd$none;
+				} else {
+					var receivedMessage = _v3.a;
+					return A2(
+						$elm$core$Task$perform,
+						tagger,
+						$elm$core$Task$succeed(
+							$billstclair$elm_port_funnel$PortFunnel$encodeGenericMessage(
+								moduleDesc.encoder(receivedMessage))));
+				}
+			}
+		}
+	});
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$Clear = function (a) {
+	return {$: 'Clear', a: a};
+};
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$Got = F3(
+	function (a, b, c) {
+		return {$: 'Got', a: a, b: b, c: c};
+	});
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$Keys = F3(
+	function (a, b, c) {
+		return {$: 'Keys', a: a, b: b, c: c};
+	});
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$ListKeys = F2(
+	function (a, b) {
+		return {$: 'ListKeys', a: a, b: b};
+	});
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$Put = F2(
+	function (a, b) {
+		return {$: 'Put', a: a, b: b};
+	});
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$SessionStorage = function (a) {
+	return {$: 'SessionStorage', a: a};
+};
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulateClear = function (a) {
+	return {$: 'SimulateClear', a: a};
+};
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulateGet = F2(
+	function (a, b) {
+		return {$: 'SimulateGet', a: a, b: b};
+	});
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulateListKeys = F2(
+	function (a, b) {
+		return {$: 'SimulateListKeys', a: a, b: b};
+	});
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulatePut = F2(
+	function (a, b) {
+		return {$: 'SimulatePut', a: a, b: b};
+	});
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$Startup = {$: 'Startup'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$GotRecord = F3(
+	function (label, key, value) {
+		return {key: key, label: label, value: value};
+	});
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $elm$json$Json$Decode$nullable = function (decoder) {
+	return $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, decoder)
+			]));
+};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$gotDecoder = A4(
+	$elm$json$Json$Decode$map3,
+	$billstclair$elm_localstorage$PortFunnel$LocalStorage$GotRecord,
+	A2(
+		$elm$json$Json$Decode$field,
+		'label',
+		$elm$json$Json$Decode$nullable($elm$json$Json$Decode$string)),
+	A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'value', $elm$json$Json$Decode$value));
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$KeysRecord = F3(
+	function (label, prefix, keys) {
+		return {keys: keys, label: label, prefix: prefix};
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$keysDecoder = A4(
+	$elm$json$Json$Decode$map3,
+	$billstclair$elm_localstorage$PortFunnel$LocalStorage$KeysRecord,
+	A2(
+		$elm$json$Json$Decode$field,
+		'label',
+		$elm$json$Json$Decode$nullable($elm$json$Json$Decode$string)),
+	A2($elm$json$Json$Decode$field, 'prefix', $elm$json$Json$Decode$string),
+	A2(
+		$elm$json$Json$Decode$field,
+		'keys',
+		$elm$json$Json$Decode$list($elm$json$Json$Decode$string)));
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$labeledStringDecoder = function (property) {
+	return A3(
+		$elm$json$Json$Decode$map2,
+		$elm$core$Tuple$pair,
+		A2(
+			$elm$json$Json$Decode$field,
+			'label',
+			$elm$json$Json$Decode$nullable($elm$json$Json$Decode$string)),
+		A2($elm$json$Json$Decode$field, property, $elm$json$Json$Decode$string));
+};
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$PutRecord = F2(
+	function (key, value) {
+		return {key: key, value: value};
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$putDecoder = A3(
+	$elm$json$Json$Decode$map2,
+	$billstclair$elm_localstorage$PortFunnel$LocalStorage$PutRecord,
+	A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'value', $elm$json$Json$Decode$value));
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$NOTAG = {$: 'NOTAG'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$ClearTag = {$: 'ClearTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$GetTag = {$: 'GetTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$GotTag = {$: 'GotTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$KeysTag = {$: 'KeysTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$ListKeysTag = {$: 'ListKeysTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$PutTag = {$: 'PutTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$SessionStorageTag = {$: 'SessionStorageTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$SimulateClearTag = {$: 'SimulateClearTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$SimulateGetTag = {$: 'SimulateGetTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$SimulateListKeysTag = {$: 'SimulateListKeysTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$SimulatePutTag = {$: 'SimulatePutTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$StartupTag = {$: 'StartupTag'};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$clearTag = 'clear';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$getTag = 'get';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$gotTag = 'got';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$keysTag = 'keys';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$listKeysTag = 'listkeys';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$putTag = 'put';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$sessionStorageTag = 'sessionstorage';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$simulateClearTag = 'simulateclear';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$simulateGetTag = 'simulateget';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$simulateListKeysTag = 'simulatelistkeys';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$simulatePutTag = 'simulateput';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$startupTag = 'startup';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$tagDict = $elm$core$Dict$fromList(
+	_List_fromArray(
+		[
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$startupTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$StartupTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$getTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$GetTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$gotTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$GotTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$putTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$PutTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$listKeysTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$ListKeysTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$keysTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$KeysTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$clearTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$ClearTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$sessionStorageTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$SessionStorageTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$simulateGetTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$SimulateGetTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$simulatePutTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$SimulatePutTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$simulateListKeysTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$SimulateListKeysTag),
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$simulateClearTag, $billstclair$elm_localstorage$PortFunnel$LocalStorage$SimulateClearTag)
+		]));
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$strtag = function (str) {
+	var _v0 = A2($elm$core$Dict$get, str, $billstclair$elm_localstorage$PortFunnel$LocalStorage$tagDict);
+	if (_v0.$ === 'Just') {
+		var tag = _v0.a;
+		return tag;
+	} else {
+		return $billstclair$elm_localstorage$PortFunnel$LocalStorage$NOTAG;
+	}
+};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$decode = function (_v0) {
+	var tag = _v0.tag;
+	var args = _v0.args;
+	var _v1 = $billstclair$elm_localstorage$PortFunnel$LocalStorage$strtag(tag);
+	switch (_v1.$) {
+		case 'GetTag':
+			var _v2 = A2(
+				$elm$json$Json$Decode$decodeValue,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$labeledStringDecoder('key'),
+				args);
+			if (_v2.$ === 'Ok') {
+				var _v3 = _v2.a;
+				var label = _v3.a;
+				var key = _v3.b;
+				return $elm$core$Result$Ok(
+					A2($billstclair$elm_localstorage$PortFunnel$InternalTypes$Get, label, key));
+			} else {
+				return $elm$core$Result$Err(
+					'Get key not a string: ' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		case 'GotTag':
+			var _v4 = A2($elm$json$Json$Decode$decodeValue, $billstclair$elm_localstorage$PortFunnel$LocalStorage$gotDecoder, args);
+			if (_v4.$ === 'Ok') {
+				var label = _v4.a.label;
+				var key = _v4.a.key;
+				var value = _v4.a.value;
+				return $elm$core$Result$Ok(
+					A3(
+						$billstclair$elm_localstorage$PortFunnel$InternalTypes$Got,
+						label,
+						key,
+						_Utils_eq(value, $elm$json$Json$Encode$null) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(value)));
+			} else {
+				return $elm$core$Result$Err(
+					'Got not { label, key, value }: ' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		case 'PutTag':
+			var _v5 = A2($elm$json$Json$Decode$decodeValue, $billstclair$elm_localstorage$PortFunnel$LocalStorage$putDecoder, args);
+			if (_v5.$ === 'Ok') {
+				var key = _v5.a.key;
+				var value = _v5.a.value;
+				return $elm$core$Result$Ok(
+					A2(
+						$billstclair$elm_localstorage$PortFunnel$InternalTypes$Put,
+						key,
+						_Utils_eq(value, $elm$json$Json$Encode$null) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(value)));
+			} else {
+				return $elm$core$Result$Err(
+					'Put not { key, value }: ' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		case 'ListKeysTag':
+			var _v6 = A2(
+				$elm$json$Json$Decode$decodeValue,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$labeledStringDecoder('prefix'),
+				args);
+			if (_v6.$ === 'Ok') {
+				var _v7 = _v6.a;
+				var label = _v7.a;
+				var prefix = _v7.b;
+				return $elm$core$Result$Ok(
+					A2($billstclair$elm_localstorage$PortFunnel$InternalTypes$ListKeys, label, prefix));
+			} else {
+				return $elm$core$Result$Err(
+					'ListKeys prefix not a string: ' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		case 'KeysTag':
+			var _v8 = A2($elm$json$Json$Decode$decodeValue, $billstclair$elm_localstorage$PortFunnel$LocalStorage$keysDecoder, args);
+			if (_v8.$ === 'Ok') {
+				var label = _v8.a.label;
+				var prefix = _v8.a.prefix;
+				var keys = _v8.a.keys;
+				return $elm$core$Result$Ok(
+					A3($billstclair$elm_localstorage$PortFunnel$InternalTypes$Keys, label, prefix, keys));
+			} else {
+				return $elm$core$Result$Err(
+					'Keys not { prefix, keys }: ' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		case 'ClearTag':
+			var _v9 = A2($elm$json$Json$Decode$decodeValue, $elm$json$Json$Decode$string, args);
+			if (_v9.$ === 'Ok') {
+				var prefix = _v9.a;
+				return $elm$core$Result$Ok(
+					$billstclair$elm_localstorage$PortFunnel$InternalTypes$Clear(prefix));
+			} else {
+				return $elm$core$Result$Err(
+					'Clear prefix not a string: ' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		case 'SessionStorageTag':
+			var _v10 = A2($elm$json$Json$Decode$decodeValue, $elm$json$Json$Decode$bool, args);
+			if (_v10.$ === 'Ok') {
+				var enable = _v10.a;
+				return $elm$core$Result$Ok(
+					$billstclair$elm_localstorage$PortFunnel$InternalTypes$SessionStorage(enable));
+			} else {
+				return $elm$core$Result$Err(
+					'SessionStorage enable not a bool.' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		case 'StartupTag':
+			return $elm$core$Result$Ok($billstclair$elm_localstorage$PortFunnel$InternalTypes$Startup);
+		case 'SimulateGetTag':
+			var _v11 = A2(
+				$elm$json$Json$Decode$decodeValue,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$labeledStringDecoder('key'),
+				args);
+			if (_v11.$ === 'Ok') {
+				var _v12 = _v11.a;
+				var label = _v12.a;
+				var key = _v12.b;
+				return $elm$core$Result$Ok(
+					A2($billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulateGet, label, key));
+			} else {
+				return $elm$core$Result$Err(
+					'Get key not a string: ' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		case 'SimulatePutTag':
+			var _v13 = A2($elm$json$Json$Decode$decodeValue, $billstclair$elm_localstorage$PortFunnel$LocalStorage$putDecoder, args);
+			if (_v13.$ === 'Ok') {
+				var key = _v13.a.key;
+				var value = _v13.a.value;
+				return $elm$core$Result$Ok(
+					A2(
+						$billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulatePut,
+						key,
+						_Utils_eq(value, $elm$json$Json$Encode$null) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(value)));
+			} else {
+				return $elm$core$Result$Err(
+					'SimulatePut not { key, value }: ' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		case 'SimulateListKeysTag':
+			var _v14 = A2(
+				$elm$json$Json$Decode$decodeValue,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$labeledStringDecoder('prefix'),
+				args);
+			if (_v14.$ === 'Ok') {
+				var _v15 = _v14.a;
+				var label = _v15.a;
+				var prefix = _v15.b;
+				return $elm$core$Result$Ok(
+					A2($billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulateListKeys, label, prefix));
+			} else {
+				return $elm$core$Result$Err(
+					'SimulateListKeys prefix not a string: ' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		case 'SimulateClearTag':
+			var _v16 = A2($elm$json$Json$Decode$decodeValue, $elm$json$Json$Decode$string, args);
+			if (_v16.$ === 'Ok') {
+				var prefix = _v16.a;
+				return $elm$core$Result$Ok(
+					$billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulateClear(prefix));
+			} else {
+				return $elm$core$Result$Err(
+					'SimulateClear prefix not a string: ' + A2($elm$json$Json$Encode$encode, 0, args));
+			}
+		default:
+			return $elm$core$Result$Err('Unknown tag: ' + tag);
+	}
+};
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$encodeLabeledString = F3(
+	function (label, string, property) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'label',
+					function () {
+						if (label.$ === 'Just') {
+							var lab = label.a;
+							return $elm$json$Json$Encode$string(lab);
+						} else {
+							return $elm$json$Json$Encode$null;
+						}
+					}()),
+					_Utils_Tuple2(
+					property,
+					$elm$json$Json$Encode$string(string))
+				]));
+	});
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName = 'LocalStorage';
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$encode = function (message) {
+	switch (message.$) {
+		case 'Startup':
+			return A3($billstclair$elm_port_funnel$PortFunnel$GenericMessage, $billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName, $billstclair$elm_localstorage$PortFunnel$LocalStorage$startupTag, $elm$json$Json$Encode$null);
+		case 'Get':
+			var label = message.a;
+			var key = message.b;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$getTag,
+				A3($billstclair$elm_localstorage$PortFunnel$LocalStorage$encodeLabeledString, label, key, 'key'));
+		case 'Got':
+			var label = message.a;
+			var key = message.b;
+			var value = message.c;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$gotTag,
+				$elm$json$Json$Encode$object(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(
+							'label',
+							function () {
+								if (label.$ === 'Just') {
+									var lab = label.a;
+									return $elm$json$Json$Encode$string(lab);
+								} else {
+									return $elm$json$Json$Encode$null;
+								}
+							}()),
+							_Utils_Tuple2(
+							'key',
+							$elm$json$Json$Encode$string(key)),
+							_Utils_Tuple2(
+							'value',
+							function () {
+								if (value.$ === 'Nothing') {
+									return $elm$json$Json$Encode$null;
+								} else {
+									var v = value.a;
+									return v;
+								}
+							}())
+						])));
+		case 'Put':
+			var key = message.a;
+			var value = message.b;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$putTag,
+				$elm$json$Json$Encode$object(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(
+							'key',
+							$elm$json$Json$Encode$string(key)),
+							_Utils_Tuple2(
+							'value',
+							function () {
+								if (value.$ === 'Nothing') {
+									return $elm$json$Json$Encode$null;
+								} else {
+									var v = value.a;
+									return v;
+								}
+							}())
+						])));
+		case 'ListKeys':
+			var label = message.a;
+			var prefix = message.b;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$listKeysTag,
+				A3($billstclair$elm_localstorage$PortFunnel$LocalStorage$encodeLabeledString, label, prefix, 'prefix'));
+		case 'Keys':
+			var label = message.a;
+			var prefix = message.b;
+			var keys = message.c;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$keysTag,
+				$elm$json$Json$Encode$object(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(
+							'label',
+							function () {
+								if (label.$ === 'Just') {
+									var lab = label.a;
+									return $elm$json$Json$Encode$string(lab);
+								} else {
+									return $elm$json$Json$Encode$null;
+								}
+							}()),
+							_Utils_Tuple2(
+							'prefix',
+							$elm$json$Json$Encode$string(prefix)),
+							_Utils_Tuple2(
+							'keys',
+							A2($elm$json$Json$Encode$list, $elm$json$Json$Encode$string, keys))
+						])));
+		case 'Clear':
+			var prefix = message.a;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$clearTag,
+				$elm$json$Json$Encode$string(prefix));
+		case 'SessionStorage':
+			var enable = message.a;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$sessionStorageTag,
+				$elm$json$Json$Encode$bool(enable));
+		case 'SimulateGet':
+			var label = message.a;
+			var key = message.b;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$simulateGetTag,
+				A3($billstclair$elm_localstorage$PortFunnel$LocalStorage$encodeLabeledString, label, key, 'key'));
+		case 'SimulatePut':
+			var key = message.a;
+			var value = message.b;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$simulatePutTag,
+				$elm$json$Json$Encode$object(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(
+							'key',
+							$elm$json$Json$Encode$string(key)),
+							_Utils_Tuple2(
+							'value',
+							function () {
+								if (value.$ === 'Nothing') {
+									return $elm$json$Json$Encode$null;
+								} else {
+									var v = value.a;
+									return v;
+								}
+							}())
+						])));
+		case 'SimulateListKeys':
+			var label = message.a;
+			var prefix = message.b;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$simulateListKeysTag,
+				A3($billstclair$elm_localstorage$PortFunnel$LocalStorage$encodeLabeledString, label, prefix, 'prefix'));
+		default:
+			var prefix = message.a;
+			return A3(
+				$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+				$billstclair$elm_localstorage$PortFunnel$LocalStorage$simulateClearTag,
+				$elm$json$Json$Encode$string(prefix));
+	}
+};
+var $billstclair$elm_port_funnel$PortFunnel$ModuleDesc = function (a) {
+	return {$: 'ModuleDesc', a: a};
+};
+var $billstclair$elm_port_funnel$PortFunnel$ModuleDescRecord = F4(
+	function (moduleName, encoder, decoder, process) {
+		return {decoder: decoder, encoder: encoder, moduleName: moduleName, process: process};
+	});
+var $billstclair$elm_port_funnel$PortFunnel$makeModuleDesc = F4(
+	function (name, encoder, decoder, processor) {
+		return $billstclair$elm_port_funnel$PortFunnel$ModuleDesc(
+			A4($billstclair$elm_port_funnel$PortFunnel$ModuleDescRecord, name, encoder, decoder, processor));
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$GetResponse = function (a) {
+	return {$: 'GetResponse', a: a};
+};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$ListKeysResponse = function (a) {
+	return {$: 'ListKeysResponse', a: a};
+};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$NoResponse = {$: 'NoResponse'};
 var $elm$core$Dict$getMin = function (dict) {
 	getMin:
 	while (true) {
@@ -8397,6 +9061,228 @@ var $elm$core$Dict$remove = F2(
 			return x;
 		}
 	});
+var $elm$core$Dict$filter = F2(
+	function (isGood, dict) {
+		return A3(
+			$elm$core$Dict$foldl,
+			F3(
+				function (k, v, d) {
+					return A2(isGood, k, v) ? A3($elm$core$Dict$insert, k, v, d) : d;
+				}),
+			$elm$core$Dict$empty,
+			dict);
+	});
+var $elm_community$dict_extra$Dict$Extra$removeWhen = F2(
+	function (pred, dict) {
+		return A2(
+			$elm$core$Dict$filter,
+			F2(
+				function (k, v) {
+					return !A2(pred, k, v);
+				}),
+			dict);
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$stripPrefix = F2(
+	function (prefix, key) {
+		return (prefix === '') ? key : A2(
+			$elm$core$String$dropLeft,
+			1 + $elm$core$String$length(prefix),
+			key);
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$process = F2(
+	function (message, boxedState) {
+		var state = boxedState.a;
+		switch (message.$) {
+			case 'Got':
+				var label = message.a;
+				var key = message.b;
+				var value = message.c;
+				return _Utils_Tuple2(
+					boxedState,
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$GetResponse(
+						{
+							key: A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$stripPrefix, state.prefix, key),
+							label: label,
+							value: value
+						}));
+			case 'Keys':
+				var label = message.a;
+				var prefix = message.b;
+				var keys = message.c;
+				return _Utils_Tuple2(
+					boxedState,
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$ListKeysResponse(
+						{
+							keys: A2(
+								$elm$core$List$map,
+								$billstclair$elm_localstorage$PortFunnel$LocalStorage$stripPrefix(state.prefix),
+								keys),
+							label: label,
+							prefix: A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$stripPrefix, state.prefix, prefix)
+						}));
+			case 'Startup':
+				return _Utils_Tuple2(
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$State(
+						_Utils_update(
+							state,
+							{isLoaded: true})),
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$NoResponse);
+			case 'SimulateGet':
+				var label = message.a;
+				var key = message.b;
+				return _Utils_Tuple2(
+					boxedState,
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$GetResponse(
+						{
+							key: A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$stripPrefix, state.prefix, key),
+							label: label,
+							value: A2($elm$core$Dict$get, key, state.simulationDict)
+						}));
+			case 'SimulatePut':
+				var key = message.a;
+				var value = message.b;
+				return _Utils_Tuple2(
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$State(
+						_Utils_update(
+							state,
+							{
+								simulationDict: function () {
+									if (value.$ === 'Nothing') {
+										return A2($elm$core$Dict$remove, key, state.simulationDict);
+									} else {
+										var v = value.a;
+										return A3($elm$core$Dict$insert, key, v, state.simulationDict);
+									}
+								}()
+							})),
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$NoResponse);
+			case 'SimulateListKeys':
+				var label = message.a;
+				var prefix = message.b;
+				return _Utils_Tuple2(
+					boxedState,
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$ListKeysResponse(
+						{
+							keys: A3(
+								$elm$core$Dict$foldr,
+								F3(
+									function (k, _v2, res) {
+										return A2($elm$core$String$startsWith, prefix, k) ? A2(
+											$elm$core$List$cons,
+											A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$stripPrefix, state.prefix, k),
+											res) : res;
+									}),
+								_List_Nil,
+								state.simulationDict),
+							label: label,
+							prefix: A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$stripPrefix, state.prefix, prefix)
+						}));
+			case 'SimulateClear':
+				var prefix = message.a;
+				return _Utils_Tuple2(
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$State(
+						_Utils_update(
+							state,
+							{
+								simulationDict: A2(
+									$elm_community$dict_extra$Dict$Extra$removeWhen,
+									F2(
+										function (k, _v3) {
+											return A2($elm$core$String$startsWith, prefix, k);
+										}),
+									state.simulationDict)
+							})),
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$NoResponse);
+			default:
+				return _Utils_Tuple2(
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$State(state),
+					$billstclair$elm_localstorage$PortFunnel$LocalStorage$NoResponse);
+		}
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleDesc = A4($billstclair$elm_port_funnel$PortFunnel$makeModuleDesc, $billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName, $billstclair$elm_localstorage$PortFunnel$LocalStorage$encode, $billstclair$elm_localstorage$PortFunnel$LocalStorage$decode, $billstclair$elm_localstorage$PortFunnel$LocalStorage$process);
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$simulator = function (message) {
+	switch (message.$) {
+		case 'Get':
+			var label = message.a;
+			var key = message.b;
+			return $elm$core$Maybe$Just(
+				A2($billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulateGet, label, key));
+		case 'Put':
+			var key = message.a;
+			var value = message.b;
+			return $elm$core$Maybe$Just(
+				A2($billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulatePut, key, value));
+		case 'ListKeys':
+			var label = message.a;
+			var prefix = message.b;
+			return $elm$core$Maybe$Just(
+				A2($billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulateListKeys, label, prefix));
+		case 'Clear':
+			var prefix = message.a;
+			return $elm$core$Maybe$Just(
+				$billstclair$elm_localstorage$PortFunnel$InternalTypes$SimulateClear(prefix));
+		default:
+			return $elm$core$Maybe$Nothing;
+	}
+};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$makeSimulatedCmdPort = A2($billstclair$elm_port_funnel$PortFunnel$makeSimulatedFunnelCmdPort, $billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleDesc, $billstclair$elm_localstorage$PortFunnel$LocalStorage$simulator);
+var $author$project$PortFunnels$simulatedPortDict = $elm$core$Dict$fromList(
+	_List_fromArray(
+		[
+			_Utils_Tuple2($billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName, $billstclair$elm_localstorage$PortFunnel$LocalStorage$makeSimulatedCmdPort)
+		]));
+var $author$project$PortFunnels$getCmdPort = F3(
+	function (tagger, moduleName, useSimulator) {
+		if (!useSimulator) {
+			return $author$project$PortFunnels$cmdPort;
+		} else {
+			var _v0 = A2($elm$core$Dict$get, moduleName, $author$project$PortFunnels$simulatedPortDict);
+			if (_v0.$ === 'Just') {
+				var makeSimulatedCmdPort = _v0.a;
+				return makeSimulatedCmdPort(tagger);
+			} else {
+				return $author$project$PortFunnels$cmdPort;
+			}
+		}
+	});
+var $author$project$Main$getCmdPort = F2(
+	function (moduleName, model) {
+		return A3($author$project$PortFunnels$getCmdPort, $author$project$Main$Process, moduleName, model.useSimulator);
+	});
+var $author$project$Main$getCurrentGraph = function (model) {
+	return {filters: model.items, program: model.program};
+};
+var $author$project$Main$GotDot = function (a) {
+	return {$: 'GotDot', a: a};
+};
+var $elm_community$json_extra$Json$Decode$Extra$andMap = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
+var $elm$http$Http$BadStatus_ = F2(
+	function (a, b) {
+		return {$: 'BadStatus_', a: a, b: b};
+	});
+var $elm$http$Http$BadUrl_ = function (a) {
+	return {$: 'BadUrl_', a: a};
+};
+var $elm$http$Http$GoodStatus_ = F2(
+	function (a, b) {
+		return {$: 'GoodStatus_', a: a, b: b};
+	});
+var $elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
+var $elm$http$Http$Receiving = function (a) {
+	return {$: 'Receiving', a: a};
+};
+var $elm$http$Http$Sending = function (a) {
+	return {$: 'Sending', a: a};
+};
+var $elm$http$Http$Timeout_ = {$: 'Timeout_'};
+var $elm$core$Maybe$isJust = function (maybe) {
+	if (maybe.$ === 'Just') {
+		return true;
+	} else {
+		return false;
+	}
+};
 var $elm$core$Dict$update = F3(
 	function (targetKey, alter, dictionary) {
 		var _v0 = alter(
@@ -8566,7 +9452,6 @@ var $elm$core$List$member = F2(
 			},
 			xs);
 	});
-var $elm$core$Basics$not = _Basics_not;
 var $elm_community$list_extra$List$Extra$removeIfIndex = function (predicate) {
 	return A2(
 		$elm_community$list_extra$List$Extra$indexedFoldr,
@@ -8607,23 +9492,6 @@ var $elm$http$Http$jsonBody = function (value) {
 		'application/json',
 		A2($elm$json$Json$Encode$encode, 0, value));
 };
-var $elm$json$Json$Encode$object = function (pairs) {
-	return _Json_wrap(
-		A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v0, obj) {
-					var k = _v0.a;
-					var v = _v0.b;
-					return A3(_Json_addField, k, v, obj);
-				}),
-			_Json_emptyObject(_Utils_Tuple0),
-			pairs));
-};
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
-	});
 var $elm$http$Http$Request = function (a) {
 	return {$: 'Request', a: a};
 };
@@ -8777,8 +9645,6 @@ var $elm$http$Http$post = function (r) {
 	return $elm$http$Http$request(
 		{body: r.body, expect: r.expect, headers: _List_Nil, method: 'POST', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
 };
-var $elm$json$Json$Decode$string = _Json_decodeString;
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Main$xtraBackendURL = 'http://localhost:8081/trace';
 var $author$project$Main$getDotString = function (model) {
 	return $elm$http$Http$post(
@@ -8823,7 +9689,6 @@ var $author$project$UITypes$InitType = F5(
 	function (actions, funcFormat, filters, shortenTokens, examples) {
 		return {actions: actions, examples: examples, filters: filters, funcFormat: funcFormat, shortenTokens: shortenTokens};
 	});
-var $elm$json$Json$Decode$list = _Json_decodeList;
 var $author$project$CustomDecoders$actionsDecoder = A2(
 	$elm$json$Json$Decode$field,
 	'actions',
@@ -8839,7 +9704,6 @@ var $author$project$CustomDecoders$examplesDecoder = A2(
 	$elm$json$Json$Decode$field,
 	'examples',
 	$elm$json$Json$Decode$list($author$project$CustomDecoders$exampleDecoder));
-var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $author$project$CustomDecoders$filterDecoder = A2(
 	$elm_community$json_extra$Json$Decode$Extra$andMap,
 	A2($elm$json$Json$Decode$field, 'param', $elm$json$Json$Decode$bool),
@@ -8856,7 +9720,6 @@ var $author$project$UITypes$FunctionFormat = F3(
 		return {$: 'FunctionFormat', a: a, b: b, c: c};
 	});
 var $elm$json$Json$Decode$index = _Json_decodeIndex;
-var $elm$json$Json$Decode$map3 = _Json_map3;
 var $author$project$CustomDecoders$functionFormatDecoder = A4(
 	$elm$json$Json$Decode$map3,
 	$author$project$UITypes$FunctionFormat,
@@ -8864,7 +9727,6 @@ var $author$project$CustomDecoders$functionFormatDecoder = A4(
 	A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$index, 2, $elm$json$Json$Decode$string));
 var $author$project$CustomDecoders$funcFormatDecoder = A2($elm$json$Json$Decode$field, 'funcFormat', $author$project$CustomDecoders$functionFormatDecoder);
-var $elm$json$Json$Decode$map5 = _Json_map5;
 var $author$project$CustomDecoders$shortenTokensDecoder = A2(
 	$elm$json$Json$Decode$field,
 	'shortenTokens',
@@ -13701,6 +14563,156 @@ var $author$project$Main$getSvg = function (model) {
 			url: $author$project$Main$krokiURL
 		});
 };
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$listKeys = $billstclair$elm_localstorage$PortFunnel$InternalTypes$ListKeys($elm$core$Maybe$Nothing);
+var $author$project$Main$loadSavedGraphToModel = F2(
+	function (model, gr) {
+		return _Utils_update(
+			model,
+			{items: gr.filters, program: gr.program});
+	});
+var $billstclair$elm_port_funnel$PortFunnel$FunnelSpec = F4(
+	function (accessors, moduleDesc, commander, handler) {
+		return {accessors: accessors, commander: commander, handler: handler, moduleDesc: moduleDesc};
+	});
+var $author$project$PortFunnels$LocalStorageFunnel = function (a) {
+	return {$: 'LocalStorageFunnel', a: a};
+};
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$commander = F2(
+	function (_v0, _v1) {
+		return $elm$core$Platform$Cmd$none;
+	});
+var $billstclair$elm_port_funnel$PortFunnel$StateAccessors = F2(
+	function (get, set) {
+		return {get: get, set: set};
+	});
+var $author$project$PortFunnels$localStorageAccessors = A2(
+	$billstclair$elm_port_funnel$PortFunnel$StateAccessors,
+	function ($) {
+		return $.storage;
+	},
+	F2(
+		function (substate, state) {
+			return _Utils_update(
+				state,
+				{storage: substate});
+		}));
+var $author$project$PortFunnels$handlerToFunnel = function (handler) {
+	var localStorageHandler = handler.a;
+	return _Utils_Tuple2(
+		$billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName,
+		$author$project$PortFunnels$LocalStorageFunnel(
+			A4($billstclair$elm_port_funnel$PortFunnel$FunnelSpec, $author$project$PortFunnels$localStorageAccessors, $billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleDesc, $billstclair$elm_localstorage$PortFunnel$LocalStorage$commander, localStorageHandler)));
+};
+var $author$project$PortFunnels$makeFunnelDict = F2(
+	function (handlers, portGetter) {
+		return _Utils_Tuple2(
+			$elm$core$Dict$fromList(
+				A2($elm$core$List$map, $author$project$PortFunnels$handlerToFunnel, handlers)),
+			portGetter);
+	});
+var $billstclair$elm_port_funnel$PortFunnel$process = F4(
+	function (accessors, _v0, genericMessage, state) {
+		var moduleDesc = _v0.a;
+		var _v1 = moduleDesc.decoder(genericMessage);
+		if (_v1.$ === 'Err') {
+			var err = _v1.a;
+			return $elm$core$Result$Err(err);
+		} else {
+			var message = _v1.a;
+			var substate = accessors.get(state);
+			var _v2 = A2(moduleDesc.process, message, substate);
+			var substate2 = _v2.a;
+			var response = _v2.b;
+			return $elm$core$Result$Ok(
+				_Utils_Tuple2(
+					A2(accessors.set, substate2, state),
+					response));
+		}
+	});
+var $Janiczek$cmd_extra$Cmd$Extra$withCmds = F2(
+	function (cmds, model) {
+		return _Utils_Tuple2(
+			model,
+			$elm$core$Platform$Cmd$batch(cmds));
+	});
+var $billstclair$elm_port_funnel$PortFunnel$appProcess = F5(
+	function (cmdPort, genericMessage, funnel, state, model) {
+		var _v0 = A4($billstclair$elm_port_funnel$PortFunnel$process, funnel.accessors, funnel.moduleDesc, genericMessage, state);
+		if (_v0.$ === 'Err') {
+			var error = _v0.a;
+			return $elm$core$Result$Err(error);
+		} else {
+			var _v1 = _v0.a;
+			var state2 = _v1.a;
+			var response = _v1.b;
+			var gmToCmdPort = function (gm) {
+				return cmdPort(
+					$billstclair$elm_port_funnel$PortFunnel$encodeGenericMessage(gm));
+			};
+			var cmd = A2(funnel.commander, gmToCmdPort, response);
+			var _v2 = A3(funnel.handler, response, state2, model);
+			var model2 = _v2.a;
+			var cmd2 = _v2.b;
+			return $elm$core$Result$Ok(
+				A2(
+					$Janiczek$cmd_extra$Cmd$Extra$withCmds,
+					_List_fromArray(
+						[cmd, cmd2]),
+					model2));
+		}
+	});
+var $author$project$PortFunnels$appTrampoline = F5(
+	function (portGetter, genericMessage, funnel, state, model) {
+		var appFunnel = funnel.a;
+		return A5(
+			$billstclair$elm_port_funnel$PortFunnel$appProcess,
+			A2(portGetter, $billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName, model),
+			genericMessage,
+			appFunnel,
+			state,
+			model);
+	});
+var $billstclair$elm_port_funnel$PortFunnel$processValue = F5(
+	function (funnels, appTrampoline, value, state, model) {
+		var _v0 = $billstclair$elm_port_funnel$PortFunnel$decodeGenericMessage(value);
+		if (_v0.$ === 'Err') {
+			var error = _v0.a;
+			return $elm$core$Result$Err(error);
+		} else {
+			var genericMessage = _v0.a;
+			var moduleName = genericMessage.moduleName;
+			var _v1 = A2($elm$core$Dict$get, moduleName, funnels);
+			if (_v1.$ === 'Just') {
+				var funnel = _v1.a;
+				var _v2 = A4(appTrampoline, genericMessage, funnel, state, model);
+				if (_v2.$ === 'Err') {
+					var error = _v2.a;
+					return $elm$core$Result$Err(error);
+				} else {
+					var _v3 = _v2.a;
+					var model2 = _v3.a;
+					var cmd = _v3.b;
+					return $elm$core$Result$Ok(
+						_Utils_Tuple2(model2, cmd));
+				}
+			} else {
+				return $elm$core$Result$Err('Unknown moduleName: ' + moduleName);
+			}
+		}
+	});
+var $author$project$PortFunnels$processValue = F4(
+	function (_v0, value, state, model) {
+		var funnelDict = _v0.a;
+		var portGetter = _v0.b;
+		return A5(
+			$billstclair$elm_port_funnel$PortFunnel$processValue,
+			funnelDict,
+			$author$project$PortFunnels$appTrampoline(portGetter),
+			value,
+			state,
+			model);
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$put = $billstclair$elm_localstorage$PortFunnel$InternalTypes$Put;
 var $elm_community$list_extra$List$Extra$removeAt = F2(
 	function (index, l) {
 		if (index < 0) {
@@ -13717,7 +14729,101 @@ var $elm_community$list_extra$List$Extra$removeAt = F2(
 			}
 		}
 	});
+var $elm$json$Json$Encode$int = _Json_wrap;
+var $author$project$Main$filterToJSON = function (input) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'actionIndex',
+				$elm$json$Json$Encode$int(input.actionIndex)),
+				_Utils_Tuple2(
+				'enabled',
+				$elm$json$Json$Encode$bool(input.enabled)),
+				_Utils_Tuple2(
+				'selectIndex',
+				$elm$json$Json$Encode$int(input.selectIndex)),
+				_Utils_Tuple2(
+				'param',
+				$elm$json$Json$Encode$string(input.param)),
+				_Utils_Tuple2(
+				'id',
+				$elm$json$Json$Encode$int(input.id))
+			]));
+};
+var $author$project$Main$savedGraphToJSON = function (input) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'program',
+				$elm$json$Json$Encode$string(input.program)),
+				_Utils_Tuple2(
+				'filters',
+				A2($elm$json$Json$Encode$list, $author$project$Main$filterToJSON, input.filters))
+			]));
+};
 var $elm_explorations$linear_algebra$Math$Vector2$scale = _MJS_v2scale;
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$addPrefix = F2(
+	function (prefix, key) {
+		return (prefix === '') ? key : (prefix + ('.' + key));
+	});
+var $billstclair$elm_port_funnel$PortFunnel$messageToValue = F2(
+	function (_v0, message) {
+		var moduleDesc = _v0.a;
+		return $billstclair$elm_port_funnel$PortFunnel$encodeGenericMessage(
+			moduleDesc.encoder(message));
+	});
+var $billstclair$elm_port_funnel$PortFunnel$sendMessage = F3(
+	function (moduleDesc, cmdPort, message) {
+		return cmdPort(
+			A2($billstclair$elm_port_funnel$PortFunnel$messageToValue, moduleDesc, message));
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$send = F3(
+	function (wrapper, message, _v0) {
+		var state = _v0.a;
+		var prefix = state.prefix;
+		var mess = function () {
+			switch (message.$) {
+				case 'Get':
+					var label = message.a;
+					var key = message.b;
+					return A2(
+						$billstclair$elm_localstorage$PortFunnel$InternalTypes$Get,
+						label,
+						A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$addPrefix, prefix, key));
+				case 'Put':
+					var key = message.a;
+					var value = message.b;
+					return A2(
+						$billstclair$elm_localstorage$PortFunnel$InternalTypes$Put,
+						A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$addPrefix, prefix, key),
+						value);
+				case 'ListKeys':
+					var label = message.a;
+					var pref = message.b;
+					return A2(
+						$billstclair$elm_localstorage$PortFunnel$InternalTypes$ListKeys,
+						label,
+						A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$addPrefix, prefix, pref));
+				case 'Clear':
+					var pref = message.a;
+					return $billstclair$elm_localstorage$PortFunnel$InternalTypes$Clear(
+						A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$addPrefix, prefix, pref));
+				default:
+					return message;
+			}
+		}();
+		return A3($billstclair$elm_port_funnel$PortFunnel$sendMessage, $billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleDesc, wrapper, mess);
+	});
+var $author$project$Main$send = F2(
+	function (message, model) {
+		return A3(
+			$billstclair$elm_localstorage$PortFunnel$LocalStorage$send,
+			A2($author$project$Main$getCmdPort, $billstclair$elm_localstorage$PortFunnel$LocalStorage$moduleName, model),
+			message,
+			model.funnelState.storage);
+	});
 var $author$project$DotUtil$nodeMapMatch = F2(
 	function (id, nodeMap) {
 		nodeMapMatch:
@@ -14484,6 +15590,52 @@ var $elm_community$list_extra$List$Extra$updateIf = F3(
 			},
 			list);
 	});
+var $Janiczek$cmd_extra$Cmd$Extra$withCmd = F2(
+	function (cmd, model) {
+		return _Utils_Tuple2(model, cmd);
+	});
+var $Janiczek$cmd_extra$Cmd$Extra$withNoCmd = function (model) {
+	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+};
+var $author$project$Main$storageHandler = F3(
+	function (response, state, mdl) {
+		var model = $author$project$Main$doIsLoaded(
+			_Utils_update(
+				mdl,
+				{funnelState: state}));
+		switch (response.$) {
+			case 'GetResponse':
+				var label = response.a.label;
+				var key = response.a.key;
+				var value = response.a.value;
+				if (value.$ === 'Nothing') {
+					return A2(
+						$author$project$Main$update,
+						$author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
+						_Utils_update(
+							model,
+							{error: 'Empty result'}));
+				} else {
+					var v = value.a;
+					return A2(
+						$author$project$Main$update,
+						$author$project$Main$Run,
+						A2(
+							$author$project$Main$loadSavedGraphToModel,
+							model,
+							$author$project$Main$decodeSavedGraphs(v)));
+				}
+			case 'ListKeysResponse':
+				var label = response.a.label;
+				var keys = response.a.keys;
+				return $Janiczek$cmd_extra$Cmd$Extra$withNoCmd(
+					_Utils_update(
+						model,
+						{savedGraphKeys: keys}));
+			default:
+				return A2($author$project$Main$update, $author$project$Main$ListGraphKeys, model);
+		}
+	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		update:
@@ -14541,11 +15693,13 @@ var $author$project$Main$update = F2(
 				case 'GotInit':
 					if (msg.a.$ === 'Ok') {
 						var data = msg.a.a;
-						return _Utils_Tuple2(
-							_Utils_update(
-								model,
-								{filters: data.filters, initData: data}),
-							$elm$core$Platform$Cmd$none);
+						var $temp$msg = $author$project$Main$ListGraphKeys,
+							$temp$model = _Utils_update(
+							model,
+							{filters: data.filters, initData: data});
+						msg = $temp$msg;
+						model = $temp$model;
+						continue update;
 					} else {
 						var httpError = msg.a.a;
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -14792,16 +15946,160 @@ var $author$project$Main$update = F2(
 							model,
 							{exampleIndex: index}),
 						$elm$core$Platform$Cmd$none);
-				default:
+				case 'AlertMsg':
 					var vis = msg.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{errorVis: vis}),
 						$elm$core$Platform$Cmd$none);
+				case 'LoadSavedGraph':
+					var targetKey = A2($elm_community$list_extra$List$Extra$getAt, model.selectedSaveGraph, model.savedGraphKeys);
+					if (targetKey.$ === 'Just') {
+						var targ = targetKey.a;
+						return A2(
+							$Janiczek$cmd_extra$Cmd$Extra$withCmd,
+							A2(
+								$author$project$Main$send,
+								$billstclair$elm_localstorage$PortFunnel$LocalStorage$get(targ),
+								_Utils_update(
+									model,
+									{saveName: targ})),
+							_Utils_update(
+								model,
+								{saveName: targ}));
+					} else {
+						var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
+							$temp$model = _Utils_update(
+							model,
+							{error: 'Selected Saved Program has an invalid index'});
+						msg = $temp$msg;
+						model = $temp$model;
+						continue update;
+					}
+				case 'SaveGraph':
+					if (A2($elm$core$List$member, model.saveName, model.savedGraphKeys)) {
+						var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
+							$temp$model = _Utils_update(
+							model,
+							{error: 'Please enter a unique name to save your program'});
+						msg = $temp$msg;
+						model = $temp$model;
+						continue update;
+					} else {
+						var _v8 = model.saveName;
+						if (_v8 === '') {
+							var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
+								$temp$model = _Utils_update(
+								model,
+								{error: 'Please enter a name to save your program'});
+							msg = $temp$msg;
+							model = $temp$model;
+							continue update;
+						} else {
+							var name = _v8;
+							return A2(
+								$Janiczek$cmd_extra$Cmd$Extra$withCmd,
+								A2(
+									$author$project$Main$send,
+									A2(
+										$billstclair$elm_localstorage$PortFunnel$LocalStorage$put,
+										name,
+										$elm$core$Maybe$Just(
+											$author$project$Main$savedGraphToJSON(
+												$author$project$Main$getCurrentGraph(model)))),
+									model),
+								model);
+						}
+					}
+				case 'Process':
+					var value = msg.a;
+					var _v9 = A4(
+						$author$project$PortFunnels$processValue,
+						$author$project$Main$cyclic$funnelDict(),
+						value,
+						model.funnelState,
+						model);
+					if (_v9.$ === 'Err') {
+						var error = _v9.a;
+						var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
+							$temp$model = _Utils_update(
+							model,
+							{error: error});
+						msg = $temp$msg;
+						model = $temp$model;
+						continue update;
+					} else {
+						var res = _v9.a;
+						return res;
+					}
+				case 'ListGraphKeys':
+					return A2(
+						$Janiczek$cmd_extra$Cmd$Extra$withCmd,
+						A2(
+							$author$project$Main$send,
+							$billstclair$elm_localstorage$PortFunnel$LocalStorage$listKeys(''),
+							model),
+						_Utils_update(
+							model,
+							{savedGraphKeys: _List_Nil}));
+				case 'UpdateName':
+					var value = msg.a;
+					return $Janiczek$cmd_extra$Cmd$Extra$withNoCmd(
+						_Utils_update(
+							model,
+							{saveName: value}));
+				case 'SetTargetSaved':
+					var index = msg.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{selectedSaveGraph: index}),
+						$elm$core$Platform$Cmd$none);
+				default:
+					var upModel = _Utils_update(
+						model,
+						{
+							selectedSaveGraph: A2($elm$core$Basics$max, 0, model.selectedSaveGraph - 1)
+						});
+					var targetKey = A2($elm_community$list_extra$List$Extra$getAt, model.selectedSaveGraph, model.savedGraphKeys);
+					if (targetKey.$ === 'Just') {
+						var targ = targetKey.a;
+						return A2(
+							$Janiczek$cmd_extra$Cmd$Extra$withCmd,
+							A2(
+								$author$project$Main$send,
+								A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$put, targ, $elm$core$Maybe$Nothing),
+								upModel),
+							upModel);
+					} else {
+						var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
+							$temp$model = _Utils_update(
+							model,
+							{error: 'Selected Saved Program has an invalid index'});
+						msg = $temp$msg;
+						model = $temp$model;
+						continue update;
+					}
 			}
 		}
 	});
+function $author$project$Main$cyclic$funnelDict() {
+	return A2(
+		$author$project$PortFunnels$makeFunnelDict,
+		_List_fromArray(
+			[
+				$author$project$PortFunnels$LocalStorageHandler($author$project$Main$storageHandler)
+			]),
+		$author$project$Main$getCmdPort);
+}
+try {
+	var $author$project$Main$funnelDict = $author$project$Main$cyclic$funnelDict();
+	$author$project$Main$cyclic$funnelDict = function () {
+		return $author$project$Main$funnelDict;
+	};
+} catch ($) {
+	throw 'Some top-level definitions from `Main` are causing infinite recursion:\n\n  ┌─────┐\n  │    funnelDict\n  │     ↓\n  │    storageHandler\n  │     ↓\n  │    update\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
 var $author$project$Main$init = function (_v0) {
 	return A2($author$project$Main$update, $author$project$Main$GetInit, $author$project$Main$initModel);
 };
@@ -14989,20 +16287,35 @@ var $zaboco$elm_draggable$Draggable$subscriptions = F2(
 						])));
 		}
 	});
+var $author$project$PortFunnels$subPort = _Platform_incomingPort('subPort', $elm$json$Json$Decode$value);
+var $author$project$PortFunnels$subscriptions = F2(
+	function (process, model) {
+		return $author$project$PortFunnels$subPort(process);
+	});
 var $author$project$Main$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
 				A2($zaboco$elm_draggable$Draggable$subscriptions, $author$project$Main$DragMsg, model.drag),
 				$author$project$Main$system.subscriptions(model.dnd),
-				A2($rundis$elm_bootstrap$Bootstrap$Alert$subscriptions, model.errorVis, $author$project$Main$AlertMsg)
+				A2($rundis$elm_bootstrap$Bootstrap$Alert$subscriptions, model.errorVis, $author$project$Main$AlertMsg),
+				A2($author$project$PortFunnels$subscriptions, $author$project$Main$Process, model)
 			]));
 };
 var $author$project$Main$AddFilter = {$: 'AddFilter'};
 var $author$project$Main$Clear = {$: 'Clear'};
+var $author$project$Main$DeleteSavedGraph = {$: 'DeleteSavedGraph'};
 var $author$project$Main$LoadEx = {$: 'LoadEx'};
+var $author$project$Main$LoadSavedGraph = {$: 'LoadSavedGraph'};
+var $author$project$Main$SaveGraph = {$: 'SaveGraph'};
 var $author$project$Main$SetExample = function (a) {
 	return {$: 'SetExample', a: a};
+};
+var $author$project$Main$SetTargetSaved = function (a) {
+	return {$: 'SetTargetSaved', a: a};
+};
+var $author$project$Main$UpdateName = function (a) {
+	return {$: 'UpdateName', a: a};
 };
 var $author$project$Main$Zoom = function (a) {
 	return {$: 'Zoom', a: a};
@@ -15488,7 +16801,6 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$dismissableWithAnimation = F2(
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$option = _VirtualDom_node('option');
-var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
 		return A2(
@@ -16056,6 +17368,38 @@ var $elm$html$Html$Attributes$rows = function (n) {
 		'rows',
 		$elm$core$String$fromInt(n));
 };
+var $author$project$Main$savedGraphOption = F3(
+	function (keys, selInd, index) {
+		var sel = $elm$html$Html$Attributes$selected(
+			_Utils_eq(index, selInd));
+		var name = A2($elm_community$list_extra$List$Extra$getAt, index, keys);
+		if (name.$ === 'Just') {
+			var savedName = name.a;
+			return A2(
+				$elm$html$Html$option,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$value(
+						$elm$core$String$fromInt(index)),
+						sel
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(savedName)
+					]));
+		} else {
+			return A2(
+				$elm$html$Html$option,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$value('-1')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Invalid example index')
+					]));
+		}
+	});
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $elm$core$Result$andThen = F2(
 	function (callback, result) {
@@ -17119,6 +18463,112 @@ var $author$project$Main$view = function (model) {
 												_List_fromArray(
 													[
 														$elm$html$Html$text('Clear All')
+													]))
+											]))
+									])),
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										A2($elm$html$Html$Attributes$style, 'margin', '0 auto'),
+										A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+										A2($elm$html$Html$Attributes$style, 'justify-content', 'center')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$input,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onInput($author$project$Main$UpdateName),
+												$elm$html$Html$Attributes$value(model.saveName),
+												A2($elm$html$Html$Attributes$style, 'width', '200px')
+											]),
+										_List_Nil),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Main$SaveGraph),
+												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
+												A2($elm$html$Html$Attributes$style, 'font-size', 'medium')
+											]),
+										_List_fromArray(
+											[
+												A2(
+												$elm$html$Html$b,
+												_List_Nil,
+												_List_fromArray(
+													[
+														$elm$html$Html$text('Save Program')
+													]))
+											]))
+									])),
+								A2($elm$html$Html$hr, _List_Nil, _List_Nil),
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										A2($elm$html$Html$Attributes$style, 'margin', '0 auto'),
+										A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+										A2($elm$html$Html$Attributes$style, 'justify-content', 'center')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$select,
+										_List_fromArray(
+											[
+												A2(
+												$elm$html$Html$Events$on,
+												'change',
+												A2($elm$json$Json$Decode$map, $author$project$Main$SetTargetSaved, $elm_community$html_extra$Html$Events$Extra$targetValueIntParse)),
+												A2($elm$html$Html$Attributes$style, 'width', '200px'),
+												A2($elm$html$Html$Attributes$style, 'height', '50px'),
+												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
+												A2($elm$html$Html$Attributes$style, 'font-size', 'x-large')
+											]),
+										A2(
+											$elm$core$List$map,
+											A2($author$project$Main$savedGraphOption, model.savedGraphKeys, model.selectedSaveGraph),
+											A2(
+												$elm$core$List$range,
+												0,
+												(-1) + $elm$core$List$length(model.savedGraphKeys)))),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Main$LoadSavedGraph),
+												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
+												A2($elm$html$Html$Attributes$style, 'font-size', 'medium')
+											]),
+										_List_fromArray(
+											[
+												A2(
+												$elm$html$Html$b,
+												_List_Nil,
+												_List_fromArray(
+													[
+														$elm$html$Html$text('Load')
+													]))
+											])),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Main$DeleteSavedGraph),
+												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
+												A2($elm$html$Html$Attributes$style, 'font-size', 'medium')
+											]),
+										_List_fromArray(
+											[
+												A2(
+												$elm$html$Html$b,
+												_List_Nil,
+												_List_fromArray(
+													[
+														$elm$html$Html$text('Delete')
 													]))
 											]))
 									])),

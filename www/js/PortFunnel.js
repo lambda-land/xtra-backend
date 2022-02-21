@@ -33,100 +33,100 @@
 
 (function(scope) {
 
-    PortFunnel = {};
-    scope.PortFunnel = PortFunnel;
-    
-    PortFunnel.subscribe = subscribe; // called by HTML file
-    PortFunnel.modules = {};          // modules[funnelName].cmd set by module JS.
-    PortFunnel.sub = null;          // set below
-    
-    function subscribe(app, args) {
-      if (!args) args = {};
-      portNames = args.portNames;
-      if (!portNames) {
-        portNames = ['cmdPort', 'subPort'];
-      }
-    
-      var ports = app.ports;
-      var sub = ports[portNames[1]];
-      PortFunnel.sub = sub;
-    
-      var cmd = ports[portNames[0]];
-      cmd.subscribe(function(command) {
-        var returnValue = commandDispatch(command);
-        if (returnValue) {
-          sub.send(returnValue);
-        }
-      });  
+  PortFunnel = {};
+  scope.PortFunnel = PortFunnel;
+  
+  PortFunnel.subscribe = subscribe; // called by HTML file
+  PortFunnel.modules = {};          // modules[funnelName].cmd set by module JS.
+  PortFunnel.sub = null;          // set below
+  
+  function subscribe(app, args) {
+    if (!args) args = {};
+    portNames = args.portNames;
+    if (!portNames) {
+      portNames = ['cmdPort', 'subPort'];
     }
-    
-    // command is of the form:
-    //    { module: 'moduleName',
-    //      tag: 'command name for module',
-    //      args: {name: value, ...}
-    //    }
-    function commandDispatch(command) {
-      if (typeof(command) == 'object') {
-        var moduleName = command.module;
-        var module = PortFunnel.modules[moduleName];
-        if (module) {
-          var cmd = module.cmd;
-          if (cmd && !queue[moduleName]) {
-            var tag = command.tag;
-            var args = command.args;
-            return cmd(tag, args);
+  
+    var ports = app.ports;
+    var sub = ports[portNames[1]];
+    PortFunnel.sub = sub;
+  
+    var cmd = ports[portNames[0]];
+    cmd.subscribe(function(command) {
+      var returnValue = commandDispatch(command);
+      if (returnValue) {
+        sub.send(returnValue);
+      }
+    });  
+  }
+  
+  // command is of the form:
+  //    { module: 'moduleName',
+  //      tag: 'command name for module',
+  //      args: {name: value, ...}
+  //    }
+  function commandDispatch(command) {
+    if (typeof(command) == 'object') {
+      var moduleName = command.module;
+      var module = PortFunnel.modules[moduleName];
+      if (module) {
+        var cmd = module.cmd;
+        if (cmd && !queue[moduleName]) {
+          var tag = command.tag;
+          var args = command.args;
+          return cmd(tag, args);
+        } else {
+          var list = queue[moduleName];
+          if (!list) list = [];
+          list.push(command);
+          queue[moduleName] = list;
+          if (!queueDrainOutstanding) {
+            scheduleQueueDrain();
+          }
+        }
+      }
+    }
+  }
+  
+  // queue[moduleName] = an array of commands passed to commandDispatch
+  // before the JavaScript module was installed.
+  var queue = {};
+  var queueDrainOutstanding = false;
+  
+  function scheduleQueueDrain() {
+    queueDrainOutStanding = true;
+    setTimeout(drainQueue, 10);  // is 0.01 second too short?
+  }
+  
+  function drainQueue() {
+    needReschedule = false;
+    for (var moduleName in queue) {
+      var module = PortFunnel.modules[moduleName];
+      if (!module) {
+        // Can't happen, but handle it anyway
+        delete queue[moduleName];
+      } else {
+          if (!module.cmd) {
+            needReschedule = true;
           } else {
             var list = queue[moduleName];
-            if (!list) list = [];
-            list.push(command);
-            queue[moduleName] = list;
-            if (!queueDrainOutstanding) {
-              scheduleQueueDrain();
-            }
-          }
-        }
-      }
-    }
-    
-    // queue[moduleName] = an array of commands passed to commandDispatch
-    // before the JavaScript module was installed.
-    var queue = {};
-    var queueDrainOutstanding = false;
-    
-    function scheduleQueueDrain() {
-      queueDrainOutStanding = true;
-      setTimeout(drainQueue, 10);  // is 0.01 second too short?
-    }
-    
-    function drainQueue() {
-      needReschedule = false;
-      for (var moduleName in queue) {
-        var module = PortFunnel.modules[moduleName];
-        if (!module) {
-          // Can't happen, but handle it anyway
-          delete queue[moduleName];
-        } else {
-            if (!module.cmd) {
-              needReschedule = true;
-            } else {
-              var list = queue[moduleName];
-              delete queue[moduleName];
-              for (var i in list) {
-                var command = list[i];
-                var returnValue = commandDispatch(command);
-                if (returnValue) {
-                  PortFunnel.sub.send(returnValue);
-                }
+            delete queue[moduleName];
+            for (var i in list) {
+              var command = list[i];
+              var returnValue = commandDispatch(command);
+              if (returnValue) {
+                PortFunnel.sub.send(returnValue);
               }
             }
-          if (needReschedule) {
-            scheduleQueueDrain();
-          } else {
-            queueDrainOutstanding = false;
           }
+        if (needReschedule) {
+          scheduleQueueDrain();
+        } else {
+          queueDrainOutstanding = false;
         }
       }
     }
-    
-    }(this))
-    
+  }
+  
+  }(this))
+  
