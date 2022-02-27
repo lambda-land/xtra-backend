@@ -22,7 +22,8 @@
     <script type='text/javascript'>
       var mainModule = 'Main';
       var app = Elm[mainModule].init({
-        node: document.getElementById("elm")
+        node: document.getElementById("elm"),
+        flags: {url: window.location.href}
       });
 
       // These are the defaults, so you don't need to pass them.  If you
