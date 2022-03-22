@@ -6901,6 +6901,10 @@ var $truqu$elm_base64$Base64$Decode$validateAndDecode = function (input) {
 var $truqu$elm_base64$Base64$Decode$decode = A2($elm$core$Basics$composeR, $truqu$elm_base64$Base64$Decode$pad, $truqu$elm_base64$Base64$Decode$validateAndDecode);
 var $truqu$elm_base64$Base64$decode = $truqu$elm_base64$Base64$Decode$decode;
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
+var $author$project$Main$ContextMenu = F4(
+	function (nodeClicked, mouseX, mouseY, show) {
+		return {mouseX: mouseX, mouseY: mouseY, nodeClicked: nodeClicked, show: show};
+	});
 var $author$project$Main$Size = F2(
 	function (width, height) {
 		return {height: height, width: width};
@@ -8174,6 +8178,7 @@ var $elm_explorations$linear_algebra$Math$Vector2$vec2 = _MJS_v2;
 var $author$project$Main$initModel = function (location) {
 	return {
 		allNodeLabels: _List_Nil,
+		cbRes: false,
 		center: A2($elm_explorations$linear_algebra$Math$Vector2$vec2, 375, 500),
 		dirty: false,
 		dnd: $author$project$Main$system.model,
@@ -8189,6 +8194,7 @@ var $author$project$Main$initModel = function (location) {
 		generatedShare: '',
 		initData: $author$project$Main$defaultInitData,
 		items: _List_Nil,
+		nodeContext: A4($author$project$Main$ContextMenu, 0, 0, 0, false),
 		program: '',
 		refNodes: _List_Nil,
 		saveName: '',
@@ -8273,6 +8279,8 @@ var $elm$core$Basics$clamp = F3(
 	function (low, high, number) {
 		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
 	});
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$clipboardCopy = _Platform_outgoingPort('clipboardCopy', $elm$json$Json$Encode$string);
 var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $author$project$Main$decodeSavedGraphs = function (value) {
 	var _v0 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$jsonToSavedGraph, value);
@@ -8454,7 +8462,6 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $billstclair$elm_port_funnel$PortFunnel$encodeGenericMessage = function (message) {
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
@@ -16399,7 +16406,7 @@ var $author$project$Main$update = F2(
 						model = $temp$model;
 						continue update;
 					}
-				default:
+				case 'RunShare':
 					var _v11 = model.share;
 					if (_v11 === '') {
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -16408,6 +16415,59 @@ var $author$project$Main$update = F2(
 							model,
 							$author$project$Main$getDotString(model));
 					}
+				case 'NodeClicked':
+					var _v12 = msg.a;
+					var nodeStr = _v12.a;
+					var x = _v12.b;
+					var y = _v12.c;
+					if (A2($elm$core$String$startsWith, 'node', nodeStr)) {
+						var _v13 = $elm$core$String$toInt(
+							A2($elm$core$String$dropLeft, 4, nodeStr));
+						if (_v13.$ === 'Nothing') {
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{
+										nodeContext: A4($author$project$Main$ContextMenu, 0, 0, 0, false)
+									}),
+								$elm$core$Platform$Cmd$none);
+						} else {
+							var node = _v13.a;
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{
+										nodeContext: A4($author$project$Main$ContextMenu, node, x, y, true)
+									}),
+								$elm$core$Platform$Cmd$none);
+						}
+					} else {
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									nodeContext: A4($author$project$Main$ContextMenu, 0, 0, 0, false)
+								}),
+							$elm$core$Platform$Cmd$none);
+					}
+				case 'CBCopy':
+					var str = msg.a;
+					return _Utils_Tuple2(
+						model,
+						$author$project$Main$clipboardCopy(str));
+				case 'CBRes':
+					var res = msg.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{cbRes: res}),
+						$elm$core$Platform$Cmd$none);
+				default:
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{cbRes: false}),
+						$elm$core$Platform$Cmd$none);
 			}
 		}
 	});
@@ -16457,9 +16517,13 @@ var $author$project$Main$init = function (flags) {
 		}
 	}
 };
+var $author$project$Main$CBRes = function (a) {
+	return {$: 'CBRes', a: a};
+};
 var $author$project$Main$DragMsg = function (a) {
 	return {$: 'DragMsg', a: a};
 };
+var $author$project$Main$clipboardRes = _Platform_incomingPort('clipboardRes', $elm$json$Json$Decode$bool);
 var $rundis$elm_bootstrap$Bootstrap$Alert$FadeClose = {$: 'FadeClose'};
 var $elm$browser$Browser$AnimationManager$Time = function (a) {
 	return {$: 'Time', a: a};
@@ -16653,14 +16717,22 @@ var $author$project$Main$subscriptions = function (model) {
 				A2($zaboco$elm_draggable$Draggable$subscriptions, $author$project$Main$DragMsg, model.drag),
 				$author$project$Main$system.subscriptions(model.dnd),
 				A2($rundis$elm_bootstrap$Bootstrap$Alert$subscriptions, model.errorVis, $author$project$Main$AlertMsg),
-				A2($author$project$PortFunnels$subscriptions, $author$project$Main$Process, model)
+				A2($author$project$PortFunnels$subscriptions, $author$project$Main$Process, model),
+				$author$project$Main$clipboardRes($author$project$Main$CBRes)
 			]));
 };
 var $author$project$Main$AddFilter = {$: 'AddFilter'};
+var $author$project$Main$CBCopy = function (a) {
+	return {$: 'CBCopy', a: a};
+};
 var $author$project$Main$Clear = {$: 'Clear'};
 var $author$project$Main$DeleteSavedGraph = {$: 'DeleteSavedGraph'};
+var $author$project$Main$HideCBRes = {$: 'HideCBRes'};
 var $author$project$Main$LoadEx = {$: 'LoadEx'};
 var $author$project$Main$LoadSavedGraph = {$: 'LoadSavedGraph'};
+var $author$project$Main$NodeClicked = function (a) {
+	return {$: 'NodeClicked', a: a};
+};
 var $author$project$Main$SaveGraph = {$: 'SaveGraph'};
 var $author$project$Main$SetExample = function (a) {
 	return {$: 'SetExample', a: a};
@@ -17133,6 +17205,39 @@ var $author$project$SvgUtil$cleanFront = function (str) {
 			1,
 			A2($elm$core$String$split, '<svg', str)));
 };
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $TSFoster$elm_tuple_extra$Tuple3$join = F3(
+	function (a, b, c) {
+		return _Utils_Tuple3(a, b, c);
+	});
+var $elm$svg$Svg$Events$on = $elm$html$Html$Events$on;
+var $author$project$Main$clickHandler = function (msg) {
+	var targetId = A2(
+		$elm$json$Json$Decode$at,
+		_List_fromArray(
+			['target', 'parentNode', 'id']),
+		$elm$json$Json$Decode$string);
+	var mouseY = A2(
+		$elm$json$Json$Decode$at,
+		_List_fromArray(
+			['clientY']),
+		$elm$json$Json$Decode$int);
+	var mouseX = A2(
+		$elm$json$Json$Decode$at,
+		_List_fromArray(
+			['clientX']),
+		$elm$json$Json$Decode$int);
+	return A2(
+		$elm$svg$Svg$Events$on,
+		'click',
+		A2(
+			$elm$json$Json$Decode$map,
+			msg,
+			A4($elm$json$Json$Decode$map3, $TSFoster$elm_tuple_extra$Tuple3$join, targetId, mouseX, mouseY)));
+};
 var $elm$html$Html$Attributes$cols = function (n) {
 	return A2(
 		_VirtualDom_attribute,
@@ -17515,10 +17620,6 @@ var $elm$html$Html$Events$stopPropagationOn = F2(
 			$elm$virtual_dom$VirtualDom$on,
 			event,
 			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
 	});
 var $elm$html$Html$Events$targetValue = A2(
 	$elm$json$Json$Decode$at,
@@ -17954,6 +18055,64 @@ var $author$project$Main$savedGraphOption = F3(
 					]));
 		}
 	});
+var $author$project$Main$flip = F3(
+	function (f, b, a) {
+		return A2(f, a, b);
+	});
+var $author$project$Main$showContext = function (mdl) {
+	return mdl.nodeContext.show ? A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+				A2(
+				$elm$html$Html$Attributes$style,
+				'left',
+				A3(
+					$author$project$Main$flip,
+					$elm$core$Basics$append,
+					'px',
+					$elm$core$String$fromInt(mdl.nodeContext.mouseX))),
+				A2(
+				$elm$html$Html$Attributes$style,
+				'top',
+				A3(
+					$author$project$Main$flip,
+					$elm$core$Basics$append,
+					'px',
+					$elm$core$String$fromInt(mdl.nodeContext.mouseY))),
+				A2($elm$html$Html$Attributes$style, 'border', '3px solid black'),
+				A2($elm$html$Html$Attributes$style, 'background-color', 'rgb(200,200,200)'),
+				A2($elm$html$Html$Attributes$style, 'display', 'table-row')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						'Node Selected: ' + $elm$core$String$fromInt(mdl.nodeContext.nodeClicked))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						'MouseX: ' + $elm$core$String$fromInt(mdl.nodeContext.mouseX))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						'MouseY: ' + $elm$core$String$fromInt(mdl.nodeContext.mouseY))
+					]))
+			])) : A2($elm$html$Html$div, _List_Nil, _List_Nil);
+};
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $elm$virtual_dom$VirtualDom$nodeNS = function (tag) {
 	return _VirtualDom_nodeNS(
@@ -18908,7 +19067,8 @@ var $author$project$Main$view = function (model) {
 							A2($author$project$Main$num, $elm$svg$Svg$Attributes$width, modelIn.size.width),
 							A2($author$project$Main$num, $elm$svg$Svg$Attributes$height, modelIn.size.height),
 							$author$project$Main$handleZoom($author$project$Main$Zoom),
-							A2($zaboco$elm_draggable$Draggable$mouseTrigger, _Utils_Tuple0, $author$project$Main$DragMsg)
+							A2($zaboco$elm_draggable$Draggable$mouseTrigger, _Utils_Tuple0, $author$project$Main$DragMsg),
+							$author$project$Main$clickHandler($author$project$Main$NodeClicked)
 						]),
 					_List_fromArray(
 						[
@@ -19202,14 +19362,48 @@ var $author$project$Main$view = function (model) {
 									])),
 								A2($elm$html$Html$hr, _List_Nil, _List_Nil),
 								A2(
-								$elm$html$Html$textarea,
+								$elm$html$Html$div,
+								_List_Nil,
 								_List_fromArray(
 									[
-										$elm$html$Html$Attributes$rows(10),
-										$elm$html$Html$Attributes$cols(60),
-										$elm$html$Html$Attributes$value(shareUrl)
-									]),
-								_List_Nil)
+										A2(
+										$elm$html$Html$input,
+										_List_fromArray(
+											[
+												$elm$html$Html$Attributes$cols(60),
+												$elm$html$Html$Attributes$value(shareUrl)
+											]),
+										_List_Nil),
+										A2(
+										$elm$html$Html$button,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick(
+												$author$project$Main$CBCopy(shareUrl))
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Copy to Clipboard')
+											])),
+										model.cbRes ? A2(
+										$elm$html$Html$div,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Link Copied'),
+												A2(
+												$elm$html$Html$button,
+												_List_fromArray(
+													[
+														$elm$html$Html$Events$onClick($author$project$Main$HideCBRes)
+													]),
+												_List_fromArray(
+													[
+														$elm$html$Html$text('X')
+													]))
+											])) : A2($elm$html$Html$div, _List_Nil, _List_Nil)
+									])),
+								$author$project$Main$showContext(model)
 							])),
 						A2(
 						$elm$html$Html$td,
