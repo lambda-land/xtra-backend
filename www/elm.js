@@ -6601,9 +6601,13 @@ var $elm$core$Task$perform = F2(
 			$elm$core$Task$Perform(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
-var $elm$browser$Browser$element = _Browser_element;
+var $elm$browser$Browser$document = _Browser_document;
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $author$project$Main$GetInit = {$: 'GetInit'};
+var $author$project$Main$NavbarMsg = function (a) {
+	return {$: 'NavbarMsg', a: a};
+};
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Basics$composeR = F3(
 	function (f, g, x) {
 		return g(
@@ -6914,9 +6918,11 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$closed = $rundis$elm_bootstrap$Bootstr
 var $author$project$UITypes$NoFormat = function (a) {
 	return {$: 'NoFormat', a: a};
 };
+var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
+var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $author$project$Main$defaultInitData = {
 	actions: _List_Nil,
-	examples: _List_Nil,
+	examples: $elm$core$Dict$empty,
 	filters: _List_Nil,
 	funcFormat: $author$project$UITypes$NoFormat('='),
 	shortenTokens: _List_Nil
@@ -6926,11 +6932,25 @@ var $zaboco$elm_draggable$Draggable$State = function (a) {
 	return {$: 'State', a: a};
 };
 var $zaboco$elm_draggable$Draggable$init = $zaboco$elm_draggable$Draggable$State($zaboco$elm_draggable$Internal$NotDragging);
+var $rundis$elm_bootstrap$Bootstrap$Accordion$State = function (a) {
+	return {$: 'State', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$initialState = $rundis$elm_bootstrap$Bootstrap$Accordion$State($elm$core$Dict$empty);
+var $rundis$elm_bootstrap$Bootstrap$Popover$State = function (a) {
+	return {$: 'State', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Popover$initialState = $rundis$elm_bootstrap$Bootstrap$Popover$State(
+	{
+		domState: {
+			offsetHeight: 0,
+			offsetWidth: 0,
+			rect: {height: 0, left: 0, top: 0, width: 0}
+		},
+		isActive: false
+	});
 var $billstclair$elm_localstorage$PortFunnel$LocalStorage$State = function (a) {
 	return {$: 'State', a: a};
 };
-var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
-var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $billstclair$elm_localstorage$PortFunnel$LocalStorage$initialState = function (prefix) {
 	return $billstclair$elm_localstorage$PortFunnel$LocalStorage$State(
 		{isLoaded: false, prefix: prefix, simulationDict: $elm$core$Dict$empty});
@@ -6940,6 +6960,7 @@ var $author$project$PortFunnels$initialState = function (prefix) {
 		storage: $billstclair$elm_localstorage$PortFunnel$LocalStorage$initialState(prefix)
 	};
 };
+var $author$project$Main$navBarHeight = 56;
 var $author$project$Main$prefix = 'xtraui';
 var $author$project$Main$queryParser = function (url) {
 	var _v0 = $elm$url$Url$fromString(url);
@@ -6974,7 +6995,6 @@ var $author$project$Main$config = {
 var $annaghi$dnd_list$DnDList$Model = function (a) {
 	return {$: 'Model', a: a};
 };
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $annaghi$dnd_list$DnDList$GotDragElement = function (a) {
 	return {$: 'GotDragElement', a: a};
 };
@@ -8175,40 +8195,84 @@ var $annaghi$dnd_list$DnDList$create = F2(
 	});
 var $author$project$Main$system = A2($annaghi$dnd_list$DnDList$create, $author$project$Main$config, $author$project$Main$DndMsg);
 var $elm_explorations$linear_algebra$Math$Vector2$vec2 = _MJS_v2;
-var $author$project$Main$initModel = function (location) {
-	return {
-		allNodeLabels: _List_Nil,
-		cbRes: false,
-		center: A2($elm_explorations$linear_algebra$Math$Vector2$vec2, 375, 500),
-		dirty: false,
-		dnd: $author$project$Main$system.model,
-		dotString: '',
-		drag: $zaboco$elm_draggable$Draggable$init,
-		error: '',
-		errorVis: $rundis$elm_bootstrap$Bootstrap$Alert$closed,
-		exampleIndex: 0,
-		filtIdCounter: 0,
-		filter: '',
-		filters: _List_Nil,
-		funnelState: $author$project$PortFunnels$initialState($author$project$Main$prefix),
-		generatedShare: '',
-		initData: $author$project$Main$defaultInitData,
-		items: _List_Nil,
-		nodeContext: A4($author$project$Main$ContextMenu, 0, 0, 0, false),
-		program: '',
-		refNodes: _List_Nil,
-		saveName: '',
-		savedGraphKeys: _List_Nil,
-		selectedSaveGraph: 0,
-		share: $author$project$Main$queryParser(location),
-		shortDotString: '',
-		size: A2($author$project$Main$Size, 1500, 1000),
-		svgString: '',
-		url: $elm$url$Url$fromString(location),
-		useSimulator: false,
-		wasLoaded: false,
-		zoom: 1
-	};
+var $author$project$Main$initModel = F4(
+	function (location, h, w, nb) {
+		return {
+			accState: $rundis$elm_bootstrap$Bootstrap$Accordion$initialState,
+			allNodeLabels: _List_Nil,
+			cbPopover: $rundis$elm_bootstrap$Bootstrap$Popover$initialState,
+			cbRes: false,
+			center: A2($elm_explorations$linear_algebra$Math$Vector2$vec2, 375, 500),
+			dirty: false,
+			dnd: $author$project$Main$system.model,
+			dotString: '',
+			drag: $zaboco$elm_draggable$Draggable$init,
+			error: '',
+			errorType: false,
+			errorVis: $rundis$elm_bootstrap$Bootstrap$Alert$closed,
+			exampleIndex: 0,
+			filtIdCounter: 0,
+			filter: '',
+			filters: _List_Nil,
+			funnelState: $author$project$PortFunnels$initialState($author$project$Main$prefix),
+			generatedShare: '',
+			height: h - $author$project$Main$navBarHeight,
+			initData: $author$project$Main$defaultInitData,
+			items: _List_Nil,
+			navbarState: nb,
+			nodeContext: A4($author$project$Main$ContextMenu, 0, 0, 0, false),
+			program: '',
+			refNodes: _List_Nil,
+			saveName: '',
+			savedGraphKeys: _List_Nil,
+			selectedSaveGraph: 0,
+			share: $author$project$Main$queryParser(location),
+			shortDotString: '',
+			size: A2($author$project$Main$Size, 1500, 1000),
+			svgString: '',
+			url: $elm$url$Url$fromString(location),
+			useSimulator: false,
+			wasLoaded: false,
+			width: w,
+			zoom: 1
+		};
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Hidden = {$: 'Hidden'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$State = function (a) {
+	return {$: 'State', a: a};
+};
+var $elm$browser$Browser$Dom$getViewport = _Browser_withWindow(_Browser_getViewport);
+var $rundis$elm_bootstrap$Bootstrap$Navbar$mapState = F2(
+	function (mapper, _v0) {
+		var state = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Navbar$State(
+			mapper(state));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$initWindowSize = F2(
+	function (toMsg, state) {
+		return A2(
+			$elm$core$Task$perform,
+			function (vp) {
+				return toMsg(
+					A2(
+						$rundis$elm_bootstrap$Bootstrap$Navbar$mapState,
+						function (s) {
+							return _Utils_update(
+								s,
+								{
+									windowWidth: $elm$core$Maybe$Just(vp.viewport.width)
+								});
+						},
+						state));
+			},
+			$elm$browser$Browser$Dom$getViewport);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$initialState = function (toMsg) {
+	var state = $rundis$elm_bootstrap$Bootstrap$Navbar$State(
+		{dropdowns: $elm$core$Dict$empty, height: $elm$core$Maybe$Nothing, visibility: $rundis$elm_bootstrap$Bootstrap$Navbar$Hidden, windowWidth: $elm$core$Maybe$Nothing});
+	return _Utils_Tuple2(
+		state,
+		A2($rundis$elm_bootstrap$Bootstrap$Navbar$initWindowSize, toMsg, state));
 };
 var $author$project$Main$SavedGraph = F2(
 	function (program, filters) {
@@ -8245,8 +8309,491 @@ var $author$project$Main$loadSavedGraphToModel = F2(
 			model,
 			{items: gr.filters, program: gr.program});
 	});
+var $elm$core$Basics$always = F2(
+	function (a, _v0) {
+		return a;
+	});
+var $author$project$Main$run = function (m) {
+	return A2(
+		$elm$core$Task$perform,
+		$elm$core$Basics$always(m),
+		$elm$core$Task$succeed(_Utils_Tuple0));
+};
+var $author$project$Main$init = function (flags) {
+	var _v0 = $rundis$elm_bootstrap$Bootstrap$Navbar$initialState($author$project$Main$NavbarMsg);
+	var navbarState = _v0.a;
+	var navbarCmd = _v0.b;
+	var initCmd = $elm$core$Platform$Cmd$batch(
+		_List_fromArray(
+			[
+				navbarCmd,
+				$author$project$Main$run($author$project$Main$GetInit)
+			]));
+	var model = A4($author$project$Main$initModel, flags.url, flags.height, flags.width, navbarState);
+	var _v1 = model.share;
+	if (_v1 === '') {
+		return _Utils_Tuple2(model, initCmd);
+	} else {
+		var a = _v1;
+		var _v2 = $truqu$elm_base64$Base64$decode(a);
+		if (_v2.$ === 'Err') {
+			var b = _v2.a;
+			var modelErrShare = _Utils_update(
+				model,
+				{share: 'Error: ' + b});
+			return _Utils_Tuple2(modelErrShare, initCmd);
+		} else {
+			var c = _v2.a;
+			var modelGoodShare = _Utils_update(
+				model,
+				{share: c});
+			var sharedGraph = A2($elm$json$Json$Decode$decodeString, $author$project$Main$jsonToSavedGraph, modelGoodShare.share);
+			if (sharedGraph.$ === 'Ok') {
+				var g = sharedGraph.a;
+				var modelWithShareLoaded = A2($author$project$Main$loadSavedGraphToModel, modelGoodShare, g);
+				return _Utils_Tuple2(modelWithShareLoaded, initCmd);
+			} else {
+				return _Utils_Tuple2(modelGoodShare, initCmd);
+			}
+		}
+	}
+};
+var $author$project$Main$AccMsg = function (a) {
+	return {$: 'AccMsg', a: a};
+};
 var $author$project$Main$AlertMsg = function (a) {
 	return {$: 'AlertMsg', a: a};
+};
+var $author$project$Main$CBRes = function (a) {
+	return {$: 'CBRes', a: a};
+};
+var $author$project$Main$DragMsg = function (a) {
+	return {$: 'DragMsg', a: a};
+};
+var $author$project$Main$Process = function (a) {
+	return {$: 'Process', a: a};
+};
+var $author$project$Main$ResizeView = F2(
+	function (a, b) {
+		return {$: 'ResizeView', a: a, b: b};
+	});
+var $author$project$Main$clipboardRes = _Platform_incomingPort('clipboardRes', $elm$json$Json$Decode$bool);
+var $elm$browser$Browser$Events$Window = {$: 'Window'};
+var $elm$browser$Browser$Events$onResize = function (func) {
+	return A3(
+		$elm$browser$Browser$Events$on,
+		$elm$browser$Browser$Events$Window,
+		'resize',
+		A2(
+			$elm$json$Json$Decode$field,
+			'target',
+			A3(
+				$elm$json$Json$Decode$map2,
+				func,
+				A2($elm$json$Json$Decode$field, 'innerWidth', $elm$json$Json$Decode$int),
+				A2($elm$json$Json$Decode$field, 'innerHeight', $elm$json$Json$Decode$int))));
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$Hidden = {$: 'Hidden'};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$Shown = {$: 'Shown'};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$StartDown = {$: 'StartDown'};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$StartUp = {$: 'StartUp'};
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$Dict$map = F2(
+	function (func, dict) {
+		if (dict.$ === 'RBEmpty_elm_builtin') {
+			return $elm$core$Dict$RBEmpty_elm_builtin;
+		} else {
+			var color = dict.a;
+			var key = dict.b;
+			var value = dict.c;
+			var left = dict.d;
+			var right = dict.e;
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				color,
+				key,
+				A2(func, key, value),
+				A2($elm$core$Dict$map, func, left),
+				A2($elm$core$Dict$map, func, right));
+		}
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var $elm$browser$Browser$AnimationManager$Time = function (a) {
+	return {$: 'Time', a: a};
+};
+var $elm$browser$Browser$AnimationManager$State = F3(
+	function (subs, request, oldTime) {
+		return {oldTime: oldTime, request: request, subs: subs};
+	});
+var $elm$browser$Browser$AnimationManager$init = $elm$core$Task$succeed(
+	A3($elm$browser$Browser$AnimationManager$State, _List_Nil, $elm$core$Maybe$Nothing, 0));
+var $elm$browser$Browser$AnimationManager$now = _Browser_now(_Utils_Tuple0);
+var $elm$browser$Browser$AnimationManager$rAF = _Browser_rAF(_Utils_Tuple0);
+var $elm$core$Process$spawn = _Scheduler_spawn;
+var $elm$browser$Browser$AnimationManager$onEffects = F3(
+	function (router, subs, _v0) {
+		var request = _v0.request;
+		var oldTime = _v0.oldTime;
+		var _v1 = _Utils_Tuple2(request, subs);
+		if (_v1.a.$ === 'Nothing') {
+			if (!_v1.b.b) {
+				var _v2 = _v1.a;
+				return $elm$browser$Browser$AnimationManager$init;
+			} else {
+				var _v4 = _v1.a;
+				return A2(
+					$elm$core$Task$andThen,
+					function (pid) {
+						return A2(
+							$elm$core$Task$andThen,
+							function (time) {
+								return $elm$core$Task$succeed(
+									A3(
+										$elm$browser$Browser$AnimationManager$State,
+										subs,
+										$elm$core$Maybe$Just(pid),
+										time));
+							},
+							$elm$browser$Browser$AnimationManager$now);
+					},
+					$elm$core$Process$spawn(
+						A2(
+							$elm$core$Task$andThen,
+							$elm$core$Platform$sendToSelf(router),
+							$elm$browser$Browser$AnimationManager$rAF)));
+			}
+		} else {
+			if (!_v1.b.b) {
+				var pid = _v1.a.a;
+				return A2(
+					$elm$core$Task$andThen,
+					function (_v3) {
+						return $elm$browser$Browser$AnimationManager$init;
+					},
+					$elm$core$Process$kill(pid));
+			} else {
+				return $elm$core$Task$succeed(
+					A3($elm$browser$Browser$AnimationManager$State, subs, request, oldTime));
+			}
+		}
+	});
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
+var $elm$browser$Browser$AnimationManager$onSelfMsg = F3(
+	function (router, newTime, _v0) {
+		var subs = _v0.subs;
+		var oldTime = _v0.oldTime;
+		var send = function (sub) {
+			if (sub.$ === 'Time') {
+				var tagger = sub.a;
+				return A2(
+					$elm$core$Platform$sendToApp,
+					router,
+					tagger(
+						$elm$time$Time$millisToPosix(newTime)));
+			} else {
+				var tagger = sub.a;
+				return A2(
+					$elm$core$Platform$sendToApp,
+					router,
+					tagger(newTime - oldTime));
+			}
+		};
+		return A2(
+			$elm$core$Task$andThen,
+			function (pid) {
+				return A2(
+					$elm$core$Task$andThen,
+					function (_v1) {
+						return $elm$core$Task$succeed(
+							A3(
+								$elm$browser$Browser$AnimationManager$State,
+								subs,
+								$elm$core$Maybe$Just(pid),
+								newTime));
+					},
+					$elm$core$Task$sequence(
+						A2($elm$core$List$map, send, subs)));
+			},
+			$elm$core$Process$spawn(
+				A2(
+					$elm$core$Task$andThen,
+					$elm$core$Platform$sendToSelf(router),
+					$elm$browser$Browser$AnimationManager$rAF)));
+	});
+var $elm$browser$Browser$AnimationManager$Delta = function (a) {
+	return {$: 'Delta', a: a};
+};
+var $elm$browser$Browser$AnimationManager$subMap = F2(
+	function (func, sub) {
+		if (sub.$ === 'Time') {
+			var tagger = sub.a;
+			return $elm$browser$Browser$AnimationManager$Time(
+				A2($elm$core$Basics$composeL, func, tagger));
+		} else {
+			var tagger = sub.a;
+			return $elm$browser$Browser$AnimationManager$Delta(
+				A2($elm$core$Basics$composeL, func, tagger));
+		}
+	});
+_Platform_effectManagers['Browser.AnimationManager'] = _Platform_createManager($elm$browser$Browser$AnimationManager$init, $elm$browser$Browser$AnimationManager$onEffects, $elm$browser$Browser$AnimationManager$onSelfMsg, 0, $elm$browser$Browser$AnimationManager$subMap);
+var $elm$browser$Browser$AnimationManager$subscription = _Platform_leaf('Browser.AnimationManager');
+var $elm$browser$Browser$AnimationManager$onAnimationFrame = function (tagger) {
+	return $elm$browser$Browser$AnimationManager$subscription(
+		$elm$browser$Browser$AnimationManager$Time(tagger));
+};
+var $elm$browser$Browser$Events$onAnimationFrame = $elm$browser$Browser$AnimationManager$onAnimationFrame;
+var $rundis$elm_bootstrap$Bootstrap$Accordion$subscriptions = F2(
+	function (_v0, toMsg) {
+		var cardStates = _v0.a;
+		var updState = $rundis$elm_bootstrap$Bootstrap$Accordion$State(
+			A2(
+				$elm$core$Dict$map,
+				F2(
+					function (id, state) {
+						var _v3 = state.visibility;
+						switch (_v3.$) {
+							case 'StartDown':
+								return _Utils_update(
+									state,
+									{visibility: $rundis$elm_bootstrap$Bootstrap$Accordion$Shown});
+							case 'StartUp':
+								return _Utils_update(
+									state,
+									{visibility: $rundis$elm_bootstrap$Bootstrap$Accordion$Hidden});
+							default:
+								return state;
+						}
+					}),
+				cardStates));
+		var needsSub = A2(
+			$elm$core$List$any,
+			function (_v2) {
+				var state = _v2.b;
+				return A2(
+					$elm$core$List$member,
+					state.visibility,
+					_List_fromArray(
+						[$rundis$elm_bootstrap$Bootstrap$Accordion$StartDown, $rundis$elm_bootstrap$Bootstrap$Accordion$StartUp]));
+			},
+			$elm$core$Dict$toList(cardStates));
+		return needsSub ? $elm$browser$Browser$Events$onAnimationFrame(
+			function (_v1) {
+				return toMsg(updState);
+			}) : $elm$core$Platform$Sub$none;
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$FadeClose = {$: 'FadeClose'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$subscriptions = F2(
+	function (visibility, animateMsg) {
+		if (visibility.$ === 'StartClose') {
+			return $elm$browser$Browser$Events$onAnimationFrame(
+				function (_v1) {
+					return animateMsg($rundis$elm_bootstrap$Bootstrap$Alert$FadeClose);
+				});
+		} else {
+			return $elm$core$Platform$Sub$none;
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$AnimatingDown = {$: 'AnimatingDown'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$AnimatingUp = {$: 'AnimatingUp'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Closed = {$: 'Closed'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$ListenClicks = {$: 'ListenClicks'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Open = {$: 'Open'};
+var $elm$browser$Browser$Events$onClick = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'click');
+var $rundis$elm_bootstrap$Bootstrap$Navbar$dropdownSubscriptions = F2(
+	function (state, toMsg) {
+		var dropdowns = state.a.dropdowns;
+		var updDropdowns = A2(
+			$elm$core$Dict$map,
+			F2(
+				function (_v2, status) {
+					switch (status.$) {
+						case 'Open':
+							return $rundis$elm_bootstrap$Bootstrap$Navbar$ListenClicks;
+						case 'ListenClicks':
+							return $rundis$elm_bootstrap$Bootstrap$Navbar$Closed;
+						default:
+							return $rundis$elm_bootstrap$Bootstrap$Navbar$Closed;
+					}
+				}),
+			dropdowns);
+		var updState = A2(
+			$rundis$elm_bootstrap$Bootstrap$Navbar$mapState,
+			function (s) {
+				return _Utils_update(
+					s,
+					{dropdowns: updDropdowns});
+			},
+			state);
+		var needsSub = function (s) {
+			return A2(
+				$elm$core$List$any,
+				function (_v1) {
+					var status = _v1.b;
+					return _Utils_eq(status, s);
+				},
+				$elm$core$Dict$toList(dropdowns));
+		};
+		return $elm$core$Platform$Sub$batch(
+			_List_fromArray(
+				[
+					needsSub($rundis$elm_bootstrap$Bootstrap$Navbar$Open) ? $elm$browser$Browser$Events$onAnimationFrame(
+					function (_v0) {
+						return toMsg(updState);
+					}) : $elm$core$Platform$Sub$none,
+					needsSub($rundis$elm_bootstrap$Bootstrap$Navbar$ListenClicks) ? $elm$browser$Browser$Events$onClick(
+					$elm$json$Json$Decode$succeed(
+						toMsg(updState))) : $elm$core$Platform$Sub$none
+				]));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$subscriptions = F2(
+	function (state, toMsg) {
+		var visibility = state.a.visibility;
+		var updState = function (v) {
+			return A2(
+				$rundis$elm_bootstrap$Bootstrap$Navbar$mapState,
+				function (s) {
+					return _Utils_update(
+						s,
+						{visibility: v});
+				},
+				state);
+		};
+		return $elm$core$Platform$Sub$batch(
+			_List_fromArray(
+				[
+					function () {
+					switch (visibility.$) {
+						case 'StartDown':
+							return $elm$browser$Browser$Events$onAnimationFrame(
+								function (_v1) {
+									return toMsg(
+										updState($rundis$elm_bootstrap$Bootstrap$Navbar$AnimatingDown));
+								});
+						case 'StartUp':
+							return $elm$browser$Browser$Events$onAnimationFrame(
+								function (_v2) {
+									return toMsg(
+										updState($rundis$elm_bootstrap$Bootstrap$Navbar$AnimatingUp));
+								});
+						default:
+							return $elm$core$Platform$Sub$none;
+					}
+				}(),
+					$elm$browser$Browser$Events$onResize(
+					F2(
+						function (x, _v3) {
+							return toMsg(
+								A2(
+									$rundis$elm_bootstrap$Bootstrap$Navbar$mapState,
+									function (s) {
+										return _Utils_update(
+											s,
+											{
+												windowWidth: $elm$core$Maybe$Just(x)
+											});
+									},
+									state));
+						})),
+					A2($rundis$elm_bootstrap$Bootstrap$Navbar$dropdownSubscriptions, state, toMsg)
+				]));
+	});
+var $zaboco$elm_draggable$Internal$DragAt = function (a) {
+	return {$: 'DragAt', a: a};
+};
+var $zaboco$elm_draggable$Draggable$Msg = function (a) {
+	return {$: 'Msg', a: a};
+};
+var $zaboco$elm_draggable$Internal$StopDragging = {$: 'StopDragging'};
+var $elm$core$Platform$Sub$map = _Platform_map;
+var $zaboco$elm_draggable$Internal$Position = F2(
+	function (x, y) {
+		return {x: x, y: y};
+	});
+var $elm$core$Basics$truncate = _Basics_truncate;
+var $zaboco$elm_draggable$Draggable$positionDecoder = A3(
+	$elm$json$Json$Decode$map2,
+	$zaboco$elm_draggable$Internal$Position,
+	A2(
+		$elm$json$Json$Decode$map,
+		$elm$core$Basics$truncate,
+		A2($elm$json$Json$Decode$field, 'pageX', $elm$json$Json$Decode$float)),
+	A2(
+		$elm$json$Json$Decode$map,
+		$elm$core$Basics$truncate,
+		A2($elm$json$Json$Decode$field, 'pageY', $elm$json$Json$Decode$float)));
+var $zaboco$elm_draggable$Draggable$subscriptions = F2(
+	function (envelope, _v0) {
+		var drag = _v0.a;
+		if (drag.$ === 'NotDragging') {
+			return $elm$core$Platform$Sub$none;
+		} else {
+			return A2(
+				$elm$core$Platform$Sub$map,
+				A2($elm$core$Basics$composeL, envelope, $zaboco$elm_draggable$Draggable$Msg),
+				$elm$core$Platform$Sub$batch(
+					_List_fromArray(
+						[
+							$elm$browser$Browser$Events$onMouseMove(
+							A2($elm$json$Json$Decode$map, $zaboco$elm_draggable$Internal$DragAt, $zaboco$elm_draggable$Draggable$positionDecoder)),
+							$elm$browser$Browser$Events$onMouseUp(
+							$elm$json$Json$Decode$succeed($zaboco$elm_draggable$Internal$StopDragging))
+						])));
+		}
+	});
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$PortFunnels$subPort = _Platform_incomingPort('subPort', $elm$json$Json$Decode$value);
+var $author$project$PortFunnels$subscriptions = F2(
+	function (process, model) {
+		return $author$project$PortFunnels$subPort(process);
+	});
+var $author$project$Main$subscriptions = function (model) {
+	return $elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				A2($zaboco$elm_draggable$Draggable$subscriptions, $author$project$Main$DragMsg, model.drag),
+				$author$project$Main$system.subscriptions(model.dnd),
+				A2($rundis$elm_bootstrap$Bootstrap$Alert$subscriptions, model.errorVis, $author$project$Main$AlertMsg),
+				A2($author$project$PortFunnels$subscriptions, $author$project$Main$Process, model),
+				$author$project$Main$clipboardRes($author$project$Main$CBRes),
+				$elm$browser$Browser$Events$onResize(
+				F2(
+					function (width, height) {
+						return A2($author$project$Main$ResizeView, width, height);
+					})),
+				A2($rundis$elm_bootstrap$Bootstrap$Navbar$subscriptions, model.navbarState, $author$project$Main$NavbarMsg),
+				A2($rundis$elm_bootstrap$Bootstrap$Accordion$subscriptions, model.accState, $author$project$Main$AccMsg)
+			]));
 };
 var $author$project$Main$ListGraphKeys = {$: 'ListGraphKeys'};
 var $author$project$PortFunnels$LocalStorageHandler = function (a) {
@@ -8368,29 +8915,6 @@ var $elm_community$list_extra$List$Extra$findIndexHelp = F3(
 		}
 	});
 var $elm_community$list_extra$List$Extra$findIndex = $elm_community$list_extra$List$Extra$findIndexHelp(0);
-var $billstclair$elm_localstorage$PortFunnel$InternalTypes$Get = F2(
-	function (a, b) {
-		return {$: 'Get', a: a, b: b};
-	});
-var $billstclair$elm_localstorage$PortFunnel$LocalStorage$get = $billstclair$elm_localstorage$PortFunnel$InternalTypes$Get($elm$core$Maybe$Nothing);
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $elm_community$list_extra$List$Extra$getAt = F2(
-	function (idx, xs) {
-		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
-			A2($elm$core$List$drop, idx, xs));
-	});
-var $author$project$Main$Process = function (a) {
-	return {$: 'Process', a: a};
-};
-var $author$project$PortFunnels$cmdPort = _Platform_outgoingPort('cmdPort', $elm$core$Basics$identity);
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -8422,6 +8946,12 @@ var $elm$core$Dict$get = F2(
 			}
 		}
 	});
+var $billstclair$elm_localstorage$PortFunnel$InternalTypes$Get = F2(
+	function (a, b) {
+		return {$: 'Get', a: a, b: b};
+	});
+var $billstclair$elm_localstorage$PortFunnel$LocalStorage$get = $billstclair$elm_localstorage$PortFunnel$InternalTypes$Get($elm$core$Maybe$Nothing);
+var $author$project$PortFunnels$cmdPort = _Platform_outgoingPort('cmdPort', $elm$core$Basics$identity);
 var $billstclair$elm_port_funnel$PortFunnel$decodeValue = F2(
 	function (decoder, value) {
 		var _v0 = A2($elm$json$Json$Decode$decodeValue, decoder, value);
@@ -8439,7 +8969,6 @@ var $billstclair$elm_port_funnel$PortFunnel$GenericMessage = F3(
 		return {args: args, moduleName: moduleName, tag: tag};
 	});
 var $elm$json$Json$Decode$map3 = _Json_map3;
-var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $billstclair$elm_port_funnel$PortFunnel$genericMessageDecoder = A4(
 	$elm$json$Json$Decode$map3,
 	$billstclair$elm_port_funnel$PortFunnel$GenericMessage,
@@ -9691,6 +10220,20 @@ var $elm$http$Http$expectJson = F2(
 						A2($elm$json$Json$Decode$decodeString, decoder, string));
 				}));
 	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm_community$list_extra$List$Extra$getAt = F2(
+	function (idx, xs) {
+		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
+			A2($elm$core$List$drop, idx, xs));
+	});
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
@@ -9739,36 +10282,6 @@ var $elm_community$list_extra$List$Extra$findIndices = function (predicate) {
 		});
 	return A2($elm_community$list_extra$List$Extra$indexedFoldr, consIndexIf, _List_Nil);
 };
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var $elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			$elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
 var $elm_community$list_extra$List$Extra$removeIfIndex = function (predicate) {
 	return A2(
 		$elm_community$list_extra$List$Extra$indexedFoldr,
@@ -9818,7 +10331,6 @@ var $elm$http$Http$State = F2(
 	});
 var $elm$http$Http$init = $elm$core$Task$succeed(
 	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
-var $elm$core$Process$spawn = _Scheduler_spawn;
 var $elm$http$Http$updateReqs = F3(
 	function (router, cmds, reqs) {
 		updateReqs:
@@ -10020,7 +10532,10 @@ var $author$project$CustomDecoders$exampleDecoder = A2(
 var $author$project$CustomDecoders$examplesDecoder = A2(
 	$elm$json$Json$Decode$field,
 	'examples',
-	$elm$json$Json$Decode$list($author$project$CustomDecoders$exampleDecoder));
+	A2(
+		$elm$json$Json$Decode$map,
+		$elm$core$Dict$fromList,
+		$elm$json$Json$Decode$list($author$project$CustomDecoders$exampleDecoder)));
 var $author$project$CustomDecoders$filterDecoder = A2(
 	$elm_community$json_extra$Json$Decode$Extra$andMap,
 	A2($elm$json$Json$Decode$field, 'param', $elm$json$Json$Decode$bool),
@@ -10416,10 +10931,6 @@ var $elm$parser$Parser$Advanced$float = F2(
 			});
 	});
 var $elm$parser$Parser$float = A2($elm$parser$Parser$Advanced$float, $elm$parser$Parser$ExpectingFloat, $elm$parser$Parser$ExpectingFloat);
-var $elm$core$Basics$always = F2(
-	function (a, _v0) {
-		return a;
-	});
 var $elm$parser$Parser$Advanced$map2 = F3(
 	function (func, _v0, _v1) {
 		var parseA = _v0.a;
@@ -15917,7 +16428,7 @@ var $author$project$Main$storageHandler = F3(
 						$author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
 						_Utils_update(
 							model,
-							{error: 'Empty result'}));
+							{error: 'Empty result', errorType: false}));
 				} else {
 					var v = value.a;
 					return A2(
@@ -15953,40 +16464,48 @@ var $author$project$Main$update = F2(
 							{items: _List_Nil, program: '', svgString: ''}),
 						$elm$core$Platform$Cmd$none);
 				case 'LoadEx':
-					var example = A2($elm_community$list_extra$List$Extra$getAt, model.exampleIndex, model.initData.examples);
-					if (example.$ === 'Just') {
-						var _v2 = example.a;
-						var exampleText = _v2.b;
-						var $temp$msg = $author$project$Main$SaveProg(exampleText),
-							$temp$model = model;
-						msg = $temp$msg;
-						model = $temp$model;
-						continue update;
+					var name = msg.a;
+					var _v1 = A2($elm$core$Dict$get, name, model.initData.examples);
+					if (_v1.$ === 'Just') {
+						var n = _v1.a;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{error: 'Example Loaded', errorType: true}),
+							$elm$core$Platform$Cmd$batch(
+								_List_fromArray(
+									[
+										$author$project$Main$run(
+										$author$project$Main$SaveProg(n)),
+										$author$project$Main$run(
+										$author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown))
+									])));
 					} else {
-						var $temp$msg = $author$project$Main$SaveProg(''),
-							$temp$model = model;
-						msg = $temp$msg;
-						model = $temp$model;
-						continue update;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{error: 'Example Not Loaded', errorType: false}),
+							$elm$core$Platform$Cmd$batch(
+								_List_fromArray(
+									[
+										$author$project$Main$run(
+										$author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown))
+									])));
 					}
 				case 'SaveProg':
 					var prog = msg.a;
-					var $temp$msg = $author$project$Main$Run,
-						$temp$model = _Utils_update(
-						model,
-						{program: prog});
-					msg = $temp$msg;
-					model = $temp$model;
-					continue update;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{program: prog}),
+						$author$project$Main$run($author$project$Main$Run));
 				case 'SaveFilt':
 					var filt = msg.a;
-					var $temp$msg = $author$project$Main$Run,
-						$temp$model = _Utils_update(
-						model,
-						{filter: filt});
-					msg = $temp$msg;
-					model = $temp$model;
-					continue update;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{filter: filt}),
+						$author$project$Main$run($author$project$Main$Run));
 				case 'Run':
 					return _Utils_Tuple2(
 						model,
@@ -16011,9 +16530,9 @@ var $author$project$Main$update = F2(
 					}
 				case 'GotDot':
 					if (msg.a.$ === 'Ok') {
-						var _v3 = msg.a.a;
-						var dot = _v3.a;
-						var error = _v3.b;
+						var _v2 = msg.a.a;
+						var dot = _v2.a;
+						var error = _v2.b;
 						if (error === '') {
 							var newRefNodes = $elm$core$List$reverse(
 								$elm_community$list_extra$List$Extra$unique(
@@ -16035,7 +16554,7 @@ var $author$project$Main$update = F2(
 							var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
 								$temp$model = _Utils_update(
 								model,
-								{error: err});
+								{error: err, errorType: false});
 							msg = $temp$msg;
 							model = $temp$model;
 							continue update;
@@ -16068,7 +16587,8 @@ var $author$project$Main$update = F2(
 							$temp$model = _Utils_update(
 							model,
 							{
-								error: $author$project$Main$buildErrorMessage(httpError)
+								error: $author$project$Main$buildErrorMessage(httpError),
+								errorType: false
 							});
 						msg = $temp$msg;
 						model = $temp$model;
@@ -16116,9 +16636,9 @@ var $author$project$Main$update = F2(
 					return A3($zaboco$elm_draggable$Draggable$update, $author$project$Main$dragConfig, dragMsg, model);
 				case 'DndMsg':
 					var message = msg.a;
-					var _v5 = A3($author$project$Main$system.update, message, model.dnd, model.items);
-					var dnd = _v5.a;
-					var items = _v5.b;
+					var _v4 = A3($author$project$Main$system.update, message, model.dnd, model.items);
+					var dnd = _v4.a;
+					var items = _v4.b;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
@@ -16244,13 +16764,6 @@ var $author$project$Main$update = F2(
 					msg = $temp$msg;
 					model = $temp$model;
 					continue update;
-				case 'SetExample':
-					var index = msg.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{exampleIndex: index}),
-						$elm$core$Platform$Cmd$none);
 				case 'AlertMsg':
 					var vis = msg.a;
 					if (model.dirty) {
@@ -16269,50 +16782,42 @@ var $author$project$Main$update = F2(
 							$elm$core$Platform$Cmd$none);
 					}
 				case 'LoadSavedGraph':
-					var targetKey = A2($elm_community$list_extra$List$Extra$getAt, model.selectedSaveGraph, model.savedGraphKeys);
-					if (targetKey.$ === 'Just') {
-						var targ = targetKey.a;
-						return A2(
-							$Janiczek$cmd_extra$Cmd$Extra$withCmd,
-							A2(
+					var name = msg.a;
+					var upModel = _Utils_update(
+						model,
+						{error: 'Program Loaded', errorType: true, saveName: name});
+					var cmds = $elm$core$Platform$Cmd$batch(
+						_List_fromArray(
+							[
+								A2(
 								$author$project$Main$send,
-								$billstclair$elm_localstorage$PortFunnel$LocalStorage$get(targ),
-								_Utils_update(
-									model,
-									{saveName: targ})),
-							_Utils_update(
-								model,
-								{saveName: targ}));
-					} else {
-						var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
-							$temp$model = _Utils_update(
-							model,
-							{error: 'Selected Saved Program has an invalid index'});
-						msg = $temp$msg;
-						model = $temp$model;
-						continue update;
-					}
+								$billstclair$elm_localstorage$PortFunnel$LocalStorage$get(name),
+								upModel),
+								$author$project$Main$run(
+								$author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown))
+							]));
+					return _Utils_Tuple2(upModel, cmds);
 				case 'SaveGraph':
 					if (A2($elm$core$List$member, model.saveName, model.savedGraphKeys)) {
 						var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
 							$temp$model = _Utils_update(
 							model,
-							{error: 'Please enter a unique name to save your program'});
+							{error: 'Please enter a unique name to save your program', errorType: false});
 						msg = $temp$msg;
 						model = $temp$model;
 						continue update;
 					} else {
-						var _v8 = model.saveName;
-						if (_v8 === '') {
+						var _v6 = model.saveName;
+						if (_v6 === '') {
 							var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
 								$temp$model = _Utils_update(
 								model,
-								{error: 'Please enter a name to save your program'});
+								{error: 'Please enter a name to save your program', errorType: false});
 							msg = $temp$msg;
 							model = $temp$model;
 							continue update;
 						} else {
-							var name = _v8;
+							var name = _v6;
 							var newModel = _Utils_update(
 								model,
 								{
@@ -16337,23 +16842,23 @@ var $author$project$Main$update = F2(
 					}
 				case 'Process':
 					var value = msg.a;
-					var _v9 = A4(
+					var _v7 = A4(
 						$author$project$PortFunnels$processValue,
 						$author$project$Main$cyclic$funnelDict(),
 						value,
 						model.funnelState,
 						model);
-					if (_v9.$ === 'Err') {
-						var error = _v9.a;
+					if (_v7.$ === 'Err') {
+						var error = _v7.a;
 						var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
 							$temp$model = _Utils_update(
 							model,
-							{error: error});
+							{error: error, errorType: false});
 						msg = $temp$msg;
 						model = $temp$model;
 						continue update;
 					} else {
-						var res = _v9.a;
+						var res = _v7.a;
 						return res;
 					}
 				case 'ListGraphKeys':
@@ -16372,43 +16877,26 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{saveName: value}));
-				case 'SetTargetSaved':
-					var index = msg.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{selectedSaveGraph: index}),
-						$elm$core$Platform$Cmd$none);
 				case 'DeleteSavedGraph':
-					var _v10 = A2($elm_community$list_extra$List$Extra$getAt, model.selectedSaveGraph, model.savedGraphKeys);
-					if (_v10.$ === 'Just') {
-						var targ = _v10.a;
-						var updatedKeys = A2($elm_community$list_extra$List$Extra$remove, targ, model.savedGraphKeys);
-						var upModel = _Utils_update(
-							model,
-							{
-								savedGraphKeys: updatedKeys,
-								selectedSaveGraph: A2($elm$core$Basics$max, 0, model.selectedSaveGraph - 1)
-							});
-						return A2(
-							$Janiczek$cmd_extra$Cmd$Extra$withCmd,
-							A2(
+					var name = msg.a;
+					var updatedKeys = A2($elm_community$list_extra$List$Extra$remove, name, model.savedGraphKeys);
+					var upModel = _Utils_update(
+						model,
+						{error: 'Program Saved', errorType: true, savedGraphKeys: updatedKeys});
+					var cmds = $elm$core$Platform$Cmd$batch(
+						_List_fromArray(
+							[
+								A2(
 								$author$project$Main$send,
-								A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$put, targ, $elm$core$Maybe$Nothing),
+								A2($billstclair$elm_localstorage$PortFunnel$LocalStorage$put, name, $elm$core$Maybe$Nothing),
 								upModel),
-							upModel);
-					} else {
-						var $temp$msg = $author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown),
-							$temp$model = _Utils_update(
-							model,
-							{error: 'Selected Saved Program has an invalid index'});
-						msg = $temp$msg;
-						model = $temp$model;
-						continue update;
-					}
+								$author$project$Main$run(
+								$author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown))
+							]));
+					return _Utils_Tuple2(upModel, cmds);
 				case 'RunShare':
-					var _v11 = model.share;
-					if (_v11 === '') {
+					var _v8 = model.share;
+					if (_v8 === '') {
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 					} else {
 						return _Utils_Tuple2(
@@ -16416,14 +16904,14 @@ var $author$project$Main$update = F2(
 							$author$project$Main$getDotString(model));
 					}
 				case 'NodeClicked':
-					var _v12 = msg.a;
-					var nodeStr = _v12.a;
-					var x = _v12.b;
-					var y = _v12.c;
+					var _v9 = msg.a;
+					var nodeStr = _v9.a;
+					var x = _v9.b;
+					var y = _v9.c;
 					if (A2($elm$core$String$startsWith, 'node', nodeStr)) {
-						var _v13 = $elm$core$String$toInt(
+						var _v10 = $elm$core$String$toInt(
 							A2($elm$core$String$dropLeft, 4, nodeStr));
-						if (_v13.$ === 'Nothing') {
+						if (_v10.$ === 'Nothing') {
 							return _Utils_Tuple2(
 								_Utils_update(
 									model,
@@ -16432,7 +16920,7 @@ var $author$project$Main$update = F2(
 									}),
 								$elm$core$Platform$Cmd$none);
 						} else {
-							var node = _v13.a;
+							var node = _v10.a;
 							return _Utils_Tuple2(
 								_Utils_update(
 									model,
@@ -16456,17 +16944,52 @@ var $author$project$Main$update = F2(
 						model,
 						$author$project$Main$clipboardCopy(str));
 				case 'CBRes':
-					var res = msg.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{cbRes: res}),
+							{error: 'Link copied to Clipboard', errorType: false}),
+						$author$project$Main$run(
+							$author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown)));
+				case 'ResizeView':
+					var w = msg.a;
+					var h = msg.b;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{height: h - $author$project$Main$navBarHeight, width: w}),
+						$elm$core$Platform$Cmd$none);
+				case 'NavbarMsg':
+					var state = msg.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{navbarState: state}),
+						$elm$core$Platform$Cmd$none);
+				case 'ShowModal':
+					var x = msg.a;
+					switch (x.$) {
+						case 'Save':
+							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+						case 'Load':
+							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+						case 'Share':
+							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+						default:
+							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+					}
+				case 'PopoverMsg':
+					var state = msg.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{cbPopover: state}),
 						$elm$core$Platform$Cmd$none);
 				default:
+					var state = msg.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{cbRes: false}),
+							{accState: state}),
 						$elm$core$Platform$Cmd$none);
 			}
 		}
@@ -16487,259 +17010,23 @@ try {
 	};
 } catch ($) {
 	throw 'Some top-level definitions from `Main` are causing infinite recursion:\n\n  ┌─────┐\n  │    funnelDict\n  │     ↓\n  │    storageHandler\n  │     ↓\n  │    update\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
-var $author$project$Main$init = function (flags) {
-	var model = $author$project$Main$initModel(flags.url);
-	var _v0 = model.share;
-	if (_v0 === '') {
-		return A2($author$project$Main$update, $author$project$Main$GetInit, model);
-	} else {
-		var a = _v0;
-		var _v1 = $truqu$elm_base64$Base64$decode(a);
-		if (_v1.$ === 'Err') {
-			var b = _v1.a;
-			var modelErrShare = _Utils_update(
-				model,
-				{share: 'Error: ' + b});
-			return A2($author$project$Main$update, $author$project$Main$GetInit, modelErrShare);
-		} else {
-			var c = _v1.a;
-			var modelGoodShare = _Utils_update(
-				model,
-				{share: c});
-			var sharedGraph = A2($elm$json$Json$Decode$decodeString, $author$project$Main$jsonToSavedGraph, modelGoodShare.share);
-			if (sharedGraph.$ === 'Ok') {
-				var g = sharedGraph.a;
-				var modelWithShareLoaded = A2($author$project$Main$loadSavedGraphToModel, modelGoodShare, g);
-				return A2($author$project$Main$update, $author$project$Main$GetInit, modelWithShareLoaded);
-			} else {
-				return A2($author$project$Main$update, $author$project$Main$GetInit, modelGoodShare);
-			}
-		}
-	}
-};
-var $author$project$Main$CBRes = function (a) {
-	return {$: 'CBRes', a: a};
-};
-var $author$project$Main$DragMsg = function (a) {
-	return {$: 'DragMsg', a: a};
-};
-var $author$project$Main$clipboardRes = _Platform_incomingPort('clipboardRes', $elm$json$Json$Decode$bool);
-var $rundis$elm_bootstrap$Bootstrap$Alert$FadeClose = {$: 'FadeClose'};
-var $elm$browser$Browser$AnimationManager$Time = function (a) {
-	return {$: 'Time', a: a};
-};
-var $elm$browser$Browser$AnimationManager$State = F3(
-	function (subs, request, oldTime) {
-		return {oldTime: oldTime, request: request, subs: subs};
-	});
-var $elm$browser$Browser$AnimationManager$init = $elm$core$Task$succeed(
-	A3($elm$browser$Browser$AnimationManager$State, _List_Nil, $elm$core$Maybe$Nothing, 0));
-var $elm$browser$Browser$AnimationManager$now = _Browser_now(_Utils_Tuple0);
-var $elm$browser$Browser$AnimationManager$rAF = _Browser_rAF(_Utils_Tuple0);
-var $elm$browser$Browser$AnimationManager$onEffects = F3(
-	function (router, subs, _v0) {
-		var request = _v0.request;
-		var oldTime = _v0.oldTime;
-		var _v1 = _Utils_Tuple2(request, subs);
-		if (_v1.a.$ === 'Nothing') {
-			if (!_v1.b.b) {
-				var _v2 = _v1.a;
-				return $elm$browser$Browser$AnimationManager$init;
-			} else {
-				var _v4 = _v1.a;
-				return A2(
-					$elm$core$Task$andThen,
-					function (pid) {
-						return A2(
-							$elm$core$Task$andThen,
-							function (time) {
-								return $elm$core$Task$succeed(
-									A3(
-										$elm$browser$Browser$AnimationManager$State,
-										subs,
-										$elm$core$Maybe$Just(pid),
-										time));
-							},
-							$elm$browser$Browser$AnimationManager$now);
-					},
-					$elm$core$Process$spawn(
-						A2(
-							$elm$core$Task$andThen,
-							$elm$core$Platform$sendToSelf(router),
-							$elm$browser$Browser$AnimationManager$rAF)));
-			}
-		} else {
-			if (!_v1.b.b) {
-				var pid = _v1.a.a;
-				return A2(
-					$elm$core$Task$andThen,
-					function (_v3) {
-						return $elm$browser$Browser$AnimationManager$init;
-					},
-					$elm$core$Process$kill(pid));
-			} else {
-				return $elm$core$Task$succeed(
-					A3($elm$browser$Browser$AnimationManager$State, subs, request, oldTime));
-			}
-		}
-	});
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
-var $elm$browser$Browser$AnimationManager$onSelfMsg = F3(
-	function (router, newTime, _v0) {
-		var subs = _v0.subs;
-		var oldTime = _v0.oldTime;
-		var send = function (sub) {
-			if (sub.$ === 'Time') {
-				var tagger = sub.a;
-				return A2(
-					$elm$core$Platform$sendToApp,
-					router,
-					tagger(
-						$elm$time$Time$millisToPosix(newTime)));
-			} else {
-				var tagger = sub.a;
-				return A2(
-					$elm$core$Platform$sendToApp,
-					router,
-					tagger(newTime - oldTime));
-			}
-		};
-		return A2(
-			$elm$core$Task$andThen,
-			function (pid) {
-				return A2(
-					$elm$core$Task$andThen,
-					function (_v1) {
-						return $elm$core$Task$succeed(
-							A3(
-								$elm$browser$Browser$AnimationManager$State,
-								subs,
-								$elm$core$Maybe$Just(pid),
-								newTime));
-					},
-					$elm$core$Task$sequence(
-						A2($elm$core$List$map, send, subs)));
-			},
-			$elm$core$Process$spawn(
-				A2(
-					$elm$core$Task$andThen,
-					$elm$core$Platform$sendToSelf(router),
-					$elm$browser$Browser$AnimationManager$rAF)));
-	});
-var $elm$browser$Browser$AnimationManager$Delta = function (a) {
-	return {$: 'Delta', a: a};
-};
-var $elm$browser$Browser$AnimationManager$subMap = F2(
-	function (func, sub) {
-		if (sub.$ === 'Time') {
-			var tagger = sub.a;
-			return $elm$browser$Browser$AnimationManager$Time(
-				A2($elm$core$Basics$composeL, func, tagger));
-		} else {
-			var tagger = sub.a;
-			return $elm$browser$Browser$AnimationManager$Delta(
-				A2($elm$core$Basics$composeL, func, tagger));
-		}
-	});
-_Platform_effectManagers['Browser.AnimationManager'] = _Platform_createManager($elm$browser$Browser$AnimationManager$init, $elm$browser$Browser$AnimationManager$onEffects, $elm$browser$Browser$AnimationManager$onSelfMsg, 0, $elm$browser$Browser$AnimationManager$subMap);
-var $elm$browser$Browser$AnimationManager$subscription = _Platform_leaf('Browser.AnimationManager');
-var $elm$browser$Browser$AnimationManager$onAnimationFrame = function (tagger) {
-	return $elm$browser$Browser$AnimationManager$subscription(
-		$elm$browser$Browser$AnimationManager$Time(tagger));
-};
-var $elm$browser$Browser$Events$onAnimationFrame = $elm$browser$Browser$AnimationManager$onAnimationFrame;
-var $rundis$elm_bootstrap$Bootstrap$Alert$subscriptions = F2(
-	function (visibility, animateMsg) {
-		if (visibility.$ === 'StartClose') {
-			return $elm$browser$Browser$Events$onAnimationFrame(
-				function (_v1) {
-					return animateMsg($rundis$elm_bootstrap$Bootstrap$Alert$FadeClose);
-				});
-		} else {
-			return $elm$core$Platform$Sub$none;
-		}
-	});
-var $zaboco$elm_draggable$Internal$DragAt = function (a) {
-	return {$: 'DragAt', a: a};
-};
-var $zaboco$elm_draggable$Draggable$Msg = function (a) {
-	return {$: 'Msg', a: a};
-};
-var $zaboco$elm_draggable$Internal$StopDragging = {$: 'StopDragging'};
-var $elm$core$Platform$Sub$map = _Platform_map;
-var $zaboco$elm_draggable$Internal$Position = F2(
-	function (x, y) {
-		return {x: x, y: y};
-	});
-var $elm$core$Basics$truncate = _Basics_truncate;
-var $zaboco$elm_draggable$Draggable$positionDecoder = A3(
-	$elm$json$Json$Decode$map2,
-	$zaboco$elm_draggable$Internal$Position,
-	A2(
-		$elm$json$Json$Decode$map,
-		$elm$core$Basics$truncate,
-		A2($elm$json$Json$Decode$field, 'pageX', $elm$json$Json$Decode$float)),
-	A2(
-		$elm$json$Json$Decode$map,
-		$elm$core$Basics$truncate,
-		A2($elm$json$Json$Decode$field, 'pageY', $elm$json$Json$Decode$float)));
-var $zaboco$elm_draggable$Draggable$subscriptions = F2(
-	function (envelope, _v0) {
-		var drag = _v0.a;
-		if (drag.$ === 'NotDragging') {
-			return $elm$core$Platform$Sub$none;
-		} else {
-			return A2(
-				$elm$core$Platform$Sub$map,
-				A2($elm$core$Basics$composeL, envelope, $zaboco$elm_draggable$Draggable$Msg),
-				$elm$core$Platform$Sub$batch(
-					_List_fromArray(
-						[
-							$elm$browser$Browser$Events$onMouseMove(
-							A2($elm$json$Json$Decode$map, $zaboco$elm_draggable$Internal$DragAt, $zaboco$elm_draggable$Draggable$positionDecoder)),
-							$elm$browser$Browser$Events$onMouseUp(
-							$elm$json$Json$Decode$succeed($zaboco$elm_draggable$Internal$StopDragging))
-						])));
-		}
-	});
-var $author$project$PortFunnels$subPort = _Platform_incomingPort('subPort', $elm$json$Json$Decode$value);
-var $author$project$PortFunnels$subscriptions = F2(
-	function (process, model) {
-		return $author$project$PortFunnels$subPort(process);
-	});
-var $author$project$Main$subscriptions = function (model) {
-	return $elm$core$Platform$Sub$batch(
-		_List_fromArray(
-			[
-				A2($zaboco$elm_draggable$Draggable$subscriptions, $author$project$Main$DragMsg, model.drag),
-				$author$project$Main$system.subscriptions(model.dnd),
-				A2($rundis$elm_bootstrap$Bootstrap$Alert$subscriptions, model.errorVis, $author$project$Main$AlertMsg),
-				A2($author$project$PortFunnels$subscriptions, $author$project$Main$Process, model),
-				$author$project$Main$clipboardRes($author$project$Main$CBRes)
-			]));
-};
 var $author$project$Main$AddFilter = {$: 'AddFilter'};
 var $author$project$Main$CBCopy = function (a) {
 	return {$: 'CBCopy', a: a};
 };
-var $author$project$Main$Clear = {$: 'Clear'};
-var $author$project$Main$DeleteSavedGraph = {$: 'DeleteSavedGraph'};
-var $author$project$Main$HideCBRes = {$: 'HideCBRes'};
-var $author$project$Main$LoadEx = {$: 'LoadEx'};
-var $author$project$Main$LoadSavedGraph = {$: 'LoadSavedGraph'};
+var $author$project$Main$DeleteSavedGraph = function (a) {
+	return {$: 'DeleteSavedGraph', a: a};
+};
+var $author$project$Main$LoadEx = function (a) {
+	return {$: 'LoadEx', a: a};
+};
+var $author$project$Main$LoadSavedGraph = function (a) {
+	return {$: 'LoadSavedGraph', a: a};
+};
 var $author$project$Main$NodeClicked = function (a) {
 	return {$: 'NodeClicked', a: a};
 };
 var $author$project$Main$SaveGraph = {$: 'SaveGraph'};
-var $author$project$Main$SetExample = function (a) {
-	return {$: 'SetExample', a: a};
-};
-var $author$project$Main$SetTargetSaved = function (a) {
-	return {$: 'SetTargetSaved', a: a};
-};
 var $author$project$Main$UpdateName = function (a) {
 	return {$: 'UpdateName', a: a};
 };
@@ -17181,8 +17468,387 @@ var $author$project$SvgUtil$addRefdNodes = F2(
 				}
 		}
 	});
-var $elm$html$Html$b = _VirtualDom_node('b');
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs = function (a) {
+	return {$: 'Attrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Button$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs(attrs_);
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Attrs = function (a) {
+	return {$: 'Attrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Attrs(attrs_);
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$CardBlock = function (a) {
+	return {$: 'CardBlock', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyBlockModifier = F2(
+	function (option, options) {
+		switch (option.$) {
+			case 'AlignedBlock':
+				var align = option.a;
+				return _Utils_update(
+					options,
+					{
+						aligned: $elm$core$Maybe$Just(align)
+					});
+			case 'BlockColoring':
+				var role = option.a;
+				return _Utils_update(
+					options,
+					{
+						coloring: $elm$core$Maybe$Just(role)
+					});
+			case 'BlockTextColoring':
+				var color = option.a;
+				return _Utils_update(
+					options,
+					{
+						textColoring: $elm$core$Maybe$Just(color)
+					});
+			default:
+				var attrs = option.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs)
+					});
+		}
+	});
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultBlockOptions = {aligned: $elm$core$Maybe$Nothing, attributes: _List_Nil, coloring: $elm$core$Maybe$Nothing, textColoring: $elm$core$Maybe$Nothing};
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption = function (size) {
+	switch (size.$) {
+		case 'XS':
+			return $elm$core$Maybe$Nothing;
+		case 'SM':
+			return $elm$core$Maybe$Just('sm');
+		case 'MD':
+			return $elm$core$Maybe$Just('md');
+		case 'LG':
+			return $elm$core$Maybe$Just('lg');
+		default:
+			return $elm$core$Maybe$Just('xl');
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Text$textAlignDirOption = function (dir) {
+	switch (dir.$) {
+		case 'Center':
+			return 'center';
+		case 'Left':
+			return 'left';
+		default:
+			return 'right';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Text$textAlignClass = function (_v0) {
+	var dir = _v0.dir;
+	var size = _v0.size;
+	return $elm$html$Html$Attributes$class(
+		'text' + (A2(
+			$elm$core$Maybe$withDefault,
+			'-',
+			A2(
+				$elm$core$Maybe$map,
+				function (s) {
+					return '-' + (s + '-');
+				},
+				$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(size))) + $rundis$elm_bootstrap$Bootstrap$Internal$Text$textAlignDirOption(dir)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass = F2(
+	function (prefix, role) {
+		return $elm$html$Html$Attributes$class(
+			prefix + ('-' + function () {
+				switch (role.$) {
+					case 'Primary':
+						return 'primary';
+					case 'Secondary':
+						return 'secondary';
+					case 'Success':
+						return 'success';
+					case 'Info':
+						return 'info';
+					case 'Warning':
+						return 'warning';
+					case 'Danger':
+						return 'danger';
+					case 'Light':
+						return 'light';
+					default:
+						return 'dark';
+				}
+			}()));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$Text$textColorClass = function (color) {
+	if (color.$ === 'White') {
+		return $elm$html$Html$Attributes$class('text-white');
+	} else {
+		var role = color.a;
+		return A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'text', role);
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$blockAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyBlockModifier, $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultBlockOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('card-body')
+			]),
+		_Utils_ap(
+			function () {
+				var _v0 = options.aligned;
+				if (_v0.$ === 'Just') {
+					var align = _v0.a;
+					return _List_fromArray(
+						[
+							$rundis$elm_bootstrap$Bootstrap$Internal$Text$textAlignClass(align)
+						]);
+				} else {
+					return _List_Nil;
+				}
+			}(),
+			_Utils_ap(
+				function () {
+					var _v1 = options.coloring;
+					if (_v1.$ === 'Just') {
+						var role = _v1.a;
+						return _List_fromArray(
+							[
+								A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'bg', role)
+							]);
+					} else {
+						return _List_Nil;
+					}
+				}(),
+				_Utils_ap(
+					function () {
+						var _v2 = options.textColoring;
+						if (_v2.$ === 'Just') {
+							var color = _v2.a;
+							return _List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Internal$Text$textColorClass(color)
+								]);
+						} else {
+							return _List_Nil;
+						}
+					}(),
+					options.attributes))));
+};
+var $elm$html$Html$div = _VirtualDom_node('div');
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$block = F2(
+	function (options, items) {
+		return $rundis$elm_bootstrap$Bootstrap$Card$Internal$CardBlock(
+			A2(
+				$elm$html$Html$div,
+				$rundis$elm_bootstrap$Bootstrap$Card$Internal$blockAttributes(options),
+				A2(
+					$elm$core$List$map,
+					function (_v0) {
+						var e = _v0.a;
+						return e;
+					},
+					items)));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$block = $rundis$elm_bootstrap$Bootstrap$Card$Internal$block;
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Brand = function (a) {
+	return {$: 'Brand', a: a};
+};
+var $elm$html$Html$a = _VirtualDom_node('a');
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Config = function (a) {
+	return {$: 'Config', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$updateConfig = F2(
+	function (mapper, _v0) {
+		var conf = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Navbar$Config(
+			mapper(conf));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$brand = F3(
+	function (attributes, children, config_) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$Navbar$updateConfig,
+			function (conf) {
+				return _Utils_update(
+					conf,
+					{
+						brand: $elm$core$Maybe$Just(
+							$rundis$elm_bootstrap$Bootstrap$Navbar$Brand(
+								A2(
+									$elm$html$Html$a,
+									_Utils_ap(
+										_List_fromArray(
+											[
+												$elm$html$Html$Attributes$class('navbar-brand')
+											]),
+										attributes),
+									children)))
+					});
+			},
+			config_);
+	});
 var $elm$html$Html$button = _VirtualDom_node('button');
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$applyModifier = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'Size':
+				var size = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						size: $elm$core$Maybe$Just(size)
+					});
+			case 'Coloring':
+				var coloring = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						coloring: $elm$core$Maybe$Just(coloring)
+					});
+			case 'Block':
+				return _Utils_update(
+					options,
+					{block: true});
+			case 'Disabled':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{disabled: val});
+			default:
+				var attrs = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs)
+					});
+		}
+	});
+var $elm$html$Html$Attributes$classList = function (classes) {
+	return $elm$html$Html$Attributes$class(
+		A2(
+			$elm$core$String$join,
+			' ',
+			A2(
+				$elm$core$List$map,
+				$elm$core$Tuple$first,
+				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$defaultOptions = {attributes: _List_Nil, block: false, coloring: $elm$core$Maybe$Nothing, disabled: false, size: $elm$core$Maybe$Nothing};
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$roleClass = function (role) {
+	switch (role.$) {
+		case 'Primary':
+			return 'primary';
+		case 'Secondary':
+			return 'secondary';
+		case 'Success':
+			return 'success';
+		case 'Info':
+			return 'info';
+		case 'Warning':
+			return 'warning';
+		case 'Danger':
+			return 'danger';
+		case 'Dark':
+			return 'dark';
+		case 'Light':
+			return 'light';
+		default:
+			return 'link';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$buttonAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Internal$Button$applyModifier, $rundis$elm_bootstrap$Bootstrap$Internal$Button$defaultOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('btn', true),
+						_Utils_Tuple2('btn-block', options.block),
+						_Utils_Tuple2('disabled', options.disabled)
+					])),
+				$elm$html$Html$Attributes$disabled(options.disabled)
+			]),
+		_Utils_ap(
+			function () {
+				var _v0 = A2($elm$core$Maybe$andThen, $rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption, options.size);
+				if (_v0.$ === 'Just') {
+					var s = _v0.a;
+					return _List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('btn-' + s)
+						]);
+				} else {
+					return _List_Nil;
+				}
+			}(),
+			_Utils_ap(
+				function () {
+					var _v1 = options.coloring;
+					if (_v1.$ === 'Just') {
+						if (_v1.a.$ === 'Roled') {
+							var role = _v1.a.a;
+							return _List_fromArray(
+								[
+									$elm$html$Html$Attributes$class(
+									'btn-' + $rundis$elm_bootstrap$Bootstrap$Internal$Button$roleClass(role))
+								]);
+						} else {
+							var role = _v1.a.a;
+							return _List_fromArray(
+								[
+									$elm$html$Html$Attributes$class(
+									'btn-outline-' + $rundis$elm_bootstrap$Bootstrap$Internal$Button$roleClass(role))
+								]);
+						}
+					} else {
+						return _List_Nil;
+					}
+				}(),
+				options.attributes)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Button$button = F2(
+	function (options, children) {
+		return A2(
+			$elm$html$Html$button,
+			$rundis$elm_bootstrap$Bootstrap$Internal$Button$buttonAttributes(options),
+			children);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$Card = function (a) {
+	return {$: 'Card', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$card = function (rec) {
+	return $rundis$elm_bootstrap$Bootstrap$Accordion$Card(
+		{blocks: rec.blocks, header: rec.header, id: rec.id, options: rec.options});
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$Config = function (a) {
+	return {$: 'Config', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$cards = F2(
+	function (cards_, _v0) {
+		var configRec = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Accordion$Config(
+			_Utils_update(
+				configRec,
+				{cards: cards_}));
+	});
 var $rundis$elm_bootstrap$Bootstrap$Alert$Config = function (a) {
 	return {$: 'Config', a: a};
 };
@@ -17238,15 +17904,98 @@ var $author$project$Main$clickHandler = function (msg) {
 			msg,
 			A4($elm$json$Json$Decode$map3, $TSFoster$elm_tuple_extra$Tuple3$join, targetId, mouseX, mouseY)));
 };
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$SM = {$: 'SM'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$updateOptions = F2(
+	function (mapper, _v0) {
+		var conf = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Navbar$Config(
+			_Utils_update(
+				conf,
+				{
+					options: mapper(conf.options)
+				}));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$toggleAt = F2(
+	function (size, conf) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$Navbar$updateOptions,
+			function (opt) {
+				return _Utils_update(
+					opt,
+					{toggleAt: size});
+			},
+			conf);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$collapseSmall = $rundis$elm_bootstrap$Bootstrap$Navbar$toggleAt($rundis$elm_bootstrap$Bootstrap$General$Internal$SM);
 var $elm$html$Html$Attributes$cols = function (n) {
 	return A2(
 		_VirtualDom_attribute,
 		'cols',
 		$elm$core$String$fromInt(n));
 };
+var $rundis$elm_bootstrap$Bootstrap$Accordion$config = function (toMsg) {
+	return $rundis$elm_bootstrap$Bootstrap$Accordion$Config(
+		{cards: _List_Nil, onlyOneOpen: false, toMsg: toMsg, withAnimation: false});
+};
 var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Secondary = {$: 'Secondary'};
 var $rundis$elm_bootstrap$Bootstrap$Alert$config = $rundis$elm_bootstrap$Bootstrap$Alert$Config(
 	{attributes: _List_Nil, children: _List_Nil, dismissable: $elm$core$Maybe$Nothing, role: $rundis$elm_bootstrap$Bootstrap$Internal$Role$Secondary, visibility: $rundis$elm_bootstrap$Bootstrap$Alert$Shown, withAnimation: false});
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Light = {$: 'Light'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Light = {$: 'Light'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Roled = function (a) {
+	return {$: 'Roled', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$XS = {$: 'XS'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$config = function (toMsg) {
+	return $rundis$elm_bootstrap$Bootstrap$Navbar$Config(
+		{
+			brand: $elm$core$Maybe$Nothing,
+			customItems: _List_Nil,
+			items: _List_Nil,
+			options: {
+				attributes: _List_Nil,
+				fix: $elm$core$Maybe$Nothing,
+				isContainer: false,
+				scheme: $elm$core$Maybe$Just(
+					{
+						bgColor: $rundis$elm_bootstrap$Bootstrap$Navbar$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Role$Light),
+						modifier: $rundis$elm_bootstrap$Bootstrap$Navbar$Light
+					}),
+				toggleAt: $rundis$elm_bootstrap$Bootstrap$General$Internal$XS
+			},
+			toMsg: toMsg,
+			withAnimation: false
+		});
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem = function (a) {
+	return {$: 'BlockItem', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Card$Block$custom = function (element) {
+	return $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem(element);
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$customItems = F2(
+	function (items_, config_) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$Navbar$updateConfig,
+			function (conf) {
+				return _Utils_update(
+					conf,
+					{customItems: items_});
+			},
+			config_);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger = {$: 'Danger'};
+var $rundis$elm_bootstrap$Bootstrap$Alert$role = F2(
+	function (role_, _v0) {
+		var configRec = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Alert$Config(
+			_Utils_update(
+				configRec,
+				{role: role_}));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Alert$danger = function (conf) {
+	return A2($rundis$elm_bootstrap$Bootstrap$Alert$role, $rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger, conf);
+};
 var $rundis$elm_bootstrap$Bootstrap$Alert$dismissableWithAnimation = F2(
 	function (dismissMsg, _v0) {
 		var configRec = _v0.a;
@@ -17258,7 +18007,51 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$dismissableWithAnimation = F2(
 					withAnimation: true
 				}));
 	});
-var $elm$html$Html$div = _VirtualDom_node('div');
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Dropdown = function (a) {
+	return {$: 'Dropdown', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$NavDropdown = function (a) {
+	return {$: 'NavDropdown', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$dropdown = function (conf) {
+	return $rundis$elm_bootstrap$Bootstrap$Navbar$NavDropdown(
+		$rundis$elm_bootstrap$Bootstrap$Navbar$Dropdown(conf));
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$DropdownItem = function (a) {
+	return {$: 'DropdownItem', a: a};
+};
+var $elm$html$Html$h6 = _VirtualDom_node('h6');
+var $rundis$elm_bootstrap$Bootstrap$Navbar$dropdownHeader = function (children) {
+	return $rundis$elm_bootstrap$Bootstrap$Navbar$DropdownItem(
+		A2(
+			$elm$html$Html$h6,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('dropdown-header')
+				]),
+			children));
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$dropdownItem = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Navbar$DropdownItem(
+			A2(
+				$elm$html$Html$a,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('dropdown-item')
+						]),
+					attributes),
+				children));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$DropdownToggle = function (a) {
+	return {$: 'DropdownToggle', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$dropdownToggle = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Navbar$DropdownToggle(
+			{attributes: attributes, children: children});
+	});
 var $truqu$elm_base64$Base64$Encode$intToBase64 = function (i) {
 	switch (i) {
 		case 0:
@@ -17459,57 +18252,20 @@ var $truqu$elm_base64$Base64$Encode$encode = function (input) {
 		A3($elm$core$String$foldl, $truqu$elm_base64$Base64$Encode$chomp, $truqu$elm_base64$Base64$Encode$initial, input));
 };
 var $truqu$elm_base64$Base64$encode = $truqu$elm_base64$Base64$Encode$encode;
-var $elm$html$Html$option = _VirtualDom_node('option');
-var $elm$html$Html$Attributes$boolProperty = F2(
-	function (key, bool) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$bool(bool));
-	});
-var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
-var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Main$exampleOption = F3(
-	function (examples, selInd, index) {
-		var sel = $elm$html$Html$Attributes$selected(
-			_Utils_eq(index, selInd));
-		var examp = A2($elm_community$list_extra$List$Extra$getAt, index, examples);
-		if (examp.$ === 'Just') {
-			var _v1 = examp.a;
-			var exampName = _v1.a;
-			return A2(
-				$elm$html$Html$option,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$value(
-						$elm$core$String$fromInt(index)),
-						sel
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(exampName)
-					]));
-		} else {
-			return A2(
-				$elm$html$Html$option,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$value('-1')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Invalid example index')
-					]));
-		}
+var $rundis$elm_bootstrap$Bootstrap$Navbar$CustomItem = function (a) {
+	return {$: 'CustomItem', a: a};
+};
+var $elm$html$Html$form = _VirtualDom_node('form');
+var $rundis$elm_bootstrap$Bootstrap$Navbar$formItem = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Navbar$CustomItem(
+			A2(
+				$elm$html$Html$form,
+				A2(
+					$elm$core$List$cons,
+					$elm$html$Html$Attributes$class('form-inline'),
+					attributes),
+				children));
 	});
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
@@ -17533,6 +18289,11 @@ var $author$project$Main$UpdateFilterParam = F2(
 	function (a, b) {
 		return {$: 'UpdateFilterParam', a: a, b: b};
 	});
+var $elm$html$Html$option = _VirtualDom_node('option');
+var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$actionOption = F3(
 	function (actions, selInd, index) {
 		var sel = $elm$html$Html$Attributes$selected(
@@ -17797,7 +18558,6 @@ var $author$project$Main$ghostView = F2(
 		}
 	});
 var $elm$html$Html$h4 = _VirtualDom_node('h4');
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $rundis$elm_bootstrap$Bootstrap$Alert$headingPrivate = F3(
 	function (elemFn, attributes, children_) {
 		return A2(
@@ -17835,21 +18595,54 @@ var $author$project$Main$handleZoom = function (onZoom) {
 		'wheel',
 		A2($elm$json$Json$Decode$map, alwaysPreventDefaultAndStopPropagation, zoomDecoder));
 };
+var $rundis$elm_bootstrap$Bootstrap$Accordion$Header = function (a) {
+	return {$: 'Header', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$headerPrivate = F3(
+	function (elemFn, attributes, toggle_) {
+		return $rundis$elm_bootstrap$Bootstrap$Accordion$Header(
+			{attributes: attributes, childrenPostToggle: _List_Nil, childrenPreToggle: _List_Nil, elemFn: elemFn, toggle: toggle_});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$header = $rundis$elm_bootstrap$Bootstrap$Accordion$headerPrivate($elm$html$Html$div);
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var $elm$html$Html$hr = _VirtualDom_node('hr');
+var $elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
 var $elm$svg$Svg$Attributes$id = _VirtualDom_attribute('id');
 var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Info = {$: 'Info'};
-var $rundis$elm_bootstrap$Bootstrap$Alert$role = F2(
-	function (role_, _v0) {
-		var configRec = _v0.a;
-		return $rundis$elm_bootstrap$Bootstrap$Alert$Config(
-			_Utils_update(
-				configRec,
-				{role: role_}));
-	});
 var $rundis$elm_bootstrap$Bootstrap$Alert$info = function (conf) {
 	return A2($rundis$elm_bootstrap$Bootstrap$Alert$role, $rundis$elm_bootstrap$Bootstrap$Internal$Role$Info, conf);
 };
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Dark = {$: 'Dark'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$scheme = F3(
+	function (modifier, bgColor, conf) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$Navbar$updateOptions,
+			function (opt) {
+				return _Utils_update(
+					opt,
+					{
+						scheme: $elm$core$Maybe$Just(
+							{bgColor: bgColor, modifier: modifier})
+					});
+			},
+			conf);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$info = A2(
+	$rundis$elm_bootstrap$Bootstrap$Navbar$scheme,
+	$rundis$elm_bootstrap$Bootstrap$Navbar$Dark,
+	$rundis$elm_bootstrap$Bootstrap$Navbar$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Role$Info));
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Item = function (a) {
+	return {$: 'Item', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$itemLink = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Navbar$Item(
+			{attributes: attributes, children: children});
+	});
 var $author$project$Main$itemView = F3(
 	function (model, index, item) {
 		var itemId = 'id-filt' + $elm$core$String$fromInt(item.id);
@@ -17900,6 +18693,18 @@ var $author$project$Main$itemView = F3(
 					]));
 		}
 	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$items = F2(
+	function (items_, config_) {
+		return A2(
+			$rundis$elm_bootstrap$Bootstrap$Navbar$updateConfig,
+			function (conf) {
+				return _Utils_update(
+					conf,
+					{items: items_});
+			},
+			config_);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml2Sm = $elm$html$Html$Attributes$class('ml-sm-2');
 var $author$project$SvgUtil$changeTitleNodeText = F2(
 	function (str, node) {
 		if (node.$ === 'SvgElement') {
@@ -18017,44 +18822,23 @@ var $author$project$Main$num = F2(
 		return attr(
 			$elm$core$String$fromFloat(value));
 	});
+var $rundis$elm_bootstrap$Bootstrap$Button$onClick = function (message) {
+	return $rundis$elm_bootstrap$Bootstrap$Button$attrs(
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$Events$preventDefaultOn,
+				'click',
+				$elm$json$Json$Decode$succeed(
+					_Utils_Tuple2(message, true)))
+			]));
+};
 var $elm$html$Html$Attributes$rows = function (n) {
 	return A2(
 		_VirtualDom_attribute,
 		'rows',
 		$elm$core$String$fromInt(n));
 };
-var $author$project$Main$savedGraphOption = F3(
-	function (keys, selInd, index) {
-		var sel = $elm$html$Html$Attributes$selected(
-			_Utils_eq(index, selInd));
-		var name = A2($elm_community$list_extra$List$Extra$getAt, index, keys);
-		if (name.$ === 'Just') {
-			var savedName = name.a;
-			return A2(
-				$elm$html$Html$option,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$value(
-						$elm$core$String$fromInt(index)),
-						sel
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(savedName)
-					]));
-		} else {
-			return A2(
-				$elm$html$Html$option,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$value('-1')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Invalid example index')
-					]));
-		}
-	});
 var $author$project$Main$flip = F3(
 	function (f, b, a) {
 		return A2(f, a, b);
@@ -18113,6 +18897,15 @@ var $author$project$Main$showContext = function (mdl) {
 					]))
 			])) : A2($elm$html$Html$div, _List_Nil, _List_Nil);
 };
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring = function (a) {
+	return {$: 'Coloring', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled = function (a) {
+	return {$: 'Roled', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Success = {$: 'Success'};
+var $rundis$elm_bootstrap$Bootstrap$Button$success = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Success));
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $elm$virtual_dom$VirtualDom$nodeNS = function (tag) {
 	return _VirtualDom_nodeNS(
@@ -18768,10 +19561,204 @@ var $author$project$SvgUtil$svgNodeToSvgMod = F2(
 			toHtml,
 			$Garados007$elm_svg_parser$SvgParser$parseToNode(input));
 	});
-var $elm$html$Html$table = _VirtualDom_node('table');
-var $elm$html$Html$td = _VirtualDom_node('td');
+var $rundis$elm_bootstrap$Bootstrap$Card$Block$text = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem(
+			A2(
+				$elm$html$Html$p,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('card-text')
+						]),
+					attributes),
+				children));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Text = {$: 'Text'};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Input = function (a) {
+	return {$: 'Input', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Type = function (a) {
+	return {$: 'Type', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$create = F2(
+	function (tipe, options) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Input$Input(
+			{
+				options: A2(
+					$elm$core$List$cons,
+					$rundis$elm_bootstrap$Bootstrap$Form$Input$Type(tipe),
+					options)
+			});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$applyModifier = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'Size':
+				var size_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						size: $elm$core$Maybe$Just(size_)
+					});
+			case 'Id':
+				var id_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						id: $elm$core$Maybe$Just(id_)
+					});
+			case 'Type':
+				var tipe = modifier.a;
+				return _Utils_update(
+					options,
+					{tipe: tipe});
+			case 'Disabled':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{disabled: val});
+			case 'Value':
+				var value_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						value: $elm$core$Maybe$Just(value_)
+					});
+			case 'Placeholder':
+				var value_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						placeholder: $elm$core$Maybe$Just(value_)
+					});
+			case 'OnInput':
+				var onInput_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						onInput: $elm$core$Maybe$Just(onInput_)
+					});
+			case 'Validation':
+				var validation_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						validation: $elm$core$Maybe$Just(validation_)
+					});
+			case 'Readonly':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{readonly: val});
+			case 'PlainText':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{plainText: val});
+			default:
+				var attrs_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$defaultOptions = {attributes: _List_Nil, disabled: false, id: $elm$core$Maybe$Nothing, onInput: $elm$core$Maybe$Nothing, placeholder: $elm$core$Maybe$Nothing, plainText: false, readonly: false, size: $elm$core$Maybe$Nothing, tipe: $rundis$elm_bootstrap$Bootstrap$Form$Input$Text, validation: $elm$core$Maybe$Nothing, value: $elm$core$Maybe$Nothing};
+var $elm$html$Html$Attributes$readonly = $elm$html$Html$Attributes$boolProperty('readOnly');
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$sizeAttribute = function (size) {
+	return A2(
+		$elm$core$Maybe$map,
+		function (s) {
+			return $elm$html$Html$Attributes$class('form-control-' + s);
+		},
+		$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(size));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$typeAttribute = function (inputType) {
+	return $elm$html$Html$Attributes$type_(
+		function () {
+			switch (inputType.$) {
+				case 'Text':
+					return 'text';
+				case 'Password':
+					return 'password';
+				case 'DatetimeLocal':
+					return 'datetime-local';
+				case 'Date':
+					return 'date';
+				case 'Month':
+					return 'month';
+				case 'Time':
+					return 'time';
+				case 'Week':
+					return 'week';
+				case 'Number':
+					return 'number';
+				case 'Email':
+					return 'email';
+				case 'Url':
+					return 'url';
+				case 'Search':
+					return 'search';
+				case 'Tel':
+					return 'tel';
+				default:
+					return 'color';
+			}
+		}());
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$FormInternal$validationToString = function (validation) {
+	if (validation.$ === 'Success') {
+		return 'is-valid';
+	} else {
+		return 'is-invalid';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$validationAttribute = function (validation) {
+	return $elm$html$Html$Attributes$class(
+		$rundis$elm_bootstrap$Bootstrap$Form$FormInternal$validationToString(validation));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$toAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Form$Input$applyModifier, $rundis$elm_bootstrap$Bootstrap$Form$Input$defaultOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class(
+				options.plainText ? 'form-control-plaintext' : 'form-control'),
+				$elm$html$Html$Attributes$disabled(options.disabled),
+				$elm$html$Html$Attributes$readonly(options.readonly || options.plainText),
+				$rundis$elm_bootstrap$Bootstrap$Form$Input$typeAttribute(options.tipe)
+			]),
+		_Utils_ap(
+			A2(
+				$elm$core$List$filterMap,
+				$elm$core$Basics$identity,
+				_List_fromArray(
+					[
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$id, options.id),
+						A2($elm$core$Maybe$andThen, $rundis$elm_bootstrap$Bootstrap$Form$Input$sizeAttribute, options.size),
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$value, options.value),
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$placeholder, options.placeholder),
+						A2($elm$core$Maybe$map, $elm$html$Html$Events$onInput, options.onInput),
+						A2($elm$core$Maybe$map, $rundis$elm_bootstrap$Bootstrap$Form$Input$validationAttribute, options.validation)
+					])),
+			options.attributes));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$view = function (_v0) {
+	var options = _v0.a.options;
+	return A2(
+		$elm$html$Html$input,
+		$rundis$elm_bootstrap$Bootstrap$Form$Input$toAttributes(options),
+		_List_Nil);
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$input = F2(
+	function (tipe, options) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Input$view(
+			A2($rundis$elm_bootstrap$Bootstrap$Form$Input$create, tipe, options));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$text = $rundis$elm_bootstrap$Bootstrap$Form$Input$input($rundis$elm_bootstrap$Bootstrap$Form$Input$Text);
 var $elm$html$Html$textarea = _VirtualDom_node('textarea');
-var $elm$html$Html$th = _VirtualDom_node('th');
 var $elm$url$Url$addPort = F2(
 	function (maybePort, starter) {
 		if (maybePort.$ === 'Nothing') {
@@ -18816,8 +19803,367 @@ var $elm$url$Url$toString = function (url) {
 					_Utils_ap(http, url.host)),
 				url.path)));
 };
-var $elm$html$Html$tr = _VirtualDom_node('tr');
+var $rundis$elm_bootstrap$Bootstrap$Accordion$Toggle = function (a) {
+	return {$: 'Toggle', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$toggle = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Accordion$Toggle(
+			{attributes: attributes, children: children});
+	});
 var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyModifier = F2(
+	function (option, options) {
+		switch (option.$) {
+			case 'Aligned':
+				var align = option.a;
+				return _Utils_update(
+					options,
+					{
+						aligned: $elm$core$Maybe$Just(align)
+					});
+			case 'Coloring':
+				var coloring = option.a;
+				return _Utils_update(
+					options,
+					{
+						coloring: $elm$core$Maybe$Just(coloring)
+					});
+			case 'TextColoring':
+				var coloring = option.a;
+				return _Utils_update(
+					options,
+					{
+						textColoring: $elm$core$Maybe$Just(coloring)
+					});
+			default:
+				var attrs = option.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultOptions = {aligned: $elm$core$Maybe$Nothing, attributes: _List_Nil, coloring: $elm$core$Maybe$Nothing, textColoring: $elm$core$Maybe$Nothing};
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$cardAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Card$Internal$applyModifier, $rundis$elm_bootstrap$Bootstrap$Card$Internal$defaultOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('card')
+			]),
+		_Utils_ap(
+			function () {
+				var _v0 = options.coloring;
+				if (_v0.$ === 'Just') {
+					if (_v0.a.$ === 'Roled') {
+						var role = _v0.a.a;
+						return _List_fromArray(
+							[
+								A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'bg', role)
+							]);
+					} else {
+						var role = _v0.a.a;
+						return _List_fromArray(
+							[
+								A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'border', role)
+							]);
+					}
+				} else {
+					return _List_Nil;
+				}
+			}(),
+			_Utils_ap(
+				function () {
+					var _v1 = options.textColoring;
+					if (_v1.$ === 'Just') {
+						var color = _v1.a;
+						return _List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Internal$Text$textColorClass(color)
+							]);
+					} else {
+						return _List_Nil;
+					}
+				}(),
+				_Utils_ap(
+					function () {
+						var _v2 = options.aligned;
+						if (_v2.$ === 'Just') {
+							var align = _v2.a;
+							return _List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Internal$Text$textAlignClass(align)
+								]);
+						} else {
+							return _List_Nil;
+						}
+					}(),
+					options.attributes))));
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$getOrInitCardState = F2(
+	function (id, _v0) {
+		var cardStates = _v0.a;
+		return A2(
+			$elm$core$Maybe$withDefault,
+			{height: $elm$core$Maybe$Nothing, visibility: $rundis$elm_bootstrap$Bootstrap$Accordion$Hidden},
+			A2($elm$core$Dict$get, id, cardStates));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$transitionStyle = F2(
+	function (withAnimation_, height) {
+		return _Utils_ap(
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'position', 'relative'),
+					A2($elm$html$Html$Attributes$style, 'height', height),
+					A2($elm$html$Html$Attributes$style, 'overflow', 'hidden')
+				]),
+			withAnimation_ ? _List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, '-webkit-transition-timing-function', 'ease'),
+					A2($elm$html$Html$Attributes$style, '-o-transition-timing-function', 'ease'),
+					A2($elm$html$Html$Attributes$style, 'transition-timing-function', 'ease'),
+					A2($elm$html$Html$Attributes$style, '-webkit-transition-duration', '0.35s'),
+					A2($elm$html$Html$Attributes$style, '-o-transition-duration', '0.35s'),
+					A2($elm$html$Html$Attributes$style, 'transition-duration', '0.35s'),
+					A2($elm$html$Html$Attributes$style, '-webkit-transition-property', 'height'),
+					A2($elm$html$Html$Attributes$style, '-o-transition-property', 'height'),
+					A2($elm$html$Html$Attributes$style, 'transition-property', 'height')
+				]) : _List_Nil);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$animationAttributes = F3(
+	function (state, configRec, _v0) {
+		var id = _v0.a.id;
+		var styles = $rundis$elm_bootstrap$Bootstrap$Accordion$transitionStyle(configRec.withAnimation);
+		var cardState = A2($rundis$elm_bootstrap$Bootstrap$Accordion$getOrInitCardState, id, state);
+		var pixelHeight = A2(
+			$elm$core$Maybe$withDefault,
+			'0',
+			A2(
+				$elm$core$Maybe$map,
+				function (v) {
+					return $elm$core$String$fromFloat(v) + 'px';
+				},
+				cardState.height));
+		var _v1 = cardState.visibility;
+		switch (_v1.$) {
+			case 'Hidden':
+				return styles('0px');
+			case 'StartDown':
+				return styles('0px');
+			case 'StartUp':
+				return styles(pixelHeight);
+			default:
+				var _v2 = cardState.height;
+				if (_v2.$ === 'Just') {
+					var x = _v2.a;
+					return styles(pixelHeight);
+				} else {
+					return styles('100%');
+				}
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$renderBlocks = function (blocks) {
+	return A2(
+		$elm$core$List$map,
+		function (block_) {
+			if (block_.$ === 'CardBlock') {
+				var e = block_.a;
+				return e;
+			} else {
+				var e = block_.a;
+				return e;
+			}
+		},
+		blocks);
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$renderCardBlock = F3(
+	function (state, configRec, card_) {
+		var id = card_.a.id;
+		var blocks = card_.a.blocks;
+		return A2(
+			$elm$html$Html$div,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$id(id)
+					]),
+				A3($rundis$elm_bootstrap$Bootstrap$Accordion$animationAttributes, state, configRec, card_)),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_Nil,
+					$rundis$elm_bootstrap$Bootstrap$Card$Internal$renderBlocks(blocks))
+				]));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$visibilityTransition = F2(
+	function (withAnimation_, visibility) {
+		var _v0 = _Utils_Tuple2(withAnimation_, visibility);
+		if (_v0.a) {
+			switch (_v0.b.$) {
+				case 'Hidden':
+					var _v1 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Accordion$StartDown;
+				case 'StartDown':
+					var _v2 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Accordion$Shown;
+				case 'Shown':
+					var _v3 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Accordion$StartUp;
+				default:
+					var _v4 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Accordion$Hidden;
+			}
+		} else {
+			switch (_v0.b.$) {
+				case 'Hidden':
+					var _v5 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Accordion$Shown;
+				case 'Shown':
+					var _v6 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Accordion$Hidden;
+				default:
+					return $rundis$elm_bootstrap$Bootstrap$Accordion$Shown;
+			}
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$clickHandler = F4(
+	function (state, configRec, decoder, _v0) {
+		var cardStates = state.a;
+		var id = _v0.a.id;
+		var currentCardState = A2(
+			$elm$core$Maybe$withDefault,
+			{height: $elm$core$Maybe$Nothing, visibility: $rundis$elm_bootstrap$Bootstrap$Accordion$Hidden},
+			A2($elm$core$Dict$get, id, cardStates));
+		var initStates = A3($elm$core$Dict$insert, id, currentCardState, cardStates);
+		var updOthersHidden = function (h) {
+			return $rundis$elm_bootstrap$Bootstrap$Accordion$State(
+				A2(
+					$elm$core$Dict$map,
+					F2(
+						function (i, c) {
+							return _Utils_eq(i, id) ? {
+								height: $elm$core$Maybe$Just(h),
+								visibility: A2($rundis$elm_bootstrap$Bootstrap$Accordion$visibilityTransition, configRec.withAnimation, c.visibility)
+							} : ((_Utils_eq(c.visibility, $rundis$elm_bootstrap$Bootstrap$Accordion$Shown) && (configRec.withAnimation && configRec.onlyOneOpen)) ? _Utils_update(
+								c,
+								{visibility: $rundis$elm_bootstrap$Bootstrap$Accordion$StartUp}) : ((_Utils_eq(c.visibility, $rundis$elm_bootstrap$Bootstrap$Accordion$Shown) && ((!configRec.withAnimation) && configRec.onlyOneOpen)) ? _Utils_update(
+								c,
+								{visibility: $rundis$elm_bootstrap$Bootstrap$Accordion$Hidden}) : c));
+						}),
+					initStates));
+		};
+		return A2(
+			$elm$json$Json$Decode$andThen,
+			function (v) {
+				return $elm$json$Json$Decode$succeed(
+					{
+						message: configRec.toMsg(
+							updOthersHidden(v)),
+						preventDefault: true,
+						stopPropagation: true
+					});
+			},
+			decoder);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$childNode = function (idx) {
+	return $elm$json$Json$Decode$at(
+		_List_fromArray(
+			[
+				'childNodes',
+				$elm$core$String$fromInt(idx)
+			]));
+};
+var $rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$nextSibling = function (decoder) {
+	return A2($elm$json$Json$Decode$field, 'nextSibling', decoder);
+};
+var $rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$offsetHeight = A2($elm$json$Json$Decode$field, 'offsetHeight', $elm$json$Json$Decode$float);
+var $rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$parentElement = function (decoder) {
+	return A2($elm$json$Json$Decode$field, 'parentElement', decoder);
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$heightDecoder = A2(
+	$elm$json$Json$Decode$field,
+	'currentTarget',
+	$rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$parentElement(
+		$rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$nextSibling(
+			A2($rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$childNode, 0, $rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$offsetHeight))));
+var $rundis$elm_bootstrap$Bootstrap$Accordion$renderToggle = F3(
+	function (state, configRec, card_) {
+		var cardRec = card_.a;
+		var _v0 = cardRec.header;
+		var headerRec = _v0.a;
+		var _v1 = headerRec.toggle;
+		var attributes = _v1.a.attributes;
+		var children = _v1.a.children;
+		return A2(
+			$elm$html$Html$button,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('btn btn-link'),
+						A2(
+						$elm$html$Html$Events$custom,
+						'click',
+						A4($rundis$elm_bootstrap$Bootstrap$Accordion$clickHandler, state, configRec, $rundis$elm_bootstrap$Bootstrap$Accordion$heightDecoder, card_))
+					]),
+				attributes),
+			children);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$renderCardHeader = F3(
+	function (state, configRec, card_) {
+		var cardRec = card_.a;
+		var _v0 = cardRec.header;
+		var headerRec = _v0.a;
+		return A2(
+			headerRec.elemFn,
+			_Utils_ap(
+				headerRec.attributes,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('card-header')
+					])),
+			_Utils_ap(
+				headerRec.childrenPreToggle,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							A3($rundis$elm_bootstrap$Bootstrap$Accordion$renderToggle, state, configRec, card_)
+						]),
+					headerRec.childrenPostToggle)));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$renderCard = F3(
+	function (state, configRec, card_) {
+		var options = card_.a.options;
+		return A2(
+			$elm$html$Html$div,
+			_Utils_ap(
+				$rundis$elm_bootstrap$Bootstrap$Card$Internal$cardAttributes(options),
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('card')
+					])),
+			_List_fromArray(
+				[
+					A3($rundis$elm_bootstrap$Bootstrap$Accordion$renderCardHeader, state, configRec, card_),
+					A3($rundis$elm_bootstrap$Bootstrap$Accordion$renderCardBlock, state, configRec, card_)
+				]));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$view = F2(
+	function (state, _v0) {
+		var configRec = _v0.a;
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('accordion')
+				]),
+			A2(
+				$elm$core$List$map,
+				A2($rundis$elm_bootstrap$Bootstrap$Accordion$renderCard, state, configRec),
+				configRec.cards));
+	});
 var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
 var $rundis$elm_bootstrap$Bootstrap$Alert$StartClose = {$: 'StartClose'};
 var $rundis$elm_bootstrap$Bootstrap$Alert$clickHandler = F2(
@@ -18890,40 +20236,6 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$maybeAddDismissButton = F3(
 					])),
 			children_) : children_;
 	});
-var $elm$html$Html$Attributes$classList = function (classes) {
-	return $elm$html$Html$Attributes$class(
-		A2(
-			$elm$core$String$join,
-			' ',
-			A2(
-				$elm$core$List$map,
-				$elm$core$Tuple$first,
-				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
-};
-var $rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass = F2(
-	function (prefix, role) {
-		return $elm$html$Html$Attributes$class(
-			prefix + ('-' + function () {
-				switch (role.$) {
-					case 'Primary':
-						return 'primary';
-					case 'Secondary':
-						return 'secondary';
-					case 'Success':
-						return 'success';
-					case 'Info':
-						return 'info';
-					case 'Warning':
-						return 'warning';
-					case 'Danger':
-						return 'danger';
-					case 'Light':
-						return 'light';
-					default:
-						return 'dark';
-				}
-			}()));
-	});
 var $rundis$elm_bootstrap$Bootstrap$Alert$viewAttributes = F2(
 	function (visibility, configRec) {
 		var visibiltyAttributes = _Utils_eq(visibility, $rundis$elm_bootstrap$Bootstrap$Alert$Closed) ? _List_fromArray(
@@ -18979,7 +20291,705 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$view = F2(
 			A2($rundis$elm_bootstrap$Bootstrap$Alert$viewAttributes, visibility, configRec),
 			A3($rundis$elm_bootstrap$Bootstrap$Alert$maybeAddDismissButton, visibility, configRec, configRec.children));
 	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$maybeBrand = function (brand_) {
+	if (brand_.$ === 'Just') {
+		var b = brand_.a.a;
+		return _List_fromArray(
+			[b]);
+	} else {
+		return _List_Nil;
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$sizeToComparable = function (size) {
+	switch (size.$) {
+		case 'XS':
+			return 1;
+		case 'SM':
+			return 2;
+		case 'MD':
+			return 3;
+		case 'LG':
+			return 4;
+		default:
+			return 5;
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$LG = {$: 'LG'};
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$MD = {$: 'MD'};
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$XL = {$: 'XL'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$toScreenSize = function (windowWidth) {
+	return (windowWidth <= 576) ? $rundis$elm_bootstrap$Bootstrap$General$Internal$XS : ((windowWidth <= 768) ? $rundis$elm_bootstrap$Bootstrap$General$Internal$SM : ((windowWidth <= 992) ? $rundis$elm_bootstrap$Bootstrap$General$Internal$MD : ((windowWidth <= 1200) ? $rundis$elm_bootstrap$Bootstrap$General$Internal$LG : $rundis$elm_bootstrap$Bootstrap$General$Internal$XL)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$shouldHideMenu = F2(
+	function (_v0, _v1) {
+		var windowWidth = _v0.a.windowWidth;
+		var options = _v1.options;
+		var winMedia = function () {
+			if (windowWidth.$ === 'Just') {
+				var s = windowWidth.a;
+				return $rundis$elm_bootstrap$Bootstrap$Navbar$toScreenSize(s);
+			} else {
+				return $rundis$elm_bootstrap$Bootstrap$General$Internal$XS;
+			}
+		}();
+		return _Utils_cmp(
+			$rundis$elm_bootstrap$Bootstrap$Navbar$sizeToComparable(winMedia),
+			$rundis$elm_bootstrap$Bootstrap$Navbar$sizeToComparable(options.toggleAt)) > 0;
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$Shown = {$: 'Shown'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$StartDown = {$: 'StartDown'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$StartUp = {$: 'StartUp'};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$visibilityTransition = F2(
+	function (withAnimation_, visibility) {
+		var _v0 = _Utils_Tuple2(withAnimation_, visibility);
+		if (_v0.a) {
+			switch (_v0.b.$) {
+				case 'Hidden':
+					var _v1 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$StartDown;
+				case 'StartDown':
+					var _v2 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$AnimatingDown;
+				case 'AnimatingDown':
+					var _v3 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$Shown;
+				case 'Shown':
+					var _v4 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$StartUp;
+				case 'StartUp':
+					var _v5 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$AnimatingUp;
+				default:
+					var _v6 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$Hidden;
+			}
+		} else {
+			switch (_v0.b.$) {
+				case 'Hidden':
+					var _v7 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$Shown;
+				case 'Shown':
+					var _v8 = _v0.b;
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$Hidden;
+				default:
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$Hidden;
+			}
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$transitionHandler = F2(
+	function (state, configRec) {
+		return $elm$json$Json$Decode$succeed(
+			configRec.toMsg(
+				A2(
+					$rundis$elm_bootstrap$Bootstrap$Navbar$mapState,
+					function (s) {
+						return _Utils_update(
+							s,
+							{
+								visibility: A2($rundis$elm_bootstrap$Bootstrap$Navbar$visibilityTransition, configRec.withAnimation, s.visibility)
+							});
+					},
+					state)));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$transitionStyle = function (maybeHeight) {
+	var pixelHeight = A2(
+		$elm$core$Maybe$withDefault,
+		'0',
+		A2(
+			$elm$core$Maybe$map,
+			function (v) {
+				return $elm$core$String$fromFloat(v) + 'px';
+			},
+			maybeHeight));
+	return _List_fromArray(
+		[
+			A2($elm$html$Html$Attributes$style, 'position', 'relative'),
+			A2($elm$html$Html$Attributes$style, 'height', pixelHeight),
+			A2($elm$html$Html$Attributes$style, 'width', '100%'),
+			A2($elm$html$Html$Attributes$style, 'overflow', 'hidden'),
+			A2($elm$html$Html$Attributes$style, '-webkit-transition-timing-function', 'ease'),
+			A2($elm$html$Html$Attributes$style, '-o-transition-timing-function', 'ease'),
+			A2($elm$html$Html$Attributes$style, 'transition-timing-function', 'ease'),
+			A2($elm$html$Html$Attributes$style, '-webkit-transition-duration', '0.35s'),
+			A2($elm$html$Html$Attributes$style, '-o-transition-duration', '0.35s'),
+			A2($elm$html$Html$Attributes$style, 'transition-duration', '0.35s'),
+			A2($elm$html$Html$Attributes$style, '-webkit-transition-property', 'height'),
+			A2($elm$html$Html$Attributes$style, '-o-transition-property', 'height'),
+			A2($elm$html$Html$Attributes$style, 'transition-property', 'height')
+		]);
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$menuAttributes = F2(
+	function (state, configRec) {
+		var visibility = state.a.visibility;
+		var height = state.a.height;
+		var defaults = _List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('collapse navbar-collapse')
+			]);
+		switch (visibility.$) {
+			case 'Hidden':
+				if (height.$ === 'Nothing') {
+					return ((!configRec.withAnimation) || A2($rundis$elm_bootstrap$Bootstrap$Navbar$shouldHideMenu, state, configRec)) ? defaults : _List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'display', 'block'),
+							A2($elm$html$Html$Attributes$style, 'height', '0'),
+							A2($elm$html$Html$Attributes$style, 'overflow', 'hidden'),
+							A2($elm$html$Html$Attributes$style, 'width', '100%')
+						]);
+				} else {
+					return defaults;
+				}
+			case 'StartDown':
+				return $rundis$elm_bootstrap$Bootstrap$Navbar$transitionStyle($elm$core$Maybe$Nothing);
+			case 'AnimatingDown':
+				return _Utils_ap(
+					$rundis$elm_bootstrap$Bootstrap$Navbar$transitionStyle(height),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$Events$on,
+							'transitionend',
+							A2($rundis$elm_bootstrap$Bootstrap$Navbar$transitionHandler, state, configRec))
+						]));
+			case 'AnimatingUp':
+				return _Utils_ap(
+					$rundis$elm_bootstrap$Bootstrap$Navbar$transitionStyle($elm$core$Maybe$Nothing),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$Events$on,
+							'transitionend',
+							A2($rundis$elm_bootstrap$Bootstrap$Navbar$transitionHandler, state, configRec))
+						]));
+			case 'StartUp':
+				return $rundis$elm_bootstrap$Bootstrap$Navbar$transitionStyle(height);
+			default:
+				return _Utils_ap(
+					defaults,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('show')
+						]));
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$menuWrapperAttributes = F2(
+	function (state, confRec) {
+		var visibility = state.a.visibility;
+		var height = state.a.height;
+		var styleBlock = _List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'display', 'block'),
+				A2($elm$html$Html$Attributes$style, 'width', '100%')
+			]);
+		var display = function () {
+			if (height.$ === 'Nothing') {
+				return ((!confRec.withAnimation) || A2($rundis$elm_bootstrap$Bootstrap$Navbar$shouldHideMenu, state, confRec)) ? 'flex' : 'block';
+			} else {
+				return 'flex';
+			}
+		}();
+		switch (visibility.$) {
+			case 'Hidden':
+				return _List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'display', display),
+						A2($elm$html$Html$Attributes$style, 'width', '100%')
+					]);
+			case 'StartDown':
+				return styleBlock;
+			case 'AnimatingDown':
+				return styleBlock;
+			case 'AnimatingUp':
+				return styleBlock;
+			case 'StartUp':
+				return styleBlock;
+			default:
+				return ((!confRec.withAnimation) || A2($rundis$elm_bootstrap$Bootstrap$Navbar$shouldHideMenu, state, confRec)) ? _List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('collapse navbar-collapse show')
+					]) : _List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'display', 'block')
+					]);
+		}
+	});
+var $elm$html$Html$nav = _VirtualDom_node('nav');
+var $rundis$elm_bootstrap$Bootstrap$Navbar$expandOption = function (size) {
+	var toClass = function (sz) {
+		return $elm$html$Html$Attributes$class(
+			'navbar-expand' + A2(
+				$elm$core$Maybe$withDefault,
+				'',
+				A2(
+					$elm$core$Maybe$map,
+					function (s) {
+						return '-' + s;
+					},
+					$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(sz))));
+	};
+	switch (size.$) {
+		case 'XS':
+			return _List_fromArray(
+				[
+					toClass($rundis$elm_bootstrap$Bootstrap$General$Internal$SM)
+				]);
+		case 'SM':
+			return _List_fromArray(
+				[
+					toClass($rundis$elm_bootstrap$Bootstrap$General$Internal$MD)
+				]);
+		case 'MD':
+			return _List_fromArray(
+				[
+					toClass($rundis$elm_bootstrap$Bootstrap$General$Internal$LG)
+				]);
+		case 'LG':
+			return _List_fromArray(
+				[
+					toClass($rundis$elm_bootstrap$Bootstrap$General$Internal$XL)
+				]);
+		default:
+			return _List_Nil;
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$fixOption = function (fix) {
+	if (fix.$ === 'Top') {
+		return 'fixed-top';
+	} else {
+		return 'fixed-bottom';
+	}
+};
+var $avh4$elm_color$Color$toCssString = function (_v0) {
+	var r = _v0.a;
+	var g = _v0.b;
+	var b = _v0.c;
+	var a = _v0.d;
+	var roundTo = function (x) {
+		return $elm$core$Basics$round(x * 1000) / 1000;
+	};
+	var pct = function (x) {
+		return $elm$core$Basics$round(x * 10000) / 100;
+	};
+	return $elm$core$String$concat(
+		_List_fromArray(
+			[
+				'rgba(',
+				$elm$core$String$fromFloat(
+				pct(r)),
+				'%,',
+				$elm$core$String$fromFloat(
+				pct(g)),
+				'%,',
+				$elm$core$String$fromFloat(
+				pct(b)),
+				'%,',
+				$elm$core$String$fromFloat(
+				roundTo(a)),
+				')'
+			]));
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$backgroundColorOption = function (bgClass) {
+	switch (bgClass.$) {
+		case 'Roled':
+			var role = bgClass.a;
+			return A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'bg', role);
+		case 'Custom':
+			var color = bgClass.a;
+			return A2(
+				$elm$html$Html$Attributes$style,
+				'background-color',
+				$avh4$elm_color$Color$toCssString(color));
+		default:
+			var classString = bgClass.a;
+			return $elm$html$Html$Attributes$class(classString);
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$linkModifierClass = function (modifier) {
+	return $elm$html$Html$Attributes$class(
+		function () {
+			if (modifier.$ === 'Dark') {
+				return 'navbar-dark';
+			} else {
+				return 'navbar-light';
+			}
+		}());
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$schemeAttributes = function (_v0) {
+	var modifier = _v0.modifier;
+	var bgColor = _v0.bgColor;
+	return _List_fromArray(
+		[
+			$rundis$elm_bootstrap$Bootstrap$Navbar$linkModifierClass(modifier),
+			$rundis$elm_bootstrap$Bootstrap$Navbar$backgroundColorOption(bgColor)
+		]);
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$navbarAttributes = function (options) {
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('navbar', true),
+						_Utils_Tuple2('container', options.isContainer)
+					]))
+			]),
+		_Utils_ap(
+			$rundis$elm_bootstrap$Bootstrap$Navbar$expandOption(options.toggleAt),
+			_Utils_ap(
+				function () {
+					var _v0 = options.scheme;
+					if (_v0.$ === 'Just') {
+						var scheme_ = _v0.a;
+						return $rundis$elm_bootstrap$Bootstrap$Navbar$schemeAttributes(scheme_);
+					} else {
+						return _List_Nil;
+					}
+				}(),
+				_Utils_ap(
+					function () {
+						var _v1 = options.fix;
+						if (_v1.$ === 'Just') {
+							var fix = _v1.a;
+							return _List_fromArray(
+								[
+									$elm$html$Html$Attributes$class(
+									$rundis$elm_bootstrap$Bootstrap$Navbar$fixOption(fix))
+								]);
+						} else {
+							return _List_Nil;
+						}
+					}(),
+					options.attributes))));
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$renderCustom = function (items_) {
+	return A2(
+		$elm$core$List$map,
+		function (_v0) {
+			var item = _v0.a;
+			return item;
+		},
+		items_);
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$getOrInitDropdownStatus = F2(
+	function (id, _v0) {
+		var dropdowns = _v0.a.dropdowns;
+		return A2(
+			$elm$core$Maybe$withDefault,
+			$rundis$elm_bootstrap$Bootstrap$Navbar$Closed,
+			A2($elm$core$Dict$get, id, dropdowns));
+	});
+var $elm$html$Html$li = _VirtualDom_node('li');
+var $rundis$elm_bootstrap$Bootstrap$Navbar$toggleOpen = F3(
+	function (state, id, _v0) {
+		var toMsg = _v0.toMsg;
+		var currStatus = A2($rundis$elm_bootstrap$Bootstrap$Navbar$getOrInitDropdownStatus, id, state);
+		var newStatus = function () {
+			switch (currStatus.$) {
+				case 'Open':
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$Closed;
+				case 'ListenClicks':
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$Closed;
+				default:
+					return $rundis$elm_bootstrap$Bootstrap$Navbar$Open;
+			}
+		}();
+		return toMsg(
+			A2(
+				$rundis$elm_bootstrap$Bootstrap$Navbar$mapState,
+				function (s) {
+					return _Utils_update(
+						s,
+						{
+							dropdowns: A3($elm$core$Dict$insert, id, newStatus, s.dropdowns)
+						});
+				},
+				state));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$renderDropdownToggle = F4(
+	function (state, id, configRec, _v0) {
+		var attributes = _v0.a.attributes;
+		var children = _v0.a.children;
+		return A2(
+			$elm$html$Html$a,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('nav-link dropdown-toggle'),
+						$elm$html$Html$Attributes$href('#'),
+						A2(
+						$elm$html$Html$Events$custom,
+						'click',
+						$elm$json$Json$Decode$succeed(
+							{
+								message: A3($rundis$elm_bootstrap$Bootstrap$Navbar$toggleOpen, state, id, configRec),
+								preventDefault: true,
+								stopPropagation: false
+							}))
+					]),
+				attributes),
+			children);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$renderDropdown = F3(
+	function (state, configRec, _v0) {
+		var ddRec = _v0.a;
+		var needsDropup = A2(
+			$elm$core$Maybe$withDefault,
+			false,
+			A2(
+				$elm$core$Maybe$map,
+				function (fix) {
+					if (fix.$ === 'Bottom') {
+						return true;
+					} else {
+						return false;
+					}
+				},
+				configRec.options.fix));
+		var isShown = !_Utils_eq(
+			A2($rundis$elm_bootstrap$Bootstrap$Navbar$getOrInitDropdownStatus, ddRec.id, state),
+			$rundis$elm_bootstrap$Bootstrap$Navbar$Closed);
+		return A2(
+			$elm$html$Html$li,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$classList(
+					_List_fromArray(
+						[
+							_Utils_Tuple2('nav-item', true),
+							_Utils_Tuple2('dropdown', true),
+							_Utils_Tuple2('shown', isShown),
+							_Utils_Tuple2('dropup', needsDropup)
+						]))
+				]),
+			_List_fromArray(
+				[
+					A4($rundis$elm_bootstrap$Bootstrap$Navbar$renderDropdownToggle, state, ddRec.id, configRec, ddRec.toggle),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$classList(
+							_List_fromArray(
+								[
+									_Utils_Tuple2('dropdown-menu', true),
+									_Utils_Tuple2('show', isShown)
+								]))
+						]),
+					A2(
+						$elm$core$List$map,
+						function (_v1) {
+							var item = _v1.a;
+							return item;
+						},
+						ddRec.items))
+				]));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$renderItemLink = function (_v0) {
+	var attributes = _v0.attributes;
+	var children = _v0.children;
+	return A2(
+		$elm$html$Html$li,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('nav-item')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$a,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('nav-link')
+						]),
+					attributes),
+				children)
+			]));
+};
+var $elm$html$Html$ul = _VirtualDom_node('ul');
+var $rundis$elm_bootstrap$Bootstrap$Navbar$renderNav = F3(
+	function (state, configRec, navItems) {
+		return A2(
+			$elm$html$Html$ul,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('navbar-nav mr-auto')
+				]),
+			A2(
+				$elm$core$List$map,
+				function (item) {
+					if (item.$ === 'Item') {
+						var item_ = item.a;
+						return $rundis$elm_bootstrap$Bootstrap$Navbar$renderItemLink(item_);
+					} else {
+						var dropdown_ = item.a;
+						return A3($rundis$elm_bootstrap$Bootstrap$Navbar$renderDropdown, state, configRec, dropdown_);
+					}
+				},
+				navItems));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$target = function (decoder) {
+	return A2($elm$json$Json$Decode$field, 'target', decoder);
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$heightDecoder = function () {
+	var tagDecoder = A3(
+		$elm$json$Json$Decode$map2,
+		F2(
+			function (tag, val) {
+				return _Utils_Tuple2(tag, val);
+			}),
+		A2($elm$json$Json$Decode$field, 'tagName', $elm$json$Json$Decode$string),
+		$elm$json$Json$Decode$value);
+	var resToDec = function (res) {
+		if (res.$ === 'Ok') {
+			var v = res.a;
+			return $elm$json$Json$Decode$succeed(v);
+		} else {
+			var err = res.a;
+			return $elm$json$Json$Decode$fail(
+				$elm$json$Json$Decode$errorToString(err));
+		}
+	};
+	var fromNavDec = $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				A2(
+				$elm$json$Json$Decode$at,
+				_List_fromArray(
+					['childNodes', '2', 'childNodes', '0', 'offsetHeight']),
+				$elm$json$Json$Decode$float),
+				A2(
+				$elm$json$Json$Decode$at,
+				_List_fromArray(
+					['childNodes', '1', 'childNodes', '0', 'offsetHeight']),
+				$elm$json$Json$Decode$float)
+			]));
+	var fromButtonDec = $rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$parentElement(fromNavDec);
+	return A2(
+		$elm$json$Json$Decode$andThen,
+		function (_v0) {
+			var tag = _v0.a;
+			var val = _v0.b;
+			switch (tag) {
+				case 'NAV':
+					return resToDec(
+						A2($elm$json$Json$Decode$decodeValue, fromNavDec, val));
+				case 'BUTTON':
+					return resToDec(
+						A2($elm$json$Json$Decode$decodeValue, fromButtonDec, val));
+				default:
+					return $elm$json$Json$Decode$succeed(0);
+			}
+		},
+		$rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$target(
+			$rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$parentElement(tagDecoder)));
+}();
+var $rundis$elm_bootstrap$Bootstrap$Navbar$toggleHandler = F2(
+	function (state, configRec) {
+		var height = state.a.height;
+		var updState = function (h) {
+			return A2(
+				$rundis$elm_bootstrap$Bootstrap$Navbar$mapState,
+				function (s) {
+					return _Utils_update(
+						s,
+						{
+							height: $elm$core$Maybe$Just(h),
+							visibility: A2($rundis$elm_bootstrap$Bootstrap$Navbar$visibilityTransition, configRec.withAnimation, s.visibility)
+						});
+				},
+				state);
+		};
+		return A2(
+			$elm$html$Html$Events$on,
+			'click',
+			A2(
+				$elm$json$Json$Decode$andThen,
+				function (v) {
+					return $elm$json$Json$Decode$succeed(
+						configRec.toMsg(
+							(v > 0) ? updState(v) : updState(
+								A2($elm$core$Maybe$withDefault, 0, height))));
+				},
+				$rundis$elm_bootstrap$Bootstrap$Navbar$heightDecoder));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$view = F2(
+	function (state, conf) {
+		var configRec = conf.a;
+		return A2(
+			$elm$html$Html$nav,
+			$rundis$elm_bootstrap$Bootstrap$Navbar$navbarAttributes(configRec.options),
+			_Utils_ap(
+				$rundis$elm_bootstrap$Bootstrap$Navbar$maybeBrand(configRec.brand),
+				_Utils_ap(
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class(
+									'navbar-toggler' + A2(
+										$elm$core$Maybe$withDefault,
+										'',
+										A2(
+											$elm$core$Maybe$map,
+											function (_v0) {
+												return ' navbar-toggler-right';
+											},
+											configRec.brand))),
+									$elm$html$Html$Attributes$type_('button'),
+									A2($rundis$elm_bootstrap$Bootstrap$Navbar$toggleHandler, state, configRec)
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$span,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('navbar-toggler-icon')
+										]),
+									_List_Nil)
+								]))
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							A2($rundis$elm_bootstrap$Bootstrap$Navbar$menuAttributes, state, configRec),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$div,
+									A2($rundis$elm_bootstrap$Bootstrap$Navbar$menuWrapperAttributes, state, configRec),
+									_Utils_ap(
+										_List_fromArray(
+											[
+												A3($rundis$elm_bootstrap$Bootstrap$Navbar$renderNav, state, configRec, configRec.items)
+											]),
+										$rundis$elm_bootstrap$Bootstrap$Navbar$renderCustom(configRec.customItems)))
+								]))
+						]))));
+	});
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $rundis$elm_bootstrap$Bootstrap$Accordion$withAnimation = function (_v0) {
+	var configRec = _v0.a;
+	return $rundis$elm_bootstrap$Bootstrap$Accordion$Config(
+		_Utils_update(
+			configRec,
+			{withAnimation: true}));
+};
+var $rundis$elm_bootstrap$Bootstrap$Navbar$withAnimation = function (config_) {
+	return A2(
+		$rundis$elm_bootstrap$Bootstrap$Navbar$updateConfig,
+		function (conf) {
+			return _Utils_update(
+				conf,
+				{withAnimation: true});
+		},
+		config_);
+};
 var $author$project$Main$view = function (model) {
 	var zooming = 'scale(' + ($elm$core$String$fromFloat(model.zoom) + ')');
 	var shareB64 = $truqu$elm_base64$Base64$encode(
@@ -19023,8 +21033,14 @@ var $author$project$Main$view = function (model) {
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						A2($elm$html$Html$Attributes$style, 'width', '1500px'),
-						A2($elm$html$Html$Attributes$style, 'height', '1000px'),
+						A2(
+						$elm$html$Html$Attributes$style,
+						'width',
+						$elm$core$String$fromInt(modelIn.width) + 'px'),
+						A2(
+						$elm$html$Html$Attributes$style,
+						'height',
+						$elm$core$String$fromInt(modelIn.height) + 'px'),
 						A2($elm$html$Html$Attributes$style, 'display', 'flex'),
 						A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
 						A2($elm$html$Html$Attributes$style, 'justify-content', 'center')
@@ -19047,8 +21063,14 @@ var $author$project$Main$view = function (model) {
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							A2($elm$html$Html$Attributes$style, 'width', '1500px'),
-							A2($elm$html$Html$Attributes$style, 'height', '1000px'),
+							A2(
+							$elm$html$Html$Attributes$style,
+							'width',
+							$elm$core$String$fromInt(modelIn.width) + 'px'),
+							A2(
+							$elm$html$Html$Attributes$style,
+							'height',
+							$elm$core$String$fromInt(modelIn.height) + 'px'),
 							A2($elm$html$Html$Attributes$style, 'display', 'flex'),
 							A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
 							A2($elm$html$Html$Attributes$style, 'justify-content', 'center')
@@ -19064,8 +21086,8 @@ var $author$project$Main$view = function (model) {
 					$elm$svg$Svg$svg,
 					_List_fromArray(
 						[
-							A2($author$project$Main$num, $elm$svg$Svg$Attributes$width, modelIn.size.width),
-							A2($author$project$Main$num, $elm$svg$Svg$Attributes$height, modelIn.size.height),
+							A2($author$project$Main$num, $elm$svg$Svg$Attributes$width, modelIn.width),
+							A2($author$project$Main$num, $elm$svg$Svg$Attributes$height, modelIn.height),
 							$author$project$Main$handleZoom($author$project$Main$Zoom),
 							A2($zaboco$elm_draggable$Draggable$mouseTrigger, _Utils_Tuple0, $author$project$Main$DragMsg),
 							$author$project$Main$clickHandler($author$project$Main$NodeClicked)
@@ -19086,345 +21108,363 @@ var $author$project$Main$view = function (model) {
 		}
 	};
 	var _v3 = _Utils_Tuple2(cy + halfHeight, cx + halfWidth);
-	return A2(
-		$elm$html$Html$table,
-		_List_Nil,
-		_List_fromArray(
+	return {
+		body: _List_fromArray(
 			[
 				A2(
-				$elm$html$Html$tr,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2($elm$html$Html$th, _List_Nil, _List_Nil),
-						A2($elm$html$Html$th, _List_Nil, _List_Nil)
-					])),
+				$rundis$elm_bootstrap$Bootstrap$Navbar$view,
+				model.navbarState,
 				A2(
-				$elm$html$Html$tr,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$td,
-						_List_fromArray(
-							[
-								A2($elm$html$Html$Attributes$style, 'vertical-align', 'top')
-							]),
-						_List_fromArray(
-							[
-								A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-								A2(
-								$elm$html$Html$textarea,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$rows(10),
-										$elm$html$Html$Attributes$cols(60),
-										$elm$html$Html$Events$onInput($author$project$Main$SaveProg),
-										$elm$html$Html$Attributes$value(model.program)
-									]),
-								_List_Nil),
-								A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Events$onClick($author$project$Main$AddFilter)
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$b,
-										_List_Nil,
-										_List_fromArray(
-											[
-												$elm$html$Html$text('(+) Add New Filter')
-											]))
-									])),
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										A2($elm$html$Html$Attributes$style, 'text-align', 'center')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$div,
-										_List_Nil,
-										A2(
-											$elm$core$List$indexedMap,
-											$author$project$Main$itemView(model),
-											model.items)),
-										A2($author$project$Main$ghostView, model, model.items)
-									])),
-								A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										A2($elm$html$Html$Attributes$style, 'margin', '0 auto'),
-										A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-										A2($elm$html$Html$Attributes$style, 'justify-content', 'center')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$select,
-										_List_fromArray(
-											[
-												A2(
-												$elm$html$Html$Events$on,
-												'change',
-												A2($elm$json$Json$Decode$map, $author$project$Main$SetExample, $elm_community$html_extra$Html$Events$Extra$targetValueIntParse)),
-												A2($elm$html$Html$Attributes$style, 'width', '200px'),
-												A2($elm$html$Html$Attributes$style, 'height', '50px'),
-												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
-												A2($elm$html$Html$Attributes$style, 'font-size', 'x-large')
-											]),
-										A2(
-											$elm$core$List$map,
-											A2($author$project$Main$exampleOption, model.initData.examples, model.exampleIndex),
-											A2(
-												$elm$core$List$range,
-												0,
-												(-1) + $elm$core$List$length(model.initData.examples)))),
-										A2(
-										$elm$html$Html$button,
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onClick($author$project$Main$LoadEx),
-												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
-												A2($elm$html$Html$Attributes$style, 'font-size', 'medium')
-											]),
-										_List_fromArray(
-											[
-												A2(
-												$elm$html$Html$b,
-												_List_Nil,
-												_List_fromArray(
-													[
-														$elm$html$Html$text('Load Example')
-													]))
-											])),
-										A2(
-										$elm$html$Html$button,
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onClick($author$project$Main$Clear),
-												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
-												A2($elm$html$Html$Attributes$style, 'font-size', 'medium')
-											]),
-										_List_fromArray(
-											[
-												A2(
-												$elm$html$Html$b,
-												_List_Nil,
-												_List_fromArray(
-													[
-														$elm$html$Html$text('Clear All')
-													]))
-											]))
-									])),
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										A2($elm$html$Html$Attributes$style, 'margin', '0 auto'),
-										A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-										A2($elm$html$Html$Attributes$style, 'justify-content', 'center')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$input,
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onInput($author$project$Main$UpdateName),
-												$elm$html$Html$Attributes$value(model.saveName),
-												A2($elm$html$Html$Attributes$style, 'width', '200px')
-											]),
-										_List_Nil),
-										A2(
-										$elm$html$Html$button,
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onClick($author$project$Main$SaveGraph),
-												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
-												A2($elm$html$Html$Attributes$style, 'font-size', 'medium')
-											]),
-										_List_fromArray(
-											[
-												A2(
-												$elm$html$Html$b,
-												_List_Nil,
-												_List_fromArray(
-													[
-														$elm$html$Html$text('Save Program')
-													]))
-											]))
-									])),
-								A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										A2($elm$html$Html$Attributes$style, 'margin', '0 auto'),
-										A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-										A2($elm$html$Html$Attributes$style, 'justify-content', 'center')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$select,
-										_List_fromArray(
-											[
-												A2(
-												$elm$html$Html$Events$on,
-												'change',
-												A2($elm$json$Json$Decode$map, $author$project$Main$SetTargetSaved, $elm_community$html_extra$Html$Events$Extra$targetValueIntParse)),
-												A2($elm$html$Html$Attributes$style, 'width', '200px'),
-												A2($elm$html$Html$Attributes$style, 'height', '50px'),
-												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
-												A2($elm$html$Html$Attributes$style, 'font-size', 'x-large')
-											]),
-										A2(
-											$elm$core$List$map,
-											A2($author$project$Main$savedGraphOption, model.savedGraphKeys, model.selectedSaveGraph),
-											A2(
-												$elm$core$List$range,
-												0,
-												(-1) + $elm$core$List$length(model.savedGraphKeys)))),
-										A2(
-										$elm$html$Html$button,
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onClick($author$project$Main$LoadSavedGraph),
-												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
-												A2($elm$html$Html$Attributes$style, 'font-size', 'medium')
-											]),
-										_List_fromArray(
-											[
-												A2(
-												$elm$html$Html$b,
-												_List_Nil,
-												_List_fromArray(
-													[
-														$elm$html$Html$text('Load')
-													]))
-											])),
-										A2(
-										$elm$html$Html$button,
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onClick($author$project$Main$DeleteSavedGraph),
-												A2($elm$html$Html$Attributes$style, 'margin', '10px'),
-												A2($elm$html$Html$Attributes$style, 'font-size', 'medium')
-											]),
-										_List_fromArray(
-											[
-												A2(
-												$elm$html$Html$b,
-												_List_Nil,
-												_List_fromArray(
-													[
-														$elm$html$Html$text('Delete')
-													]))
-											]))
-									])),
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										A2($elm$html$Html$Attributes$style, 'width', '550px')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$rundis$elm_bootstrap$Bootstrap$Alert$view,
-										model.errorVis,
-										A2(
-											$rundis$elm_bootstrap$Bootstrap$Alert$children,
+					$rundis$elm_bootstrap$Bootstrap$Navbar$customItems,
+					_List_fromArray(
+						[
+							A2(
+							$rundis$elm_bootstrap$Bootstrap$Navbar$formItem,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Form$Input$text(
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$Form$Input$attrs(
 											_List_fromArray(
 												[
-													A2(
-													$rundis$elm_bootstrap$Bootstrap$Alert$h4,
-													_List_Nil,
+													$elm$html$Html$Attributes$placeholder('Enter a Name to Save'),
+													$elm$html$Html$Events$onInput($author$project$Main$UpdateName),
+													$elm$html$Html$Attributes$value(model.saveName)
+												]))
+										])),
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Button$button,
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$Button$success,
+											$rundis$elm_bootstrap$Bootstrap$Button$onClick($author$project$Main$SaveGraph),
+											$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+											_List_fromArray(
+												[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml2Sm]))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Save Program')
+										]))
+								]))
+						]),
+					A2(
+						$rundis$elm_bootstrap$Bootstrap$Navbar$items,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Navbar$dropdown(
+								{
+									id: 'loadDD',
+									items: A2(
+										$elm$core$List$cons,
+										$rundis$elm_bootstrap$Bootstrap$Navbar$dropdownHeader(
+											_List_fromArray(
+												[
+													$elm$html$Html$text('Saved Programs')
+												])),
+										_Utils_ap(
+											A2(
+												$elm$core$List$map,
+												function (s) {
+													return A2(
+														$rundis$elm_bootstrap$Bootstrap$Navbar$dropdownItem,
+														_List_fromArray(
+															[
+																$elm$html$Html$Events$onClick(
+																$author$project$Main$LoadSavedGraph(s))
+															]),
+														_List_fromArray(
+															[
+																$elm$html$Html$text(s)
+															]));
+												},
+												model.savedGraphKeys),
+											A2(
+												$elm$core$List$cons,
+												$rundis$elm_bootstrap$Bootstrap$Navbar$dropdownHeader(
 													_List_fromArray(
 														[
-															$elm$html$Html$text('Error')
+															$elm$html$Html$text('Example Programs')
 														])),
-													$elm$html$Html$text(model.error)
-												]),
-											A2(
-												$rundis$elm_bootstrap$Bootstrap$Alert$dismissableWithAnimation,
-												$author$project$Main$AlertMsg,
-												$rundis$elm_bootstrap$Bootstrap$Alert$info($rundis$elm_bootstrap$Bootstrap$Alert$config))))
-									])),
-								A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-								A2(
-								$elm$html$Html$div,
-								_List_Nil,
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$input,
-										_List_fromArray(
-											[
-												$elm$html$Html$Attributes$cols(60),
-												$elm$html$Html$Attributes$value(shareUrl)
-											]),
-										_List_Nil),
-										A2(
-										$elm$html$Html$button,
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onClick(
-												$author$project$Main$CBCopy(shareUrl))
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('Copy to Clipboard')
-											])),
-										model.cbRes ? A2(
-										$elm$html$Html$div,
+												A2(
+													$elm$core$List$map,
+													function (s) {
+														return A2(
+															$rundis$elm_bootstrap$Bootstrap$Navbar$dropdownItem,
+															_List_fromArray(
+																[
+																	$elm$html$Html$Events$onClick(
+																	$author$project$Main$LoadEx(s))
+																]),
+															_List_fromArray(
+																[
+																	$elm$html$Html$text(s)
+																]));
+													},
+													$elm$core$Dict$keys(model.initData.examples))))),
+									toggle: A2(
+										$rundis$elm_bootstrap$Bootstrap$Navbar$dropdownToggle,
 										_List_Nil,
 										_List_fromArray(
 											[
-												$elm$html$Html$text('Link Copied'),
-												A2(
-												$elm$html$Html$button,
-												_List_fromArray(
-													[
-														$elm$html$Html$Events$onClick($author$project$Main$HideCBRes)
-													]),
-												_List_fromArray(
-													[
-														$elm$html$Html$text('X')
-													]))
-											])) : A2($elm$html$Html$div, _List_Nil, _List_Nil)
-									])),
-								$author$project$Main$showContext(model)
-							])),
+												$elm$html$Html$text('Load')
+											]))
+								}),
+								$rundis$elm_bootstrap$Bootstrap$Navbar$dropdown(
+								{
+									id: 'DeleteDD',
+									items: A2(
+										$elm$core$List$cons,
+										$rundis$elm_bootstrap$Bootstrap$Navbar$dropdownHeader(
+											_List_fromArray(
+												[
+													$elm$html$Html$text('Saved Programs')
+												])),
+										A2(
+											$elm$core$List$map,
+											function (s) {
+												return A2(
+													$rundis$elm_bootstrap$Bootstrap$Navbar$dropdownItem,
+													_List_fromArray(
+														[
+															$elm$html$Html$Events$onClick(
+															$author$project$Main$DeleteSavedGraph(s))
+														]),
+													_List_fromArray(
+														[
+															$elm$html$Html$text(s)
+														]));
+											},
+											model.savedGraphKeys)),
+									toggle: A2(
+										$rundis$elm_bootstrap$Bootstrap$Navbar$dropdownToggle,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Delete')
+											]))
+								}),
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Navbar$itemLink,
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Main$CBCopy(shareUrl)),
+										A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Share')
+									]))
+							]),
+						$rundis$elm_bootstrap$Bootstrap$Navbar$info(
+							A3(
+								$rundis$elm_bootstrap$Bootstrap$Navbar$brand,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$href('#'),
+										A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Retrace.run')
+									]),
+								$rundis$elm_bootstrap$Bootstrap$Navbar$collapseSmall(
+									$rundis$elm_bootstrap$Bootstrap$Navbar$withAnimation(
+										$rundis$elm_bootstrap$Bootstrap$Navbar$config($author$project$Main$NavbarMsg)))))))),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'vertical-align', 'top'),
+						A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+						A2($elm$html$Html$Attributes$style, 'left', '0%'),
+						A2($elm$html$Html$Attributes$style, 'top', '56px'),
+						A2($elm$html$Html$Attributes$style, 'width', '450px'),
+						A2($elm$html$Html$Attributes$style, 'z-index', '3')
+					]),
+				_List_fromArray(
+					[
 						A2(
-						$elm$html$Html$td,
+						$rundis$elm_bootstrap$Bootstrap$Accordion$view,
+						model.accState,
+						A2(
+							$rundis$elm_bootstrap$Bootstrap$Accordion$cards,
+							_List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Accordion$card(
+									{
+										blocks: _List_fromArray(
+											[
+												A2(
+												$rundis$elm_bootstrap$Bootstrap$Accordion$block,
+												_List_Nil,
+												_List_fromArray(
+													[
+														$rundis$elm_bootstrap$Bootstrap$Card$Block$custom(
+														A2(
+															$elm$html$Html$textarea,
+															_List_fromArray(
+																[
+																	$elm$html$Html$Events$onInput($author$project$Main$SaveProg),
+																	$elm$html$Html$Attributes$value(model.program),
+																	$elm$html$Html$Attributes$rows(4),
+																	$elm$html$Html$Attributes$cols(40)
+																]),
+															_List_Nil))
+													]))
+											]),
+										header: A2(
+											$rundis$elm_bootstrap$Bootstrap$Accordion$header,
+											_List_Nil,
+											A2(
+												$rundis$elm_bootstrap$Bootstrap$Accordion$toggle,
+												_List_Nil,
+												_List_fromArray(
+													[
+														$elm$html$Html$text('Program')
+													]))),
+										id: 'progCard',
+										options: _List_Nil
+									}),
+									$rundis$elm_bootstrap$Bootstrap$Accordion$card(
+									{
+										blocks: _List_fromArray(
+											[
+												A2(
+												$rundis$elm_bootstrap$Bootstrap$Accordion$block,
+												_List_Nil,
+												_List_fromArray(
+													[
+														A2(
+														$rundis$elm_bootstrap$Bootstrap$Card$Block$text,
+														_List_fromArray(
+															[
+																$elm$html$Html$Events$onClick($author$project$Main$AddFilter),
+																A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+															]),
+														_List_fromArray(
+															[
+																$elm$html$Html$text('(+) Add New Filter')
+															]))
+													])),
+												A2(
+												$rundis$elm_bootstrap$Bootstrap$Accordion$block,
+												_List_Nil,
+												_List_fromArray(
+													[
+														$rundis$elm_bootstrap$Bootstrap$Card$Block$custom(
+														A2(
+															$elm$html$Html$div,
+															_List_Nil,
+															_List_fromArray(
+																[
+																	A2(
+																	$elm$html$Html$div,
+																	_List_Nil,
+																	A2(
+																		$elm$core$List$indexedMap,
+																		$author$project$Main$itemView(model),
+																		model.items)),
+																	A2($author$project$Main$ghostView, model, model.items)
+																])))
+													]))
+											]),
+										header: A2(
+											$rundis$elm_bootstrap$Bootstrap$Accordion$header,
+											_List_Nil,
+											A2(
+												$rundis$elm_bootstrap$Bootstrap$Accordion$toggle,
+												_List_Nil,
+												_List_fromArray(
+													[
+														$elm$html$Html$text('Filters')
+													]))),
+										id: 'filtCard',
+										options: _List_Nil
+									})
+								]),
+							$rundis$elm_bootstrap$Bootstrap$Accordion$withAnimation(
+								$rundis$elm_bootstrap$Bootstrap$Accordion$config($author$project$Main$AccMsg))))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'vertical-align', 'bottom'),
+						A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+						A2($elm$html$Html$Attributes$style, 'right', '0%'),
+						A2($elm$html$Html$Attributes$style, 'bottom', '0%'),
+						A2($elm$html$Html$Attributes$style, 'width', '400px'),
+						A2($elm$html$Html$Attributes$style, 'z-index', '3')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								A2($elm$html$Html$Attributes$style, 'border-style', 'double')
+								A2($elm$html$Html$Attributes$style, 'width', '400px')
 							]),
 						_List_fromArray(
 							[
-								makeSvg(model)
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Alert$view,
+								model.errorVis,
+								A2(
+									$rundis$elm_bootstrap$Bootstrap$Alert$children,
+									_List_fromArray(
+										[
+											A2(
+											$rundis$elm_bootstrap$Bootstrap$Alert$h4,
+											_List_Nil,
+											_List_fromArray(
+												[
+													$elm$html$Html$text(
+													model.errorType ? 'Success' : 'Error')
+												])),
+											$elm$html$Html$text(model.error)
+										]),
+									A2(
+										$rundis$elm_bootstrap$Bootstrap$Alert$dismissableWithAnimation,
+										$author$project$Main$AlertMsg,
+										(model.errorType ? $rundis$elm_bootstrap$Bootstrap$Alert$info : $rundis$elm_bootstrap$Bootstrap$Alert$danger)($rundis$elm_bootstrap$Bootstrap$Alert$config))))
 							]))
-					]))
-			]));
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'border-style', 'none')
+					]),
+				_List_fromArray(
+					[
+						makeSvg(model)
+					])),
+				$author$project$Main$showContext(model)
+			]),
+		title: 'Xtra.run'
+	};
 };
-var $author$project$Main$main = $elm$browser$Browser$element(
+var $author$project$Main$main = $elm$browser$Browser$document(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
-		function (url) {
-			return $elm$json$Json$Decode$succeed(
-				{url: url});
+		function (width) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (url) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (height) {
+							return $elm$json$Json$Decode$succeed(
+								{height: height, url: url, width: width});
+						},
+						A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$int));
+				},
+				A2($elm$json$Json$Decode$field, 'url', $elm$json$Json$Decode$string));
 		},
-		A2($elm$json$Json$Decode$field, 'url', $elm$json$Json$Decode$string)))(0)}});}(this));
+		A2($elm$json$Json$Decode$field, 'width', $elm$json$Json$Decode$int)))(0)}});}(this));

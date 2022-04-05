@@ -23,7 +23,7 @@
       var mainModule = 'Main';
       var app = Elm[mainModule].init({
         node: document.getElementById("elm"),
-        flags: {url: window.location.href}
+        flags: {url: window.location.href, width: window.innerWidth, height: window.innerHeight}
       });
 
       // These are the defaults, so you don't need to pass them.  If you
