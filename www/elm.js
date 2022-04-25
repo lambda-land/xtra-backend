@@ -6936,6 +6936,20 @@ var $rundis$elm_bootstrap$Bootstrap$Accordion$State = function (a) {
 	return {$: 'State', a: a};
 };
 var $rundis$elm_bootstrap$Bootstrap$Accordion$initialState = $rundis$elm_bootstrap$Bootstrap$Accordion$State($elm$core$Dict$empty);
+var $rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$Area = F4(
+	function (top, left, width, height) {
+		return {height: height, left: left, top: top, width: width};
+	});
+var $rundis$elm_bootstrap$Bootstrap$Dropdown$Closed = {$: 'Closed'};
+var $rundis$elm_bootstrap$Bootstrap$Dropdown$State = function (a) {
+	return {$: 'State', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Dropdown$initialState = $rundis$elm_bootstrap$Bootstrap$Dropdown$State(
+	{
+		menuSize: A4($rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$Area, 0, 0, 0, 0),
+		status: $rundis$elm_bootstrap$Bootstrap$Dropdown$Closed,
+		toggleSize: A4($rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$Area, 0, 0, 0, 0)
+	});
 var $rundis$elm_bootstrap$Bootstrap$Popover$State = function (a) {
 	return {$: 'State', a: a};
 };
@@ -8203,6 +8217,7 @@ var $author$project$Main$initModel = F4(
 			cbPopover: $rundis$elm_bootstrap$Bootstrap$Popover$initialState,
 			cbRes: false,
 			center: A2($elm_explorations$linear_algebra$Math$Vector2$vec2, 375, 500),
+			ddState: $rundis$elm_bootstrap$Bootstrap$Dropdown$initialState,
 			dirty: false,
 			dnd: $author$project$Main$system.model,
 			dotString: '',
@@ -8305,9 +8320,17 @@ var $author$project$Main$jsonToSavedGraph = A3(
 	$author$project$Main$jsonToFilterList);
 var $author$project$Main$loadSavedGraphToModel = F2(
 	function (model, gr) {
+		var maxFiltId = A3(
+			$elm$core$List$foldl,
+			F2(
+				function (x, acc) {
+					return A2($elm$core$Basics$max, x.id, acc);
+				}),
+			0,
+			gr.filters);
 		return _Utils_update(
 			model,
-			{items: gr.filters, program: gr.program});
+			{filtIdCounter: maxFiltId + 1, items: gr.filters, program: gr.program});
 	});
 var $elm$core$Basics$always = F2(
 	function (a, _v0) {
@@ -8366,6 +8389,9 @@ var $author$project$Main$AlertMsg = function (a) {
 };
 var $author$project$Main$CBRes = function (a) {
 	return {$: 'CBRes', a: a};
+};
+var $author$project$Main$DDMsg = function (a) {
+	return {$: 'DDMsg', a: a};
 };
 var $author$project$Main$DragMsg = function (a) {
 	return {$: 'DragMsg', a: a};
@@ -8624,12 +8650,40 @@ var $rundis$elm_bootstrap$Bootstrap$Alert$subscriptions = F2(
 			return $elm$core$Platform$Sub$none;
 		}
 	});
+var $rundis$elm_bootstrap$Bootstrap$Dropdown$ListenClicks = {$: 'ListenClicks'};
+var $elm$browser$Browser$Events$onClick = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'click');
+var $rundis$elm_bootstrap$Bootstrap$Dropdown$updateStatus = F2(
+	function (status, _v0) {
+		var stateRec = _v0.a;
+		return $rundis$elm_bootstrap$Bootstrap$Dropdown$State(
+			_Utils_update(
+				stateRec,
+				{status: status}));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Dropdown$subscriptions = F2(
+	function (state, toMsg) {
+		var status = state.a.status;
+		switch (status.$) {
+			case 'Open':
+				return $elm$browser$Browser$Events$onAnimationFrame(
+					function (_v1) {
+						return toMsg(
+							A2($rundis$elm_bootstrap$Bootstrap$Dropdown$updateStatus, $rundis$elm_bootstrap$Bootstrap$Dropdown$ListenClicks, state));
+					});
+			case 'ListenClicks':
+				return $elm$browser$Browser$Events$onClick(
+					$elm$json$Json$Decode$succeed(
+						toMsg(
+							A2($rundis$elm_bootstrap$Bootstrap$Dropdown$updateStatus, $rundis$elm_bootstrap$Bootstrap$Dropdown$Closed, state))));
+			default:
+				return $elm$core$Platform$Sub$none;
+		}
+	});
 var $rundis$elm_bootstrap$Bootstrap$Navbar$AnimatingDown = {$: 'AnimatingDown'};
 var $rundis$elm_bootstrap$Bootstrap$Navbar$AnimatingUp = {$: 'AnimatingUp'};
 var $rundis$elm_bootstrap$Bootstrap$Navbar$Closed = {$: 'Closed'};
 var $rundis$elm_bootstrap$Bootstrap$Navbar$ListenClicks = {$: 'ListenClicks'};
 var $rundis$elm_bootstrap$Bootstrap$Navbar$Open = {$: 'Open'};
-var $elm$browser$Browser$Events$onClick = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'click');
 var $rundis$elm_bootstrap$Bootstrap$Navbar$dropdownSubscriptions = F2(
 	function (state, toMsg) {
 		var dropdowns = state.a.dropdowns;
@@ -8792,13 +8846,16 @@ var $author$project$Main$subscriptions = function (model) {
 						return A2($author$project$Main$ResizeView, width, height);
 					})),
 				A2($rundis$elm_bootstrap$Bootstrap$Navbar$subscriptions, model.navbarState, $author$project$Main$NavbarMsg),
-				A2($rundis$elm_bootstrap$Bootstrap$Accordion$subscriptions, model.accState, $author$project$Main$AccMsg)
+				A2($rundis$elm_bootstrap$Bootstrap$Accordion$subscriptions, model.accState, $author$project$Main$AccMsg),
+				A2($rundis$elm_bootstrap$Bootstrap$Dropdown$subscriptions, model.ddState, $author$project$Main$DDMsg)
 			]));
 };
+var $author$project$Main$CloseFilterAcc = {$: 'CloseFilterAcc'};
 var $author$project$Main$ListGraphKeys = {$: 'ListGraphKeys'};
 var $author$project$PortFunnels$LocalStorageHandler = function (a) {
 	return {$: 'LocalStorageHandler', a: a};
 };
+var $author$project$Main$OpenFilterAcc = {$: 'OpenFilterAcc'};
 var $author$project$Main$Run = {$: 'Run'};
 var $author$project$Main$RunShare = {$: 'RunShare'};
 var $author$project$Main$SaveProg = function (a) {
@@ -15371,6 +15428,20 @@ var $author$project$Main$getSvg = function (model) {
 			url: $author$project$Main$krokiURL
 		});
 };
+var $rundis$elm_bootstrap$Bootstrap$Accordion$CardState = F2(
+	function (visibility, height) {
+		return {height: height, visibility: visibility};
+	});
+var $rundis$elm_bootstrap$Bootstrap$Accordion$initialStateCardOpen = function (id) {
+	return $rundis$elm_bootstrap$Bootstrap$Accordion$State(
+		$elm$core$Dict$fromList(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					id,
+					A2($rundis$elm_bootstrap$Bootstrap$Accordion$CardState, $rundis$elm_bootstrap$Bootstrap$Accordion$Shown, $elm$core$Maybe$Nothing))
+				])));
+};
 var $billstclair$elm_localstorage$PortFunnel$LocalStorage$listKeys = $billstclair$elm_localstorage$PortFunnel$InternalTypes$ListKeys($elm$core$Maybe$Nothing);
 var $billstclair$elm_port_funnel$PortFunnel$FunnelSpec = F4(
 	function (accessors, moduleDesc, commander, handler) {
@@ -16734,13 +16805,17 @@ var $author$project$Main$update = F2(
 							[
 								{actionIndex: 0, enabled: false, id: model.filtIdCounter, param: '', selectIndex: 0}
 							]));
-					var $temp$msg = $author$project$Main$Run,
-						$temp$model = _Utils_update(
-						model,
-						{filtIdCounter: model.filtIdCounter + 1, items: newFilters});
-					msg = $temp$msg;
-					model = $temp$model;
-					continue update;
+					var cmds = $elm$core$Platform$Cmd$batch(
+						_List_fromArray(
+							[
+								$author$project$Main$run($author$project$Main$Run),
+								$author$project$Main$run($author$project$Main$CloseFilterAcc)
+							]));
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{filtIdCounter: model.filtIdCounter + 1, items: newFilters}),
+						cmds);
 				case 'RemoveFilter':
 					var target = msg.a;
 					var targetIndex = A2(
@@ -16757,13 +16832,17 @@ var $author$project$Main$update = F2(
 							return model.items;
 						}
 					}();
-					var $temp$msg = $author$project$Main$Run,
-						$temp$model = _Utils_update(
-						model,
-						{items: newFilters});
-					msg = $temp$msg;
-					model = $temp$model;
-					continue update;
+					var cmds = $elm$core$Platform$Cmd$batch(
+						_List_fromArray(
+							[
+								$author$project$Main$run($author$project$Main$Run),
+								$author$project$Main$run($author$project$Main$CloseFilterAcc)
+							]));
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{items: newFilters}),
+						cmds);
 				case 'AlertMsg':
 					var vis = msg.a;
 					if (model.dirty) {
@@ -16965,18 +17044,6 @@ var $author$project$Main$update = F2(
 							model,
 							{navbarState: state}),
 						$elm$core$Platform$Cmd$none);
-				case 'ShowModal':
-					var x = msg.a;
-					switch (x.$) {
-						case 'Save':
-							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-						case 'Load':
-							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-						case 'Share':
-							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-						default:
-							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-					}
 				case 'PopoverMsg':
 					var state = msg.a;
 					return _Utils_Tuple2(
@@ -16984,12 +17051,33 @@ var $author$project$Main$update = F2(
 							model,
 							{cbPopover: state}),
 						$elm$core$Platform$Cmd$none);
-				default:
+				case 'AccMsg':
 					var state = msg.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{accState: state}),
+						$elm$core$Platform$Cmd$none);
+				case 'CloseFilterAcc':
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{accState: $rundis$elm_bootstrap$Bootstrap$Accordion$initialState}),
+						$author$project$Main$run($author$project$Main$OpenFilterAcc));
+				case 'OpenFilterAcc':
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								accState: $rundis$elm_bootstrap$Bootstrap$Accordion$initialStateCardOpen('filtCard')
+							}),
+						$elm$core$Platform$Cmd$none);
+				default:
+					var state = msg.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{ddState: state}),
 						$elm$core$Platform$Cmd$none);
 			}
 		}
@@ -17659,6 +17747,8 @@ var $rundis$elm_bootstrap$Bootstrap$Card$Internal$block = F2(
 					items)));
 	});
 var $rundis$elm_bootstrap$Bootstrap$Accordion$block = $rundis$elm_bootstrap$Bootstrap$Card$Internal$block;
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block = {$: 'Block'};
+var $rundis$elm_bootstrap$Bootstrap$Button$block = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Block;
 var $rundis$elm_bootstrap$Bootstrap$Navbar$Brand = function (a) {
 	return {$: 'Brand', a: a};
 };
@@ -18252,25 +18342,10 @@ var $truqu$elm_base64$Base64$Encode$encode = function (input) {
 		A3($elm$core$String$foldl, $truqu$elm_base64$Base64$Encode$chomp, $truqu$elm_base64$Base64$Encode$initial, input));
 };
 var $truqu$elm_base64$Base64$encode = $truqu$elm_base64$Base64$Encode$encode;
-var $rundis$elm_bootstrap$Bootstrap$Navbar$CustomItem = function (a) {
-	return {$: 'CustomItem', a: a};
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Roled = function (a) {
+	return {$: 'Roled', a: a};
 };
-var $elm$html$Html$form = _VirtualDom_node('form');
-var $rundis$elm_bootstrap$Bootstrap$Navbar$formItem = F2(
-	function (attributes, children) {
-		return $rundis$elm_bootstrap$Bootstrap$Navbar$CustomItem(
-			A2(
-				$elm$html$Html$form,
-				A2(
-					$elm$core$List$cons,
-					$elm$html$Html$Attributes$class('form-inline'),
-					attributes),
-				children));
-	});
-var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
-var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
-var $elm_explorations$linear_algebra$Math$Vector2$getX = _MJS_v2getX;
-var $elm_explorations$linear_algebra$Math$Vector2$getY = _MJS_v2getY;
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$danger = $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Role$Danger);
 var $author$project$Main$RemoveFilter = function (a) {
 	return {$: 'RemoveFilter', a: a};
 };
@@ -18289,44 +18364,46 @@ var $author$project$Main$UpdateFilterParam = F2(
 	function (a, b) {
 		return {$: 'UpdateFilterParam', a: a, b: b};
 	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs = function (a) {
+	return {$: 'ColAttrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs(attrs_);
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Column = function (a) {
+	return {$: 'Column', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$col = F2(
+	function (options, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Grid$Column(
+			{children: children, options: options});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
+	function (attributes, children) {
+		return A2(
+			$elm$html$Html$div,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('container')
+					]),
+				attributes),
+			children);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring = function (a) {
+	return {$: 'Coloring', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Danger = {$: 'Danger'};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled = function (a) {
+	return {$: 'Roled', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Button$danger = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Danger));
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Main$actionOption = F3(
-	function (actions, selInd, index) {
-		var sel = $elm$html$Html$Attributes$selected(
-			_Utils_eq(index, selInd));
-		var action = A2($elm_community$list_extra$List$Extra$getAt, index, actions);
-		if (action.$ === 'Just') {
-			var actionText = action.a;
-			return A2(
-				$elm$html$Html$option,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$value(
-						$elm$core$String$fromInt(index)),
-						sel
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(actionText)
-					]));
-		} else {
-			return A2(
-				$elm$html$Html$option,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$value('-1')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Invalid filter index')
-					]));
-		}
-	});
-var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
 var $author$project$Main$filterOption = F3(
 	function (filts, selInd, index) {
 		var sel = $elm$html$Html$Attributes$selected(
@@ -18363,11 +18440,34 @@ var $author$project$Main$filterOption = F3(
 var $elm$html$Html$Attributes$hidden = $elm$html$Html$Attributes$boolProperty('hidden');
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $elm$html$Html$input = _VirtualDom_node('input');
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1 = $elm$html$Html$Attributes$class('m-1');
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col5 = {$: 'Col5'};
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$MD = {$: 'MD'};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColWidth = function (a) {
+	return {$: 'ColWidth', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Width = F2(
+	function (screenSize, columnCount) {
+		return {columnCount: columnCount, screenSize: screenSize};
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$width = F2(
+	function (size, count) {
+		return $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColWidth(
+			A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$Width, size, count));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Col$md5 = A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, $rundis$elm_bootstrap$Bootstrap$General$Internal$MD, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col5);
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAuto = {$: 'ColAuto'};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Col$mdAuto = A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, $rundis$elm_bootstrap$Bootstrap$General$Internal$MD, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAuto);
+var $rundis$elm_bootstrap$Bootstrap$Button$onClick = function (message) {
+	return $rundis$elm_bootstrap$Bootstrap$Button$attrs(
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$Events$preventDefaultOn,
+				'click',
+				$elm$json$Json$Decode$succeed(
+					_Utils_Tuple2(message, true)))
+			]));
 };
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
@@ -18396,8 +18496,787 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			$elm$html$Html$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Outlined = function (a) {
+	return {$: 'Outlined', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Button$outlineDanger = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Outlined($rundis$elm_bootstrap$Bootstrap$Internal$Button$Danger));
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Light = {$: 'Light'};
+var $rundis$elm_bootstrap$Bootstrap$Button$outlineLight = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Outlined($rundis$elm_bootstrap$Bootstrap$Internal$Button$Light));
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Success = {$: 'Success'};
+var $rundis$elm_bootstrap$Bootstrap$Button$outlineSuccess = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Outlined($rundis$elm_bootstrap$Bootstrap$Internal$Button$Success));
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col = {$: 'Col'};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColAlign = F2(
+	function (align_, options) {
+		var _v0 = align_.screenSize;
+		switch (_v0.$) {
+			case 'XS':
+				return _Utils_update(
+					options,
+					{
+						alignXs: $elm$core$Maybe$Just(align_)
+					});
+			case 'SM':
+				return _Utils_update(
+					options,
+					{
+						alignSm: $elm$core$Maybe$Just(align_)
+					});
+			case 'MD':
+				return _Utils_update(
+					options,
+					{
+						alignMd: $elm$core$Maybe$Just(align_)
+					});
+			case 'LG':
+				return _Utils_update(
+					options,
+					{
+						alignLg: $elm$core$Maybe$Just(align_)
+					});
+			default:
+				return _Utils_update(
+					options,
+					{
+						alignXl: $elm$core$Maybe$Just(align_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColOffset = F2(
+	function (offset_, options) {
+		var _v0 = offset_.screenSize;
+		switch (_v0.$) {
+			case 'XS':
+				return _Utils_update(
+					options,
+					{
+						offsetXs: $elm$core$Maybe$Just(offset_)
+					});
+			case 'SM':
+				return _Utils_update(
+					options,
+					{
+						offsetSm: $elm$core$Maybe$Just(offset_)
+					});
+			case 'MD':
+				return _Utils_update(
+					options,
+					{
+						offsetMd: $elm$core$Maybe$Just(offset_)
+					});
+			case 'LG':
+				return _Utils_update(
+					options,
+					{
+						offsetLg: $elm$core$Maybe$Just(offset_)
+					});
+			default:
+				return _Utils_update(
+					options,
+					{
+						offsetXl: $elm$core$Maybe$Just(offset_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColOrder = F2(
+	function (order_, options) {
+		var _v0 = order_.screenSize;
+		switch (_v0.$) {
+			case 'XS':
+				return _Utils_update(
+					options,
+					{
+						orderXs: $elm$core$Maybe$Just(order_)
+					});
+			case 'SM':
+				return _Utils_update(
+					options,
+					{
+						orderSm: $elm$core$Maybe$Just(order_)
+					});
+			case 'MD':
+				return _Utils_update(
+					options,
+					{
+						orderMd: $elm$core$Maybe$Just(order_)
+					});
+			case 'LG':
+				return _Utils_update(
+					options,
+					{
+						orderLg: $elm$core$Maybe$Just(order_)
+					});
+			default:
+				return _Utils_update(
+					options,
+					{
+						orderXl: $elm$core$Maybe$Just(order_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColPull = F2(
+	function (pull_, options) {
+		var _v0 = pull_.screenSize;
+		switch (_v0.$) {
+			case 'XS':
+				return _Utils_update(
+					options,
+					{
+						pullXs: $elm$core$Maybe$Just(pull_)
+					});
+			case 'SM':
+				return _Utils_update(
+					options,
+					{
+						pullSm: $elm$core$Maybe$Just(pull_)
+					});
+			case 'MD':
+				return _Utils_update(
+					options,
+					{
+						pullMd: $elm$core$Maybe$Just(pull_)
+					});
+			case 'LG':
+				return _Utils_update(
+					options,
+					{
+						pullLg: $elm$core$Maybe$Just(pull_)
+					});
+			default:
+				return _Utils_update(
+					options,
+					{
+						pullXl: $elm$core$Maybe$Just(pull_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColPush = F2(
+	function (push_, options) {
+		var _v0 = push_.screenSize;
+		switch (_v0.$) {
+			case 'XS':
+				return _Utils_update(
+					options,
+					{
+						pushXs: $elm$core$Maybe$Just(push_)
+					});
+			case 'SM':
+				return _Utils_update(
+					options,
+					{
+						pushSm: $elm$core$Maybe$Just(push_)
+					});
+			case 'MD':
+				return _Utils_update(
+					options,
+					{
+						pushMd: $elm$core$Maybe$Just(push_)
+					});
+			case 'LG':
+				return _Utils_update(
+					options,
+					{
+						pushLg: $elm$core$Maybe$Just(push_)
+					});
+			default:
+				return _Utils_update(
+					options,
+					{
+						pushXl: $elm$core$Maybe$Just(push_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColWidth = F2(
+	function (width_, options) {
+		var _v0 = width_.screenSize;
+		switch (_v0.$) {
+			case 'XS':
+				return _Utils_update(
+					options,
+					{
+						widthXs: $elm$core$Maybe$Just(width_)
+					});
+			case 'SM':
+				return _Utils_update(
+					options,
+					{
+						widthSm: $elm$core$Maybe$Just(width_)
+					});
+			case 'MD':
+				return _Utils_update(
+					options,
+					{
+						widthMd: $elm$core$Maybe$Just(width_)
+					});
+			case 'LG':
+				return _Utils_update(
+					options,
+					{
+						widthLg: $elm$core$Maybe$Just(width_)
+					});
+			default:
+				return _Utils_update(
+					options,
+					{
+						widthXl: $elm$core$Maybe$Just(width_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColOption = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'ColAttrs':
+				var attrs = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs)
+					});
+			case 'ColWidth':
+				var width_ = modifier.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColWidth, width_, options);
+			case 'ColOffset':
+				var offset_ = modifier.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColOffset, offset_, options);
+			case 'ColPull':
+				var pull_ = modifier.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColPull, pull_, options);
+			case 'ColPush':
+				var push_ = modifier.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColPush, push_, options);
+			case 'ColOrder':
+				var order_ = modifier.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColOrder, order_, options);
+			case 'ColAlign':
+				var align = modifier.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColAlign, align, options);
+			default:
+				var align = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						textAlign: $elm$core$Maybe$Just(align)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$columnCountOption = function (size) {
+	switch (size.$) {
+		case 'Col':
+			return $elm$core$Maybe$Nothing;
+		case 'Col1':
+			return $elm$core$Maybe$Just('1');
+		case 'Col2':
+			return $elm$core$Maybe$Just('2');
+		case 'Col3':
+			return $elm$core$Maybe$Just('3');
+		case 'Col4':
+			return $elm$core$Maybe$Just('4');
+		case 'Col5':
+			return $elm$core$Maybe$Just('5');
+		case 'Col6':
+			return $elm$core$Maybe$Just('6');
+		case 'Col7':
+			return $elm$core$Maybe$Just('7');
+		case 'Col8':
+			return $elm$core$Maybe$Just('8');
+		case 'Col9':
+			return $elm$core$Maybe$Just('9');
+		case 'Col10':
+			return $elm$core$Maybe$Just('10');
+		case 'Col11':
+			return $elm$core$Maybe$Just('11');
+		case 'Col12':
+			return $elm$core$Maybe$Just('12');
+		default:
+			return $elm$core$Maybe$Just('auto');
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$colWidthClass = function (_v0) {
+	var screenSize = _v0.screenSize;
+	var columnCount = _v0.columnCount;
+	return $elm$html$Html$Attributes$class(
+		'col' + (A2(
+			$elm$core$Maybe$withDefault,
+			'',
+			A2(
+				$elm$core$Maybe$map,
+				function (v) {
+					return '-' + v;
+				},
+				$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(screenSize))) + A2(
+			$elm$core$Maybe$withDefault,
+			'',
+			A2(
+				$elm$core$Maybe$map,
+				function (v) {
+					return '-' + v;
+				},
+				$rundis$elm_bootstrap$Bootstrap$Grid$Internal$columnCountOption(columnCount)))));
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$colWidthsToAttributes = function (widths) {
+	var width_ = function (w) {
+		return A2($elm$core$Maybe$map, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$colWidthClass, w);
+	};
+	return A2(
+		$elm$core$List$filterMap,
+		$elm$core$Basics$identity,
+		A2($elm$core$List$map, width_, widths));
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$defaultColOptions = {alignLg: $elm$core$Maybe$Nothing, alignMd: $elm$core$Maybe$Nothing, alignSm: $elm$core$Maybe$Nothing, alignXl: $elm$core$Maybe$Nothing, alignXs: $elm$core$Maybe$Nothing, attributes: _List_Nil, offsetLg: $elm$core$Maybe$Nothing, offsetMd: $elm$core$Maybe$Nothing, offsetSm: $elm$core$Maybe$Nothing, offsetXl: $elm$core$Maybe$Nothing, offsetXs: $elm$core$Maybe$Nothing, orderLg: $elm$core$Maybe$Nothing, orderMd: $elm$core$Maybe$Nothing, orderSm: $elm$core$Maybe$Nothing, orderXl: $elm$core$Maybe$Nothing, orderXs: $elm$core$Maybe$Nothing, pullLg: $elm$core$Maybe$Nothing, pullMd: $elm$core$Maybe$Nothing, pullSm: $elm$core$Maybe$Nothing, pullXl: $elm$core$Maybe$Nothing, pullXs: $elm$core$Maybe$Nothing, pushLg: $elm$core$Maybe$Nothing, pushMd: $elm$core$Maybe$Nothing, pushSm: $elm$core$Maybe$Nothing, pushXl: $elm$core$Maybe$Nothing, pushXs: $elm$core$Maybe$Nothing, textAlign: $elm$core$Maybe$Nothing, widthLg: $elm$core$Maybe$Nothing, widthMd: $elm$core$Maybe$Nothing, widthSm: $elm$core$Maybe$Nothing, widthXl: $elm$core$Maybe$Nothing, widthXs: $elm$core$Maybe$Nothing};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$offsetCountOption = function (size) {
+	switch (size.$) {
+		case 'Offset0':
+			return '0';
+		case 'Offset1':
+			return '1';
+		case 'Offset2':
+			return '2';
+		case 'Offset3':
+			return '3';
+		case 'Offset4':
+			return '4';
+		case 'Offset5':
+			return '5';
+		case 'Offset6':
+			return '6';
+		case 'Offset7':
+			return '7';
+		case 'Offset8':
+			return '8';
+		case 'Offset9':
+			return '9';
+		case 'Offset10':
+			return '10';
+		default:
+			return '11';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$screenSizeToPartialString = function (screenSize) {
+	var _v0 = $rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(screenSize);
+	if (_v0.$ === 'Just') {
+		var s = _v0.a;
+		return '-' + (s + '-');
+	} else {
+		return '-';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$offsetClass = function (_v0) {
+	var screenSize = _v0.screenSize;
+	var offsetCount = _v0.offsetCount;
+	return $elm$html$Html$Attributes$class(
+		'offset' + ($rundis$elm_bootstrap$Bootstrap$Grid$Internal$screenSizeToPartialString(screenSize) + $rundis$elm_bootstrap$Bootstrap$Grid$Internal$offsetCountOption(offsetCount)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$offsetsToAttributes = function (offsets) {
+	var offset_ = function (m) {
+		return A2($elm$core$Maybe$map, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$offsetClass, m);
+	};
+	return A2(
+		$elm$core$List$filterMap,
+		$elm$core$Basics$identity,
+		A2($elm$core$List$map, offset_, offsets));
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$orderColOption = function (size) {
+	switch (size.$) {
+		case 'OrderFirst':
+			return 'first';
+		case 'Order1':
+			return '1';
+		case 'Order2':
+			return '2';
+		case 'Order3':
+			return '3';
+		case 'Order4':
+			return '4';
+		case 'Order5':
+			return '5';
+		case 'Order6':
+			return '6';
+		case 'Order7':
+			return '7';
+		case 'Order8':
+			return '8';
+		case 'Order9':
+			return '9';
+		case 'Order10':
+			return '10';
+		case 'Order11':
+			return '11';
+		case 'Order12':
+			return '12';
+		default:
+			return 'last';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$orderToAttributes = function (orders) {
+	var order_ = function (m) {
+		if (m.$ === 'Just') {
+			var screenSize = m.a.screenSize;
+			var moveCount = m.a.moveCount;
+			return $elm$core$Maybe$Just(
+				$elm$html$Html$Attributes$class(
+					'order' + ($rundis$elm_bootstrap$Bootstrap$Grid$Internal$screenSizeToPartialString(screenSize) + $rundis$elm_bootstrap$Bootstrap$Grid$Internal$orderColOption(moveCount))));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	};
+	return A2(
+		$elm$core$List$filterMap,
+		$elm$core$Basics$identity,
+		A2($elm$core$List$map, order_, orders));
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$moveCountOption = function (size) {
+	switch (size.$) {
+		case 'Move0':
+			return '0';
+		case 'Move1':
+			return '1';
+		case 'Move2':
+			return '2';
+		case 'Move3':
+			return '3';
+		case 'Move4':
+			return '4';
+		case 'Move5':
+			return '5';
+		case 'Move6':
+			return '6';
+		case 'Move7':
+			return '7';
+		case 'Move8':
+			return '8';
+		case 'Move9':
+			return '9';
+		case 'Move10':
+			return '10';
+		case 'Move11':
+			return '11';
+		default:
+			return '12';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$pullsToAttributes = function (pulls) {
+	var pull_ = function (m) {
+		if (m.$ === 'Just') {
+			var screenSize = m.a.screenSize;
+			var moveCount = m.a.moveCount;
+			return $elm$core$Maybe$Just(
+				$elm$html$Html$Attributes$class(
+					'pull' + ($rundis$elm_bootstrap$Bootstrap$Grid$Internal$screenSizeToPartialString(screenSize) + $rundis$elm_bootstrap$Bootstrap$Grid$Internal$moveCountOption(moveCount))));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	};
+	return A2(
+		$elm$core$List$filterMap,
+		$elm$core$Basics$identity,
+		A2($elm$core$List$map, pull_, pulls));
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$pushesToAttributes = function (pushes) {
+	var push_ = function (m) {
+		if (m.$ === 'Just') {
+			var screenSize = m.a.screenSize;
+			var moveCount = m.a.moveCount;
+			return $elm$core$Maybe$Just(
+				$elm$html$Html$Attributes$class(
+					'push' + ($rundis$elm_bootstrap$Bootstrap$Grid$Internal$screenSizeToPartialString(screenSize) + $rundis$elm_bootstrap$Bootstrap$Grid$Internal$moveCountOption(moveCount))));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	};
+	return A2(
+		$elm$core$List$filterMap,
+		$elm$core$Basics$identity,
+		A2($elm$core$List$map, push_, pushes));
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$verticalAlignOption = function (align) {
+	switch (align.$) {
+		case 'Top':
+			return 'start';
+		case 'Middle':
+			return 'center';
+		default:
+			return 'end';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$vAlignClass = F2(
+	function (prefix, _v0) {
+		var align = _v0.align;
+		var screenSize = _v0.screenSize;
+		return $elm$html$Html$Attributes$class(
+			_Utils_ap(
+				prefix,
+				_Utils_ap(
+					A2(
+						$elm$core$Maybe$withDefault,
+						'',
+						A2(
+							$elm$core$Maybe$map,
+							function (v) {
+								return v + '-';
+							},
+							$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(screenSize))),
+					$rundis$elm_bootstrap$Bootstrap$Grid$Internal$verticalAlignOption(align))));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$vAlignsToAttributes = F2(
+	function (prefix, aligns) {
+		var align = function (a) {
+			return A2(
+				$elm$core$Maybe$map,
+				$rundis$elm_bootstrap$Bootstrap$Grid$Internal$vAlignClass(prefix),
+				a);
+		};
+		return A2(
+			$elm$core$List$filterMap,
+			$elm$core$Basics$identity,
+			A2($elm$core$List$map, align, aligns));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$colAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyColOption, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$defaultColOptions, modifiers);
+	var shouldAddDefaultXs = !$elm$core$List$length(
+		A2(
+			$elm$core$List$filterMap,
+			$elm$core$Basics$identity,
+			_List_fromArray(
+				[options.widthXs, options.widthSm, options.widthMd, options.widthLg, options.widthXl])));
+	return _Utils_ap(
+		$rundis$elm_bootstrap$Bootstrap$Grid$Internal$colWidthsToAttributes(
+			_List_fromArray(
+				[
+					shouldAddDefaultXs ? $elm$core$Maybe$Just(
+					A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$Width, $rundis$elm_bootstrap$Bootstrap$General$Internal$XS, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col)) : options.widthXs,
+					options.widthSm,
+					options.widthMd,
+					options.widthLg,
+					options.widthXl
+				])),
+		_Utils_ap(
+			$rundis$elm_bootstrap$Bootstrap$Grid$Internal$offsetsToAttributes(
+				_List_fromArray(
+					[options.offsetXs, options.offsetSm, options.offsetMd, options.offsetLg, options.offsetXl])),
+			_Utils_ap(
+				$rundis$elm_bootstrap$Bootstrap$Grid$Internal$pullsToAttributes(
+					_List_fromArray(
+						[options.pullXs, options.pullSm, options.pullMd, options.pullLg, options.pullXl])),
+				_Utils_ap(
+					$rundis$elm_bootstrap$Bootstrap$Grid$Internal$pushesToAttributes(
+						_List_fromArray(
+							[options.pushXs, options.pushSm, options.pushMd, options.pushLg, options.pushXl])),
+					_Utils_ap(
+						$rundis$elm_bootstrap$Bootstrap$Grid$Internal$orderToAttributes(
+							_List_fromArray(
+								[options.orderXs, options.orderSm, options.orderMd, options.orderLg, options.orderXl])),
+						_Utils_ap(
+							A2(
+								$rundis$elm_bootstrap$Bootstrap$Grid$Internal$vAlignsToAttributes,
+								'align-self-',
+								_List_fromArray(
+									[options.alignXs, options.alignSm, options.alignMd, options.alignLg, options.alignXl])),
+							_Utils_ap(
+								function () {
+									var _v0 = options.textAlign;
+									if (_v0.$ === 'Just') {
+										var a = _v0.a;
+										return _List_fromArray(
+											[
+												$rundis$elm_bootstrap$Bootstrap$Internal$Text$textAlignClass(a)
+											]);
+									} else {
+										return _List_Nil;
+									}
+								}(),
+								options.attributes)))))));
+};
+var $elm$virtual_dom$VirtualDom$keyedNode = function (tag) {
+	return _VirtualDom_keyedNode(
+		_VirtualDom_noScript(tag));
+};
+var $elm$html$Html$Keyed$node = $elm$virtual_dom$VirtualDom$keyedNode;
+var $rundis$elm_bootstrap$Bootstrap$Grid$renderCol = function (column) {
+	switch (column.$) {
+		case 'Column':
+			var options = column.a.options;
+			var children = column.a.children;
+			return A2(
+				$elm$html$Html$div,
+				$rundis$elm_bootstrap$Bootstrap$Grid$Internal$colAttributes(options),
+				children);
+		case 'ColBreak':
+			var e = column.a;
+			return e;
+		default:
+			var options = column.a.options;
+			var children = column.a.children;
+			return A3(
+				$elm$html$Html$Keyed$node,
+				'div',
+				$rundis$elm_bootstrap$Bootstrap$Grid$Internal$colAttributes(options),
+				children);
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyRowHAlign = F2(
+	function (align, options) {
+		var _v0 = align.screenSize;
+		switch (_v0.$) {
+			case 'XS':
+				return _Utils_update(
+					options,
+					{
+						hAlignXs: $elm$core$Maybe$Just(align)
+					});
+			case 'SM':
+				return _Utils_update(
+					options,
+					{
+						hAlignSm: $elm$core$Maybe$Just(align)
+					});
+			case 'MD':
+				return _Utils_update(
+					options,
+					{
+						hAlignMd: $elm$core$Maybe$Just(align)
+					});
+			case 'LG':
+				return _Utils_update(
+					options,
+					{
+						hAlignLg: $elm$core$Maybe$Just(align)
+					});
+			default:
+				return _Utils_update(
+					options,
+					{
+						hAlignXl: $elm$core$Maybe$Just(align)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyRowVAlign = F2(
+	function (align_, options) {
+		var _v0 = align_.screenSize;
+		switch (_v0.$) {
+			case 'XS':
+				return _Utils_update(
+					options,
+					{
+						vAlignXs: $elm$core$Maybe$Just(align_)
+					});
+			case 'SM':
+				return _Utils_update(
+					options,
+					{
+						vAlignSm: $elm$core$Maybe$Just(align_)
+					});
+			case 'MD':
+				return _Utils_update(
+					options,
+					{
+						vAlignMd: $elm$core$Maybe$Just(align_)
+					});
+			case 'LG':
+				return _Utils_update(
+					options,
+					{
+						vAlignLg: $elm$core$Maybe$Just(align_)
+					});
+			default:
+				return _Utils_update(
+					options,
+					{
+						vAlignXl: $elm$core$Maybe$Just(align_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyRowOption = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'RowAttrs':
+				var attrs = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs)
+					});
+			case 'RowVAlign':
+				var align = modifier.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyRowVAlign, align, options);
+			default:
+				var align = modifier.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyRowHAlign, align, options);
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$defaultRowOptions = {attributes: _List_Nil, hAlignLg: $elm$core$Maybe$Nothing, hAlignMd: $elm$core$Maybe$Nothing, hAlignSm: $elm$core$Maybe$Nothing, hAlignXl: $elm$core$Maybe$Nothing, hAlignXs: $elm$core$Maybe$Nothing, vAlignLg: $elm$core$Maybe$Nothing, vAlignMd: $elm$core$Maybe$Nothing, vAlignSm: $elm$core$Maybe$Nothing, vAlignXl: $elm$core$Maybe$Nothing, vAlignXs: $elm$core$Maybe$Nothing};
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$horizontalAlignOption = function (align) {
+	switch (align.$) {
+		case 'Left':
+			return 'start';
+		case 'Center':
+			return 'center';
+		case 'Right':
+			return 'end';
+		case 'Around':
+			return 'around';
+		default:
+			return 'between';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$hAlignClass = function (_v0) {
+	var align = _v0.align;
+	var screenSize = _v0.screenSize;
+	return $elm$html$Html$Attributes$class(
+		'justify-content-' + (A2(
+			$elm$core$Maybe$withDefault,
+			'',
+			A2(
+				$elm$core$Maybe$map,
+				function (v) {
+					return v + '-';
+				},
+				$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(screenSize))) + $rundis$elm_bootstrap$Bootstrap$General$Internal$horizontalAlignOption(align)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$hAlignsToAttributes = function (aligns) {
+	var align = function (a) {
+		return A2($elm$core$Maybe$map, $rundis$elm_bootstrap$Bootstrap$General$Internal$hAlignClass, a);
+	};
+	return A2(
+		$elm$core$List$filterMap,
+		$elm$core$Basics$identity,
+		A2($elm$core$List$map, align, aligns));
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$rowAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$applyRowOption, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$defaultRowOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('row')
+			]),
+		_Utils_ap(
+			A2(
+				$rundis$elm_bootstrap$Bootstrap$Grid$Internal$vAlignsToAttributes,
+				'align-items-',
+				_List_fromArray(
+					[options.vAlignXs, options.vAlignSm, options.vAlignMd, options.vAlignLg, options.vAlignXl])),
+			_Utils_ap(
+				$rundis$elm_bootstrap$Bootstrap$Grid$Internal$hAlignsToAttributes(
+					_List_fromArray(
+						[options.hAlignXs, options.hAlignSm, options.hAlignMd, options.hAlignLg, options.hAlignXl])),
+				options.attributes)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Grid$row = F2(
+	function (options, cols) {
+		return A2(
+			$elm$html$Html$div,
+			$rundis$elm_bootstrap$Bootstrap$Grid$Internal$rowAttributes(options),
+			A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Grid$renderCol, cols));
+	});
 var $elm$html$Html$select = _VirtualDom_node('select');
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Size = function (a) {
+	return {$: 'Size', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Button$small = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Size($rundis$elm_bootstrap$Bootstrap$General$Internal$SM);
+var $rundis$elm_bootstrap$Bootstrap$Button$success = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Success));
 var $elm_community$html_extra$Html$Events$Extra$customDecoder = F2(
 	function (d, f) {
 		var resultDecoder = function (x) {
@@ -18428,135 +19307,280 @@ var $elm_community$html_extra$Html$Events$Extra$targetValueIntParse = A2(
 	$elm_community$html_extra$Html$Events$Extra$customDecoder,
 	$elm$html$Html$Events$targetValue,
 	A2($elm$core$Basics$composeR, $elm$core$String$toInt, $elm_community$html_extra$Html$Events$Extra$maybeStringToResult));
-var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $author$project$Main$filterView = F4(
 	function (model, item, idStr, event) {
 		var showParam = A2(
 			$elm$core$Maybe$withDefault,
 			_Utils_Tuple2('', false),
 			A2($elm_community$list_extra$List$Extra$getAt, item.selectIndex, model.initData.filters)).b;
-		var color = item.enabled ? 'green' : 'red';
 		return A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					A2($elm$html$Html$Attributes$style, 'background-color', color)
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$input,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$type_('checkbox'),
-							$elm$html$Html$Events$onClick(
-							$author$project$Main$ToggleCheck(item.id)),
-							$elm$html$Html$Attributes$checked(item.enabled)
-						]),
-					_List_Nil),
-					A2(
-					$elm$html$Html$select,
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$Events$on,
-							'change',
-							A2(
-								$elm$json$Json$Decode$map,
-								$author$project$Main$SetAction(item.id),
-								$elm_community$html_extra$Html$Events$Extra$targetValueIntParse))
-						]),
-					A2(
-						$elm$core$List$map,
-						A2($author$project$Main$actionOption, model.initData.actions, item.actionIndex),
-						A2(
-							$elm$core$List$range,
-							0,
-							(-1) + $elm$core$List$length(model.initData.actions)))),
-					A2(
-					$elm$html$Html$select,
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$Events$on,
-							'change',
-							A2(
-								$elm$json$Json$Decode$map,
-								$author$project$Main$SetFilter(item.id),
-								$elm_community$html_extra$Html$Events$Extra$targetValueIntParse))
-						]),
-					A2(
-						$elm$core$List$map,
-						A2($author$project$Main$filterOption, model.initData.filters, item.selectIndex),
-						A2(
-							$elm$core$List$range,
-							0,
-							(-1) + $elm$core$List$length(model.initData.filters)))),
-					A2(
-					$elm$html$Html$input,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$hidden(!showParam),
-							$elm$html$Html$Attributes$placeholder('Filter parameter'),
-							$elm$html$Html$Attributes$value(item.param),
-							$elm$html$Html$Events$onInput(
-							$author$project$Main$UpdateFilterParam(item.id))
-						]),
-					_List_Nil),
-					A2(
-					$elm$html$Html$button,
-					A2(
-						$elm$core$List$cons,
-						$elm$html$Html$Attributes$id(idStr),
-						A2(
-							$elm$core$List$cons,
-							A2($elm$html$Html$Attributes$style, 'cursor', 'pointer'),
-							event)),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('\u2630')
-						])),
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Events$onClick(
-							$author$project$Main$RemoveFilter(item.id))
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('\u274C')
-						]))
-				]));
-	});
-var $elm$html$Html$p = _VirtualDom_node('p');
-var $author$project$Main$ghostView = F2(
-	function (model, items) {
-		var dnd = model.dnd;
-		var maybeDragItem = A2(
-			$elm$core$Maybe$andThen,
-			function (_v1) {
-				var dragIndex = _v1.dragIndex;
-				return $elm$core$List$head(
-					A2($elm$core$List$drop, dragIndex, items));
-			},
-			$author$project$Main$system.info(dnd));
-		if (maybeDragItem.$ === 'Just') {
-			var item = maybeDragItem.a;
-			return A2(
-				$elm$html$Html$p,
+			$rundis$elm_bootstrap$Bootstrap$Grid$container,
+			_List_Nil,
+			A2(
+				$elm$core$List$cons,
 				A2(
-					$elm$core$List$cons,
-					A2($elm$html$Html$Attributes$style, 'opacity', '0.5'),
-					$author$project$Main$system.ghostStyles(dnd)),
+					$rundis$elm_bootstrap$Bootstrap$Grid$row,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							$rundis$elm_bootstrap$Bootstrap$Grid$col,
+							_List_fromArray(
+								[
+									$rundis$elm_bootstrap$Bootstrap$Grid$Col$mdAuto,
+									$rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(_List_Nil)
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Button$button,
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$Button$outlineLight,
+											$rundis$elm_bootstrap$Bootstrap$Button$small,
+											$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+											_Utils_ap(
+												_List_fromArray(
+													[
+														$elm$html$Html$Attributes$id(idStr),
+														$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1,
+														A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+													]),
+												event))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('\u2630')
+										])),
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Button$button,
+									_List_fromArray(
+										[
+											item.enabled ? $rundis$elm_bootstrap$Bootstrap$Button$outlineSuccess : $rundis$elm_bootstrap$Bootstrap$Button$outlineDanger,
+											$rundis$elm_bootstrap$Bootstrap$Button$onClick(
+											$author$project$Main$ToggleCheck(item.id)),
+											$rundis$elm_bootstrap$Bootstrap$Button$small,
+											$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+											_List_fromArray(
+												[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1]))
+										]),
+									_List_fromArray(
+										[
+											item.enabled ? $elm$html$Html$text('On') : $elm$html$Html$text('Off')
+										])),
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Button$button,
+									_List_fromArray(
+										[
+											(item.actionIndex === 1) ? $rundis$elm_bootstrap$Bootstrap$Button$success : $rundis$elm_bootstrap$Bootstrap$Button$danger,
+											$rundis$elm_bootstrap$Bootstrap$Button$onClick(
+											A2(
+												$author$project$Main$SetAction,
+												item.id,
+												(item.actionIndex === 1) ? 0 : 1)),
+											$rundis$elm_bootstrap$Bootstrap$Button$small,
+											$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+											_List_fromArray(
+												[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1]))
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$div,
+											(item.actionIndex === 1) ? _List_Nil : _List_fromArray(
+												[
+													A2($elm$html$Html$Attributes$style, 'text-decoration', 'line-through')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text('Propagate')
+												]))
+										]))
+								])),
+							A2(
+							$rundis$elm_bootstrap$Bootstrap$Grid$col,
+							_List_fromArray(
+								[$rundis$elm_bootstrap$Bootstrap$Grid$Col$md5]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$select,
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$Events$on,
+											'change',
+											A2(
+												$elm$json$Json$Decode$map,
+												$author$project$Main$SetFilter(item.id),
+												$elm_community$html_extra$Html$Events$Extra$targetValueIntParse)),
+											A2($elm$html$Html$Attributes$style, 'height', '35px')
+										]),
+									A2(
+										$elm$core$List$map,
+										A2($author$project$Main$filterOption, model.initData.filters, item.selectIndex),
+										A2(
+											$elm$core$List$range,
+											0,
+											(-1) + $elm$core$List$length(model.initData.filters))))
+								])),
+							A2(
+							$rundis$elm_bootstrap$Bootstrap$Grid$col,
+							_List_fromArray(
+								[$rundis$elm_bootstrap$Bootstrap$Grid$Col$mdAuto]),
+							_List_fromArray(
+								[
+									A2(
+									$rundis$elm_bootstrap$Bootstrap$Button$button,
+									_List_fromArray(
+										[
+											$rundis$elm_bootstrap$Bootstrap$Button$outlineDanger,
+											$rundis$elm_bootstrap$Bootstrap$Button$small,
+											$rundis$elm_bootstrap$Bootstrap$Button$onClick(
+											$author$project$Main$RemoveFilter(item.id)),
+											$rundis$elm_bootstrap$Bootstrap$Button$attrs(_List_Nil)
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Delete')
+										]))
+								]))
+						])),
+				(!showParam) ? _List_Nil : _List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Grid$row,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Grid$col,
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Grid$Col$md5]),
+								_List_Nil),
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Grid$col,
+								_List_fromArray(
+									[$rundis$elm_bootstrap$Bootstrap$Grid$Col$mdAuto]),
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$input,
+										_List_fromArray(
+											[
+												$elm$html$Html$Attributes$hidden(!showParam),
+												$elm$html$Html$Attributes$placeholder('Filter parameter'),
+												$elm$html$Html$Attributes$value(item.param),
+												$elm$html$Html$Events$onInput(
+												$author$project$Main$UpdateFilterParam(item.id))
+											]),
+										_List_Nil)
+									]))
+							]))
+					])));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Item = function (a) {
+	return {$: 'Item', a: a};
+};
+var $elm$html$Html$li = _VirtualDom_node('li');
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$li = F2(
+	function (options, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Item(
+			{children: children, itemFn: $elm$html$Html$li, options: options});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$Success = {$: 'Success'};
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$success = $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Role$Success);
+var $author$project$Main$filterCardBlock = F3(
+	function (model, index, item) {
+		var liColor = item.enabled ? $rundis$elm_bootstrap$Bootstrap$ListGroup$success : $rundis$elm_bootstrap$Bootstrap$ListGroup$danger;
+		var itemId = 'id-filt' + $elm$core$String$fromInt(item.id);
+		var dropEvent = A2($author$project$Main$system.dropEvents, index, itemId);
+		var dragEvent = A2($author$project$Main$system.dragEvents, index, itemId);
+		var dnd = model.dnd;
+		var _v0 = $author$project$Main$system.info(dnd);
+		if (_v0.$ === 'Just') {
+			var dragIndex = _v0.a.dragIndex;
+			return (!_Utils_eq(dragIndex, index)) ? A2(
+				$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
+				_List_fromArray(
+					[liColor]),
 				_List_fromArray(
 					[
-						A4($author$project$Main$filterView, model, item, '', _List_Nil)
+						A2(
+						$elm$html$Html$div,
+						A2(
+							$elm$core$List$cons,
+							$elm$html$Html$Attributes$id(itemId),
+							dropEvent),
+						_List_fromArray(
+							[
+								A4($author$project$Main$filterView, model, item, '', _List_Nil)
+							]))
+					])) : A2(
+				$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
+				_List_fromArray(
+					[liColor]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$id(itemId)
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										A2($elm$html$Html$Attributes$style, 'opacity', '0.8')
+									]),
+								_List_fromArray(
+									[
+										A4($author$project$Main$filterView, model, item, '', _List_Nil)
+									]))
+							]))
 					]));
 		} else {
-			return $elm$html$Html$text('');
+			return A2(
+				$rundis$elm_bootstrap$Bootstrap$ListGroup$li,
+				_List_fromArray(
+					[liColor]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$id(itemId)
+							]),
+						_List_fromArray(
+							[
+								A4($author$project$Main$filterView, model, item, '', dragEvent)
+							]))
+					]));
 		}
 	});
+var $rundis$elm_bootstrap$Bootstrap$Navbar$CustomItem = function (a) {
+	return {$: 'CustomItem', a: a};
+};
+var $elm$html$Html$form = _VirtualDom_node('form');
+var $rundis$elm_bootstrap$Bootstrap$Navbar$formItem = F2(
+	function (attributes, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Navbar$CustomItem(
+			A2(
+				$elm$html$Html$form,
+				A2(
+					$elm$core$List$cons,
+					$elm$html$Html$Attributes$class('form-inline'),
+					attributes),
+				children));
+	});
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
+var $elm_explorations$linear_algebra$Math$Vector2$getX = _MJS_v2getX;
+var $elm_explorations$linear_algebra$Math$Vector2$getY = _MJS_v2getY;
 var $elm$html$Html$h4 = _VirtualDom_node('h4');
 var $rundis$elm_bootstrap$Bootstrap$Alert$headingPrivate = F3(
 	function (elemFn, attributes, children_) {
@@ -18643,56 +19667,6 @@ var $rundis$elm_bootstrap$Bootstrap$Navbar$itemLink = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Navbar$Item(
 			{attributes: attributes, children: children});
 	});
-var $author$project$Main$itemView = F3(
-	function (model, index, item) {
-		var itemId = 'id-filt' + $elm$core$String$fromInt(item.id);
-		var dropEvent = A2($author$project$Main$system.dropEvents, index, itemId);
-		var dragEvent = A2($author$project$Main$system.dragEvents, index, itemId);
-		var dnd = model.dnd;
-		var _v0 = $author$project$Main$system.info(dnd);
-		if (_v0.$ === 'Just') {
-			var dragIndex = _v0.a.dragIndex;
-			return (!_Utils_eq(dragIndex, index)) ? A2(
-				$elm$html$Html$p,
-				A2(
-					$elm$core$List$cons,
-					$elm$html$Html$Attributes$id(itemId),
-					dropEvent),
-				_List_fromArray(
-					[
-						A4($author$project$Main$filterView, model, item, '', _List_Nil)
-					])) : A2(
-				$elm$html$Html$p,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$id(itemId)
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A2($elm$html$Html$Attributes$style, 'background-color', 'grey')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('<--- Move Filter Here --->')
-							]))
-					]));
-		} else {
-			return A2(
-				$elm$html$Html$p,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$id(itemId)
-					]),
-				_List_fromArray(
-					[
-						A4($author$project$Main$filterView, model, item, '', dragEvent)
-					]));
-		}
-	});
 var $rundis$elm_bootstrap$Bootstrap$Navbar$items = F2(
 	function (items_, config_) {
 		return A2(
@@ -18704,6 +19678,98 @@ var $rundis$elm_bootstrap$Bootstrap$Navbar$items = F2(
 			},
 			config_);
 	});
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$LG = {$: 'LG'};
+var $rundis$elm_bootstrap$Bootstrap$Button$large = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Size($rundis$elm_bootstrap$Bootstrap$General$Internal$LG);
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$ListGroup = function (a) {
+	return {$: 'ListGroup', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$applyModifier = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'Roled':
+				var role = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						role: $elm$core$Maybe$Just(role)
+					});
+			case 'Action':
+				return _Utils_update(
+					options,
+					{action: true});
+			case 'Disabled':
+				return _Utils_update(
+					options,
+					{disabled: true});
+			case 'Active':
+				return _Utils_update(
+					options,
+					{active: true});
+			default:
+				var attrs = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$defaultOptions = {action: false, active: false, attributes: _List_Nil, disabled: false, role: $elm$core$Maybe$Nothing};
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$itemAttributes = function (options) {
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('list-group-item', true),
+						_Utils_Tuple2('disabled', options.disabled),
+						_Utils_Tuple2('active', options.active),
+						_Utils_Tuple2('list-group-item-action', options.action)
+					]))
+			]),
+		_Utils_ap(
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$disabled(options.disabled)
+				]),
+			_Utils_ap(
+				A2(
+					$elm$core$Maybe$withDefault,
+					_List_Nil,
+					A2(
+						$elm$core$Maybe$map,
+						function (r) {
+							return _List_fromArray(
+								[
+									A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'list-group-item', r)
+								]);
+						},
+						options.role)),
+				options.attributes)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$renderItem = function (_v0) {
+	var itemFn = _v0.a.itemFn;
+	var options = _v0.a.options;
+	var children = _v0.a.children;
+	return A2(
+		itemFn,
+		$rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$itemAttributes(
+			A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$applyModifier, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$defaultOptions, options)),
+		children);
+};
+var $elm$html$Html$ul = _VirtualDom_node('ul');
+var $rundis$elm_bootstrap$Bootstrap$Card$Internal$listGroup = function (items) {
+	return $rundis$elm_bootstrap$Bootstrap$Card$Internal$ListGroup(
+		A2(
+			$elm$html$Html$ul,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('list-group list-group-flush')
+				]),
+			A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$renderItem, items)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$listGroup = $rundis$elm_bootstrap$Bootstrap$Card$Internal$listGroup;
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml2Sm = $elm$html$Html$Attributes$class('ml-sm-2');
 var $author$project$SvgUtil$changeTitleNodeText = F2(
 	function (str, node) {
@@ -18822,16 +19888,18 @@ var $author$project$Main$num = F2(
 		return attr(
 			$elm$core$String$fromFloat(value));
 	});
-var $rundis$elm_bootstrap$Bootstrap$Button$onClick = function (message) {
-	return $rundis$elm_bootstrap$Bootstrap$Button$attrs(
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$Events$preventDefaultOn,
-				'click',
-				$elm$json$Json$Decode$succeed(
-					_Utils_Tuple2(message, true)))
-			]));
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $rundis$elm_bootstrap$Bootstrap$Accordion$onlyOneOpen = function (_v0) {
+	var configRec = _v0.a;
+	return $rundis$elm_bootstrap$Bootstrap$Accordion$Config(
+		_Utils_update(
+			configRec,
+			{onlyOneOpen: true}));
 };
 var $elm$html$Html$Attributes$rows = function (n) {
 	return A2(
@@ -18839,11 +19907,67 @@ var $elm$html$Html$Attributes$rows = function (n) {
 		'rows',
 		$elm$core$String$fromInt(n));
 };
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Active = {$: 'Active'};
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$active = $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Active;
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs = function (a) {
+	return {$: 'Attrs', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs(attrs_);
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Action = {$: 'Action'};
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$CustomItem = function (a) {
+	return {$: 'CustomItem', a: a};
+};
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$button = F2(
+	function (options, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$CustomItem(
+			{
+				children: children,
+				itemFn: $elm$html$Html$button,
+				options: A2(
+					$elm$core$List$cons,
+					$rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Action,
+					_Utils_ap(
+						options,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$Attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$type_('button')
+									]))
+							])))
+			});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$renderCustomItem = function (_v0) {
+	var itemFn = _v0.a.itemFn;
+	var options = _v0.a.options;
+	var children = _v0.a.children;
+	return A2(
+		itemFn,
+		$rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$itemAttributes(
+			A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$applyModifier, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$defaultOptions, options)),
+		children);
+};
+var $rundis$elm_bootstrap$Bootstrap$ListGroup$custom = function (items) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('list-group')
+			]),
+		A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Internal$ListGroup$renderCustomItem, items));
+};
 var $author$project$Main$flip = F3(
 	function (f, b, a) {
 		return A2(f, a, b);
 	});
 var $author$project$Main$showContext = function (mdl) {
+	var ddState = function ($) {
+		return $.ddState;
+	}(mdl);
 	return mdl.nodeContext.show ? A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -18865,47 +19989,96 @@ var $author$project$Main$showContext = function (mdl) {
 					$elm$core$Basics$append,
 					'px',
 					$elm$core$String$fromInt(mdl.nodeContext.mouseY))),
-				A2($elm$html$Html$Attributes$style, 'border', '3px solid black'),
-				A2($elm$html$Html$Attributes$style, 'background-color', 'rgb(200,200,200)'),
-				A2($elm$html$Html$Attributes$style, 'display', 'table-row')
+				A2($elm$html$Html$Attributes$style, 'border', '1px solid black')
 			]),
 		_List_fromArray(
 			[
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
+				$rundis$elm_bootstrap$Bootstrap$ListGroup$custom(
 				_List_fromArray(
 					[
-						$elm$html$Html$text(
-						'Node Selected: ' + $elm$core$String$fromInt(mdl.nodeContext.nodeClicked))
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text(
-						'MouseX: ' + $elm$core$String$fromInt(mdl.nodeContext.mouseX))
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text(
-						'MouseY: ' + $elm$core$String$fromInt(mdl.nodeContext.mouseY))
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$ListGroup$button,
+						_List_fromArray(
+							[$rundis$elm_bootstrap$Bootstrap$ListGroup$active]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Global')
+							])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$ListGroup$button,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$ListGroup$attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Main$NodeClicked(
+											_Utils_Tuple3('', 0, 0)))
+									]))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Placeholder 1')
+							])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$ListGroup$button,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$ListGroup$attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Main$NodeClicked(
+											_Utils_Tuple3('', 0, 0)))
+									]))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Placeholder 2')
+							])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$ListGroup$button,
+						_List_fromArray(
+							[$rundis$elm_bootstrap$Bootstrap$ListGroup$active]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Local')
+							])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$ListGroup$button,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$ListGroup$attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Main$NodeClicked(
+											_Utils_Tuple3('', 0, 0)))
+									]))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Placeholder 3')
+							])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$ListGroup$button,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$ListGroup$attrs(
+								_List_fromArray(
+									[
+										$elm$html$Html$Events$onClick(
+										$author$project$Main$NodeClicked(
+											_Utils_Tuple3('', 0, 0)))
+									]))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Placeholder 4')
+							]))
 					]))
 			])) : A2($elm$html$Html$div, _List_Nil, _List_Nil);
 };
-var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring = function (a) {
-	return {$: 'Coloring', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled = function (a) {
-	return {$: 'Roled', a: a};
-};
-var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Success = {$: 'Success'};
-var $rundis$elm_bootstrap$Bootstrap$Button$success = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
-	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Success));
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $elm$virtual_dom$VirtualDom$nodeNS = function (tag) {
 	return _VirtualDom_nodeNS(
@@ -19561,6 +20734,7 @@ var $author$project$SvgUtil$svgNodeToSvgMod = F2(
 			toHtml,
 			$Garados007$elm_svg_parser$SvgParser$parseToNode(input));
 	});
+var $elm$html$Html$p = _VirtualDom_node('p');
 var $rundis$elm_bootstrap$Bootstrap$Card$Block$text = F2(
 	function (attributes, children) {
 		return $rundis$elm_bootstrap$Bootstrap$Card$Internal$BlockItem(
@@ -20314,8 +21488,6 @@ var $rundis$elm_bootstrap$Bootstrap$Navbar$sizeToComparable = function (size) {
 			return 5;
 	}
 };
-var $rundis$elm_bootstrap$Bootstrap$General$Internal$LG = {$: 'LG'};
-var $rundis$elm_bootstrap$Bootstrap$General$Internal$MD = {$: 'MD'};
 var $rundis$elm_bootstrap$Bootstrap$General$Internal$XL = {$: 'XL'};
 var $rundis$elm_bootstrap$Bootstrap$Navbar$toScreenSize = function (windowWidth) {
 	return (windowWidth <= 576) ? $rundis$elm_bootstrap$Bootstrap$General$Internal$XS : ((windowWidth <= 768) ? $rundis$elm_bootstrap$Bootstrap$General$Internal$SM : ((windowWidth <= 992) ? $rundis$elm_bootstrap$Bootstrap$General$Internal$MD : ((windowWidth <= 1200) ? $rundis$elm_bootstrap$Bootstrap$General$Internal$LG : $rundis$elm_bootstrap$Bootstrap$General$Internal$XL)));
@@ -20679,7 +21851,6 @@ var $rundis$elm_bootstrap$Bootstrap$Navbar$getOrInitDropdownStatus = F2(
 			$rundis$elm_bootstrap$Bootstrap$Navbar$Closed,
 			A2($elm$core$Dict$get, id, dropdowns));
 	});
-var $elm$html$Html$li = _VirtualDom_node('li');
 var $rundis$elm_bootstrap$Bootstrap$Navbar$toggleOpen = F3(
 	function (state, id, _v0) {
 		var toMsg = _v0.toMsg;
@@ -20807,7 +21978,6 @@ var $rundis$elm_bootstrap$Bootstrap$Navbar$renderItemLink = function (_v0) {
 				children)
 			]));
 };
-var $elm$html$Html$ul = _VirtualDom_node('ul');
 var $rundis$elm_bootstrap$Bootstrap$Navbar$renderNav = F3(
 	function (state, configRec, navItems) {
 		return A2(
@@ -21090,7 +22260,8 @@ var $author$project$Main$view = function (model) {
 							A2($author$project$Main$num, $elm$svg$Svg$Attributes$height, modelIn.height),
 							$author$project$Main$handleZoom($author$project$Main$Zoom),
 							A2($zaboco$elm_draggable$Draggable$mouseTrigger, _Utils_Tuple0, $author$project$Main$DragMsg),
-							$author$project$Main$clickHandler($author$project$Main$NodeClicked)
+							$author$project$Main$clickHandler($author$project$Main$NodeClicked),
+							A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
 						]),
 					_List_fromArray(
 						[
@@ -21269,7 +22440,7 @@ var $author$project$Main$view = function (model) {
 									]),
 								_List_fromArray(
 									[
-										$elm$html$Html$text('Retrace.run')
+										$elm$html$Html$text('Tracr.app')
 									]),
 								$rundis$elm_bootstrap$Bootstrap$Navbar$collapseSmall(
 									$rundis$elm_bootstrap$Bootstrap$Navbar$withAnimation(
@@ -21280,9 +22451,9 @@ var $author$project$Main$view = function (model) {
 					[
 						A2($elm$html$Html$Attributes$style, 'vertical-align', 'top'),
 						A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
-						A2($elm$html$Html$Attributes$style, 'left', '0%'),
-						A2($elm$html$Html$Attributes$style, 'top', '56px'),
-						A2($elm$html$Html$Attributes$style, 'width', '450px'),
+						A2($elm$html$Html$Attributes$style, 'right', '0%'),
+						A2($elm$html$Html$Attributes$style, 'bottom', '0%'),
+						A2($elm$html$Html$Attributes$style, 'width', '550px'),
 						A2($elm$html$Html$Attributes$style, 'z-index', '3')
 					]),
 				_List_fromArray(
@@ -21340,37 +22511,34 @@ var $author$project$Main$view = function (model) {
 													[
 														A2(
 														$rundis$elm_bootstrap$Bootstrap$Card$Block$text,
+														_List_Nil,
 														_List_fromArray(
 															[
-																$elm$html$Html$Events$onClick($author$project$Main$AddFilter),
-																A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
-															]),
-														_List_fromArray(
-															[
-																$elm$html$Html$text('(+) Add New Filter')
+																A2(
+																$rundis$elm_bootstrap$Bootstrap$Button$button,
+																_List_fromArray(
+																	[
+																		$rundis$elm_bootstrap$Bootstrap$Button$success,
+																		$rundis$elm_bootstrap$Bootstrap$Button$block,
+																		$rundis$elm_bootstrap$Bootstrap$Button$large,
+																		$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+																		_List_fromArray(
+																			[
+																				$elm$html$Html$Events$onClick($author$project$Main$AddFilter),
+																				A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+																			]))
+																	]),
+																_List_fromArray(
+																	[
+																		$elm$html$Html$text('Add New Filter (+)')
+																	]))
 															]))
 													])),
+												$rundis$elm_bootstrap$Bootstrap$Accordion$listGroup(
 												A2(
-												$rundis$elm_bootstrap$Bootstrap$Accordion$block,
-												_List_Nil,
-												_List_fromArray(
-													[
-														$rundis$elm_bootstrap$Bootstrap$Card$Block$custom(
-														A2(
-															$elm$html$Html$div,
-															_List_Nil,
-															_List_fromArray(
-																[
-																	A2(
-																	$elm$html$Html$div,
-																	_List_Nil,
-																	A2(
-																		$elm$core$List$indexedMap,
-																		$author$project$Main$itemView(model),
-																		model.items)),
-																	A2($author$project$Main$ghostView, model, model.items)
-																])))
-													]))
+													$elm$core$List$indexedMap,
+													$author$project$Main$filterCardBlock(model),
+													model.items))
 											]),
 										header: A2(
 											$rundis$elm_bootstrap$Bootstrap$Accordion$header,
@@ -21386,8 +22554,9 @@ var $author$project$Main$view = function (model) {
 										options: _List_Nil
 									})
 								]),
-							$rundis$elm_bootstrap$Bootstrap$Accordion$withAnimation(
-								$rundis$elm_bootstrap$Bootstrap$Accordion$config($author$project$Main$AccMsg))))
+							$rundis$elm_bootstrap$Bootstrap$Accordion$onlyOneOpen(
+								$rundis$elm_bootstrap$Bootstrap$Accordion$withAnimation(
+									$rundis$elm_bootstrap$Bootstrap$Accordion$config($author$project$Main$AccMsg)))))
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -21396,7 +22565,7 @@ var $author$project$Main$view = function (model) {
 						A2($elm$html$Html$Attributes$style, 'vertical-align', 'bottom'),
 						A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
 						A2($elm$html$Html$Attributes$style, 'right', '0%'),
-						A2($elm$html$Html$Attributes$style, 'bottom', '0%'),
+						A2($elm$html$Html$Attributes$style, 'top', '56px'),
 						A2($elm$html$Html$Attributes$style, 'width', '400px'),
 						A2($elm$html$Html$Attributes$style, 'z-index', '3')
 					]),
