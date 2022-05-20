@@ -47,6 +47,8 @@ import qualified Data.GraphViz.Attributes as G1
 import Xtra.Language.Hole
 
 import Text.Regex ( mkRegex, subRegex )
+import Data.GraphViz.Attributes.Colors (WeightedColor(WC))
+import Data.GraphViz.Attributes.Complete (Attribute(Color))
 
 --------------- Xtrarun.hs
 
@@ -189,7 +191,8 @@ viewText x = printDotGraph $ graphToDot nonClusteredParams{globalAttributes = [G
                                 [ shape PlainText
                                 , toLabel "..."
                                 ]
-                          , fmtEdge = const []} x
+                            , fmtEdge = const []} x
+                          --, fmtEdge = const [G5.Color (G5.toColorList [G5.X11Color Gray])]} x
 
 
 viewGraph :: DagView a -> DotGraph G.Node

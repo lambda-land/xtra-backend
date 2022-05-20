@@ -107,5 +107,5 @@ type DotAPI = "trace" :> ReqBody '[JSON] XtraQuery :> Post '[JSON] Trace
 
 type InitAPI = "init" :> Get '[JSON] Info
 
-type DotStaticAPI = InitAPI :<|> DotAPI :<|> "files" :> Raw
+type DotStaticAPI = InitAPI :<|> DotAPI :<|> Raw
 

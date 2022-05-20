@@ -15860,7 +15860,7 @@ var $author$project$Ellipsis$shorten = F3(
 			var cutIndex = lastToken.a;
 			var cutAmount = ($elm$core$String$length(input) - budget) + 3;
 			var firstCut = A2($elm$core$Basics$max, cutIndex - cutAmount, 0);
-			return A3($elm$core$String$slice, 0, firstCut, input) + ('...' + A2($elm$core$String$dropLeft, cutIndex, input));
+			return A3($elm$core$String$slice, 0, firstCut, input) + (' …  ' + A2($elm$core$String$dropLeft, cutIndex, input));
 		}
 	});
 var $author$project$DotUtil$shortenLabelsHelper = F4(
@@ -16502,13 +16502,17 @@ var $author$project$Main$storageHandler = F3(
 							{error: 'Empty result', errorType: false}));
 				} else {
 					var v = value.a;
-					return A2(
-						$author$project$Main$update,
-						$author$project$Main$Run,
+					return _Utils_Tuple2(
 						A2(
 							$author$project$Main$loadSavedGraphToModel,
 							model,
-							$author$project$Main$decodeSavedGraphs(v)));
+							$author$project$Main$decodeSavedGraphs(v)),
+						$elm$core$Platform$Cmd$batch(
+							_List_fromArray(
+								[
+									$author$project$Main$run($author$project$Main$Run),
+									$author$project$Main$run($author$project$Main$CloseFilterAcc)
+								])));
 				}
 			case 'ListKeysResponse':
 				var label = response.a.label;
@@ -16610,7 +16614,7 @@ var $author$project$Main$update = F2(
 									$author$project$DotUtil$getRefList(dot)));
 							var newNodeLabels = $elm$core$List$reverse(
 								$author$project$DotUtil$getLabels(dot));
-							var maxLabelLength = 35;
+							var maxLabelLength = 50;
 							var matchTokens = _List_fromArray(
 								['=', '⇒', 'of', 'in', ';']);
 							var shortenedDot = A4($author$project$DotUtil$shortenLabels, dot, newNodeLabels, maxLabelLength, matchTokens);
@@ -16901,22 +16905,28 @@ var $author$project$Main$update = F2(
 								model,
 								{
 									dirty: true,
+									error: 'Saved as ' + name,
+									errorType: true,
 									saveName: '',
 									savedGraphKeys: A2($elm$core$List$cons, name, model.savedGraphKeys),
 									selectedSaveGraph: 0
 								});
-							return A2(
-								$Janiczek$cmd_extra$Cmd$Extra$withCmd,
-								A2(
-									$author$project$Main$send,
-									A2(
-										$billstclair$elm_localstorage$PortFunnel$LocalStorage$put,
-										name,
-										$elm$core$Maybe$Just(
-											$author$project$Main$savedGraphToJSON(
-												$author$project$Main$getCurrentGraph(model)))),
-									newModel),
-								newModel);
+							var cmds = $elm$core$Platform$Cmd$batch(
+								_List_fromArray(
+									[
+										A2(
+										$author$project$Main$send,
+										A2(
+											$billstclair$elm_localstorage$PortFunnel$LocalStorage$put,
+											name,
+											$elm$core$Maybe$Just(
+												$author$project$Main$savedGraphToJSON(
+													$author$project$Main$getCurrentGraph(model)))),
+										newModel),
+										$author$project$Main$run(
+										$author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown))
+									]));
+							return _Utils_Tuple2(newModel, cmds);
 						}
 					}
 				case 'Process':
@@ -17026,7 +17036,7 @@ var $author$project$Main$update = F2(
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{error: 'Link copied to Clipboard', errorType: false}),
+							{error: 'Link copied to Clipboard', errorType: true}),
 						$author$project$Main$run(
 							$author$project$Main$AlertMsg($rundis$elm_bootstrap$Bootstrap$Alert$shown)));
 				case 'ResizeView':
@@ -18441,7 +18451,7 @@ var $elm$html$Html$Attributes$hidden = $elm$html$Html$Attributes$boolProperty('h
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1 = $elm$html$Html$Attributes$class('m-1');
-var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col5 = {$: 'Col5'};
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col4 = {$: 'Col4'};
 var $rundis$elm_bootstrap$Bootstrap$General$Internal$MD = {$: 'MD'};
 var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColWidth = function (a) {
 	return {$: 'ColWidth', a: a};
@@ -18455,9 +18465,12 @@ var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$width = F2(
 		return $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColWidth(
 			A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$Width, size, count));
 	});
+var $rundis$elm_bootstrap$Bootstrap$Grid$Col$md4 = A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, $rundis$elm_bootstrap$Bootstrap$General$Internal$MD, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col4);
+var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col5 = {$: 'Col5'};
 var $rundis$elm_bootstrap$Bootstrap$Grid$Col$md5 = A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, $rundis$elm_bootstrap$Bootstrap$General$Internal$MD, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col5);
 var $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAuto = {$: 'ColAuto'};
 var $rundis$elm_bootstrap$Bootstrap$Grid$Col$mdAuto = A2($rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, $rundis$elm_bootstrap$Bootstrap$General$Internal$MD, $rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAuto);
+var $rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1 = $elm$html$Html$Attributes$class('ml-1');
 var $rundis$elm_bootstrap$Bootstrap$Button$onClick = function (message) {
 	return $rundis$elm_bootstrap$Bootstrap$Button$attrs(
 		_List_fromArray(
@@ -19344,7 +19357,7 @@ var $author$project$Main$filterView = F4(
 													[
 														$elm$html$Html$Attributes$id(idStr),
 														$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$m1,
-														A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+														A2($elm$html$Html$Attributes$style, 'cursor', 'grab')
 													]),
 												event))
 										]),
@@ -19414,7 +19427,8 @@ var $author$project$Main$filterView = F4(
 												$elm$json$Json$Decode$map,
 												$author$project$Main$SetFilter(item.id),
 												$elm_community$html_extra$Html$Events$Extra$targetValueIntParse)),
-											A2($elm$html$Html$Attributes$style, 'height', '35px')
+											A2($elm$html$Html$Attributes$style, 'height', '35px'),
+											A2($elm$html$Html$Attributes$style, 'width', '210px')
 										]),
 									A2(
 										$elm$core$List$map,
@@ -19438,7 +19452,9 @@ var $author$project$Main$filterView = F4(
 											$rundis$elm_bootstrap$Bootstrap$Button$small,
 											$rundis$elm_bootstrap$Bootstrap$Button$onClick(
 											$author$project$Main$RemoveFilter(item.id)),
-											$rundis$elm_bootstrap$Bootstrap$Button$attrs(_List_Nil)
+											$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+											_List_fromArray(
+												[$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml1]))
 										]),
 									_List_fromArray(
 										[
@@ -19456,7 +19472,7 @@ var $author$project$Main$filterView = F4(
 								A2(
 								$rundis$elm_bootstrap$Bootstrap$Grid$col,
 								_List_fromArray(
-									[$rundis$elm_bootstrap$Bootstrap$Grid$Col$md5]),
+									[$rundis$elm_bootstrap$Bootstrap$Grid$Col$md4]),
 								_List_Nil),
 								A2(
 								$rundis$elm_bootstrap$Bootstrap$Grid$col,
@@ -19469,6 +19485,7 @@ var $author$project$Main$filterView = F4(
 										_List_fromArray(
 											[
 												$elm$html$Html$Attributes$hidden(!showParam),
+												A2($elm$html$Html$Attributes$style, 'margin-left', '35px'),
 												$elm$html$Html$Attributes$placeholder('Filter parameter'),
 												$elm$html$Html$Attributes$value(item.param),
 												$elm$html$Html$Events$onInput(
@@ -19532,10 +19549,7 @@ var $author$project$Main$filterCardBlock = F3(
 							[
 								A2(
 								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										A2($elm$html$Html$Attributes$style, 'opacity', '0.8')
-									]),
+								_List_Nil,
 								_List_fromArray(
 									[
 										A4($author$project$Main$filterView, model, item, '', _List_Nil)
@@ -22614,7 +22628,7 @@ var $author$project$Main$view = function (model) {
 					])),
 				$author$project$Main$showContext(model)
 			]),
-		title: 'Xtra.run'
+		title: 'Tracr.app'
 	};
 };
 var $author$project$Main$main = $elm$browser$Browser$document(
