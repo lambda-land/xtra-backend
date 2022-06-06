@@ -10473,7 +10473,7 @@ var $elm$http$Http$post = function (r) {
 	return $elm$http$Http$request(
 		{dK: r.dK, dU: r.dU, fa: _List_Nil, hk: 'POST', h$: $elm$core$Maybe$Nothing, gw: $elm$core$Maybe$Nothing, aa: r.aa});
 };
-var $author$project$Main$xtraBackendURL = 'https://tracr.app/trace';
+var $author$project$Main$xtraBackendURL = 'https://wwww.tracr.app/trace';
 var $author$project$Main$getDotString = function (model) {
 	return $elm$http$Http$post(
 		{
@@ -10563,7 +10563,7 @@ var $author$project$CustomDecoders$shortenTokensDecoder = A2(
 	'shortenTokens',
 	$elm$json$Json$Decode$list($elm$json$Json$Decode$string));
 var $author$project$CustomDecoders$initDecoder = A6($elm$json$Json$Decode$map5, $author$project$UITypes$InitType, $author$project$CustomDecoders$actionsDecoder, $author$project$CustomDecoders$funcFormatDecoder, $author$project$CustomDecoders$filtersDecoder, $author$project$CustomDecoders$shortenTokensDecoder, $author$project$CustomDecoders$examplesDecoder);
-var $author$project$Main$xtraBackendURLInit = 'https://tracr.app/init';
+var $author$project$Main$xtraBackendURLInit = 'https://www.tracr.app/init';
 var $author$project$Main$getInitData = function (_v0) {
 	return $elm$http$Http$get(
 		{
