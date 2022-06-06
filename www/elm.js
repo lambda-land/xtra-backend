@@ -10473,7 +10473,7 @@ var $elm$http$Http$post = function (r) {
 	return $elm$http$Http$request(
 		{dK: r.dK, dU: r.dU, fa: _List_Nil, hk: 'POST', h$: $elm$core$Maybe$Nothing, gw: $elm$core$Maybe$Nothing, aa: r.aa});
 };
-var $author$project$Main$xtraBackendURL = 'https://wwww.tracr.app/trace';
+var $author$project$Main$xtraBackendURL = 'https://www.tracr.app/trace';
 var $author$project$Main$getDotString = function (model) {
 	return $elm$http$Http$post(
 		{
