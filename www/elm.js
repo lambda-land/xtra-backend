@@ -15411,7 +15411,7 @@ var $elm$http$Http$expectString = function (toMsg) {
 		toMsg,
 		$elm$http$Http$resolve($elm$core$Result$Ok));
 };
-var $author$project$Main$krokiURL = 'http://localhost:8001/graphviz/svg';
+var $author$project$Main$krokiURL = 'https://kroki.io/graphviz/svg';
 var $author$project$Main$getSvg = function (model) {
 	return $elm$http$Http$post(
 		{
