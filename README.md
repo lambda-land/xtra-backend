@@ -1,8 +1,7 @@
 # Tracr (xtra-backend)
 Backend Server/API for creating Xtra traces.
 
-![image](https://user-images.githubusercontent.com/43552143/134864031-8255b329-e9c0-4f20-a8df-92c05e14d2e0.png)
-
+![image](https://user-images.githubusercontent.com/43552143/182763741-0949ac6d-c446-41bf-8f5d-92230edf0a7e.png)
 
 ## Prereqs
 
@@ -38,11 +37,6 @@ hpack
 cd ..
 
 ```
-
-## Notes
-
-Please take note that Tracr relies directly on Xtra, and uses it as a git submodule. Xtra itself is not available publically at the time of writing. You must have access to the Xtra repository to be able to pull it in as a submodule in order to run this project.
-
 ## Running the Project
 
 ```
@@ -54,6 +48,18 @@ The port can be configured via command line argument, or from within the source.
 Once the server is running just navigate (or be routed) to port 8081 at the server address.
 
 If you are updating the frontend js file (by building your own from the frontend repo: xtra-ui), just replace elm.js in the ```\www``` folder. Do note that my own recent version already exists in this repo, and you do not need to build your own to get the project up and running.
+
+## Notes
+
+Please take note that Tracr relies directly on Xtra, and uses it as a git submodule. Xtra itself is not available publically at the time of writing. You must have access to the Xtra repository to be able to pull it in as a submodule in order to run this project.
+
+## Another Example Program
+
+Here is an additional example that is not included on the backend, and is a little less trivial. Hopefully this provides a better view of the syntax so that you can built your own programs.
+
+```
+let gt = \x -> \y -> y>x in let lt = \x -> \y -> x>y in let filter = \f -> \l -> case l of [] -> []; (x:xs) -> case f x of False -> filter f xs; True -> x:filter f xs;; in let concat = \l -> \r -> case l of [] -> r; (x:xs) -> x:concat xs r; in let quicksort = \list -> case list of [] -> list; (pivot:xs) -> concat (quicksort (filter (lt pivot) xs)) (pivot:quicksort (filter (gt pivot) xs)); in quicksort ([2, 4, 2, 1, 3])
+```
 
 ## Project Report
 
