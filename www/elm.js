@@ -10116,6 +10116,75 @@ var $author$project$Main$GotDot = function (a) {
 	return {$: 7, a: a};
 };
 var $elm_community$json_extra$Json$Decode$Extra$andMap = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$url$Url$addPort = F2(
+	function (maybePort, starter) {
+		if (maybePort.$ === 1) {
+			return starter;
+		} else {
+			var port_ = maybePort.a;
+			return starter + (':' + $elm$core$String$fromInt(port_));
+		}
+	});
+var $elm$url$Url$addPrefixed = F3(
+	function (prefix, maybeSegment, starter) {
+		if (maybeSegment.$ === 1) {
+			return starter;
+		} else {
+			var segment = maybeSegment.a;
+			return _Utils_ap(
+				starter,
+				_Utils_ap(prefix, segment));
+		}
+	});
+var $elm$url$Url$toString = function (url) {
+	var http = function () {
+		var _v0 = url.f1;
+		if (!_v0) {
+			return 'http://';
+		} else {
+			return 'https://';
+		}
+	}();
+	return A3(
+		$elm$url$Url$addPrefixed,
+		'#',
+		url.e3,
+		A3(
+			$elm$url$Url$addPrefixed,
+			'?',
+			url.hI,
+			_Utils_ap(
+				A2(
+					$elm$url$Url$addPort,
+					url.fV,
+					_Utils_ap(http, url.fb)),
+				url.fT)));
+};
+var $author$project$Main$baseUrl = function (model) {
+	var _v0 = model.aa;
+	if (_v0.$ === 1) {
+		return 'https://www.tracr.app/';
+	} else {
+		var a = _v0.a;
+		return A2(
+			$elm$core$Maybe$withDefault,
+			'',
+			$elm$core$List$head(
+				A2(
+					$elm$core$String$split,
+					'?',
+					$elm$url$Url$toString(a))));
+	}
+};
 var $elm$http$Http$BadStatus_ = F2(
 	function (a, b) {
 		return {$: 3, a: a, b: b};
@@ -10219,15 +10288,6 @@ var $elm$http$Http$expectJson = F2(
 						A2($elm$json$Json$Decode$decodeString, decoder, string));
 				}));
 	});
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $elm_community$list_extra$List$Extra$getAt = F2(
 	function (idx, xs) {
 		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
@@ -10473,7 +10533,7 @@ var $elm$http$Http$post = function (r) {
 	return $elm$http$Http$request(
 		{dK: r.dK, dU: r.dU, fa: _List_Nil, hk: 'POST', h$: $elm$core$Maybe$Nothing, gw: $elm$core$Maybe$Nothing, aa: r.aa});
 };
-var $author$project$Main$xtraBackendURL = 'https://www.tracr.app/trace';
+var $author$project$Main$xtraBackendURL = 'trace';
 var $author$project$Main$getDotString = function (model) {
 	return $elm$http$Http$post(
 		{
@@ -10502,7 +10562,9 @@ var $author$project$Main$getDotString = function (model) {
 						$elm_community$json_extra$Json$Decode$Extra$andMap,
 						A2($elm$json$Json$Decode$field, 'dot', $elm$json$Json$Decode$string),
 						$elm$json$Json$Decode$succeed($elm$core$Tuple$pair)))),
-			aa: $author$project$Main$xtraBackendURL
+			aa: _Utils_ap(
+				$author$project$Main$baseUrl(model),
+				$author$project$Main$xtraBackendURL)
 		});
 };
 var $author$project$Main$GotInit = function (a) {
@@ -10563,12 +10625,14 @@ var $author$project$CustomDecoders$shortenTokensDecoder = A2(
 	'shortenTokens',
 	$elm$json$Json$Decode$list($elm$json$Json$Decode$string));
 var $author$project$CustomDecoders$initDecoder = A6($elm$json$Json$Decode$map5, $author$project$UITypes$InitType, $author$project$CustomDecoders$actionsDecoder, $author$project$CustomDecoders$funcFormatDecoder, $author$project$CustomDecoders$filtersDecoder, $author$project$CustomDecoders$shortenTokensDecoder, $author$project$CustomDecoders$examplesDecoder);
-var $author$project$Main$xtraBackendURLInit = 'https://www.tracr.app/init';
-var $author$project$Main$getInitData = function (_v0) {
+var $author$project$Main$xtraBackendURLInit = 'init';
+var $author$project$Main$getInitData = function (model) {
 	return $elm$http$Http$get(
 		{
 			dU: A2($elm$http$Http$expectJson, $author$project$Main$GotInit, $author$project$CustomDecoders$initDecoder),
-			aa: $author$project$Main$xtraBackendURLInit
+			aa: _Utils_ap(
+				$author$project$Main$baseUrl(model),
+				$author$project$Main$xtraBackendURLInit)
 		});
 };
 var $brandly$elm_dot_lang$DotLang$Dot = F3(
@@ -20832,50 +20896,6 @@ var $rundis$elm_bootstrap$Bootstrap$Form$Input$input = F2(
 	});
 var $rundis$elm_bootstrap$Bootstrap$Form$Input$text = $rundis$elm_bootstrap$Bootstrap$Form$Input$input(0);
 var $elm$html$Html$textarea = _VirtualDom_node('textarea');
-var $elm$url$Url$addPort = F2(
-	function (maybePort, starter) {
-		if (maybePort.$ === 1) {
-			return starter;
-		} else {
-			var port_ = maybePort.a;
-			return starter + (':' + $elm$core$String$fromInt(port_));
-		}
-	});
-var $elm$url$Url$addPrefixed = F3(
-	function (prefix, maybeSegment, starter) {
-		if (maybeSegment.$ === 1) {
-			return starter;
-		} else {
-			var segment = maybeSegment.a;
-			return _Utils_ap(
-				starter,
-				_Utils_ap(prefix, segment));
-		}
-	});
-var $elm$url$Url$toString = function (url) {
-	var http = function () {
-		var _v0 = url.f1;
-		if (!_v0) {
-			return 'http://';
-		} else {
-			return 'https://';
-		}
-	}();
-	return A3(
-		$elm$url$Url$addPrefixed,
-		'#',
-		url.e3,
-		A3(
-			$elm$url$Url$addPrefixed,
-			'?',
-			url.hI,
-			_Utils_ap(
-				A2(
-					$elm$url$Url$addPort,
-					url.fV,
-					_Utils_ap(http, url.fb)),
-				url.fT)));
-};
 var $rundis$elm_bootstrap$Bootstrap$Accordion$Toggle = $elm$core$Basics$identity;
 var $rundis$elm_bootstrap$Bootstrap$Accordion$toggle = F2(
 	function (attributes, children) {
@@ -22057,23 +22077,7 @@ var $author$project$Main$view = function (model) {
 			0,
 			$author$project$Main$savedGraphToJSON(
 				$author$project$Main$getCurrentGraph(model))));
-	var baseUrl = function () {
-		var _v6 = model.aa;
-		if (_v6.$ === 1) {
-			return '';
-		} else {
-			var a = _v6.a;
-			return A2(
-				$elm$core$Maybe$withDefault,
-				'',
-				$elm$core$List$head(
-					A2(
-						$elm$core$String$split,
-						'?',
-						$elm$url$Url$toString(a))));
-		}
-	}();
-	var shareUrl = baseUrl + ('?' + shareB64);
+	var shareUrl = $author$project$Main$baseUrl(model) + ('?' + shareB64);
 	var _v0 = _Utils_Tuple2((model.dq.H / model.av) / 2, (model.dq.E / model.av) / 2);
 	var halfWidth = _v0.a;
 	var halfHeight = _v0.b;
@@ -22324,7 +22328,7 @@ var $author$project$Main$view = function (model) {
 								$rundis$elm_bootstrap$Bootstrap$Navbar$brand,
 								_List_fromArray(
 									[
-										$elm$html$Html$Attributes$href('/index.html'),
+										$elm$html$Html$Attributes$href('/'),
 										A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
 									]),
 								_List_fromArray(
